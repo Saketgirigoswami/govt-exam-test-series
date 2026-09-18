@@ -33,7 +33,7 @@
 
     .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    /* Clean Compact Inline Language Translator Widget */
+    /* Clean Compact Custom Language Selector Styling */
     #google_translate_element { transform: scale(0.85); transform-origin: right center; }
     .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 3px 6px !important; border-radius: 6px !important; font-size: 0.72rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
@@ -572,7 +572,7 @@
       </div>
 
       <div class="card">
-        <h3>Question Feed Form (Direct Cloud Sync)</h3>
+        <h3>Question Feed Form (Lightning Fast Sync)</h3>
         <form id="unifiedQForm" onsubmit="handleAdminQuestionSubmit(event)">
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:10px;">
             <div>
@@ -780,7 +780,12 @@
       let res = await fetch(QUESTIONS_API_URL + "?action=getQuestions");
       let data = await res.json();
       if(Array.isArray(data) && data.length > 0) {
-        questions = data;
+        questions = data.map(q => {
+          if(typeof q.options === 'string') {
+            try { q.options = JSON.parse(q.options); } catch(e) {}
+          }
+          return q;
+        });
       } else {
         questions = [
           {
@@ -1291,6 +1296,13 @@
     if(currentUser.role !== 'admin') return alert('Only admin can feed questions!');
 
     const type = document.getElementById('feedType').value;
+    let optionsObj = {
+      A: document.getElementById('feedA').value.trim(),
+      B: document.getElementById('feedB').value.trim(),
+      C: document.getElementById('feedC').value.trim(),
+      D: document.getElementById('feedD').value.trim()
+    };
+
     let newQ = {
       id: Date.now(),
       subject: document.getElementById('feedSub').value,
@@ -1299,12 +1311,7 @@
       exam: document.getElementById('feedExam').value.trim() || 'PYQ',
       type: type,
       expl: document.getElementById('feedExpl').value.trim(),
-      options: JSON.stringify({
-        A: document.getElementById('feedA').value.trim(),
-        B: document.getElementById('feedB').value.trim(),
-        C: document.getElementById('feedC').value.trim(),
-        D: document.getElementById('feedD').value.trim()
-      }),
+      options: optionsObj,
       ans: document.getElementById('feedAns').value
     };
 
@@ -1333,30 +1340,33 @@
           c4: parts[1] ? parts[1].trim() : ''
         };
       });
-      newQ.matchRows = JSON.stringify(rows);
+      newQ.matchRows = rows;
     } else {
       newQ.text = document.getElementById('feedText').value;
     }
 
-    let payload = { action: "saveQuestion", question: newQ };
+    // Optimistic UI Update: Instantly add to local array and show success
+    let qForSheet = { 
+      ...newQ, 
+      options: JSON.stringify(newQ.options), 
+      matchRows: newQ.matchRows ? JSON.stringify(newQ.matchRows) : "" 
+    };
+
+    questions.unshift(newQ);
+    alert('Question Saved Successfully! (Syncing with cloud...)');
+    document.getElementById('unifiedQForm').reset();
+    populateAllSubjectDropdowns();
+    buildFltSubjectInputs();
+
+    let payload = { action: "saveQuestion", question: qForSheet };
     try {
-      let res = await fetch(QUESTIONS_API_URL, {
+      await fetch(QUESTIONS_API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      let result = await res.json();
-      if(result.status === "success") {
-        alert('Question Saved Directly to Google Sheet successfully!');
-        document.getElementById('unifiedQForm').reset();
-        await fetchQuestionsFromCloud();
-        populateAllSubjectDropdowns();
-        buildFltSubjectInputs();
-      } else {
-        alert('Error saving question.');
-      }
     } catch(err) {
-      alert('Network error while saving to cloud.');
+      console.error("Background sync error:", err);
     }
   }
 
@@ -1437,7 +1447,7 @@
       optContainer.innerHTML += `
         <label class="test-opt">
           <input type="radio" name="testOpt" value="${k}" ${isChecked} onchange="userResponses[${currentQIdx}]='${k}'; renderExamPalette();">
-          <div class="test-opt-label"><strong>(${k})</strong> ${opts[k] || ''}</div>
+          <div class="test-opt-label"><strong>(${k})</strong> ${(opts && opts[k]) ? opts[k] : ''}</div>
         </label>
       `;
     });
@@ -1500,7 +1510,7 @@
       }
       optContainer.innerHTML += `
         <div class="test-opt ${extraClass}" onclick="handlePracticeClick('${k}')">
-          <div class="test-opt-label"><strong>(${k})</strong> ${opts[k] || ''}</div>
+          <div class="test-opt-label"><strong>(${k})</strong> ${(opts && opts[k]) ? opts[k] : ''}</div>
         </div>
       `;
     });
@@ -1571,7 +1581,7 @@
       }
       optContainer.innerHTML += `
         <div class="test-opt ${extraClass}" onclick="handleRevisionQuizClick('${k}')">
-          <div class="test-opt-label"><strong>(${k})</strong> ${opts[k] || ''}</div>
+          <div class="test-opt-label"><strong>(${k})</strong> ${(opts && opts[k]) ? opts[k] : ''}</div>
         </div>
       `;
     });
