@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -26,13 +26,15 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Noto Sans Devanagari', system-ui, sans-serif; }
     body { background: var(--bg); color: var(--text); padding-bottom: 50px; min-height: 100vh; background-image: radial-gradient(circle at 15% 15%, rgba(37,99,235,0.08) 0%, transparent 40%), radial-gradient(circle at 85% 85%, rgba(139,92,246,0.06) 0%, transparent 40%); }
     
-    header { background: rgba(7, 10, 18, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 10px; }
-    .brand { font-size: 0.92rem; font-weight: 700; color: #60a5fa; letter-spacing: 0.1px; white-space: nowrap; text-shadow: 0 0 10px rgba(96,165,250,0.3); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-    @media(min-width: 768px) { .brand { font-size: 1.25rem; } }
+    header { background: rgba(7, 10, 18, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
+    .brand { font-size: 0.8rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 10px rgba(96,165,250,0.3); flex: 1; min-width: 0; }
+    @media(min-width: 768px) { .brand { font-size: 1.15rem; } }
 
-    .header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 4px 8px !important; border-radius: 6px !important; font-size: 0.75rem !important; outline: none !important; cursor: pointer; }
+    /* Professional Inline Language Translator Widget Styling */
+    #google_translate_element { transform: scale(0.82); transform-origin: right center; }
+    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 3px 6px !important; border-radius: 6px !important; font-size: 0.7rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
     .goog-te-banner-frame { display: none !important; }
     body { top: 0 !important; }
@@ -426,7 +428,7 @@
           </div>
         </div>
 
-        <!-- Professional Warning Banner Added Here -->
+        <!-- Professional Warning Banner -->
         <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.88rem; color: #fca5a5; line-height: 1.5;">
           ⚠️ <strong>Important Note:</strong> Revision history saved in this section is tied to your current browser session. Logging out or clearing browser data may result in data loss. For the best experience and uninterrupted revision tracking, please use a trusted browser where you remain permanently signed in.
         </div>
@@ -716,7 +718,6 @@
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
-  // Google Sheet Web App URLs configured here
   const QUESTIONS_API_URL = "https://script.google.com/macros/s/AKfycbxj7dh25Ylxihrc6U_TYmk2eTuuJmc2oZUSuEdHEFnpZ-HfKGOjVLLaq67bkmiDKhf-/exec";
   const USERS_API_URL = "https://script.google.com/macros/s/AKfycbzuPQnDdlaeutLZvuQpqMMQDOjY-u_xH0e9CtOmmQKE-dV7IAuhqG0dDgXryO-VpdK_/exec";
 
@@ -728,7 +729,7 @@
   ];
 
   let subjects = JSON.parse(localStorage.getItem('cg_subs')) || defaultSubs;
-  let questions = []; // Will be fetched from Google Sheet live
+  let questions = [];
 
   let members = [];
   let testHistory = JSON.parse(localStorage.getItem('cg_history')) || [];
@@ -780,7 +781,6 @@
       if(Array.isArray(data) && data.length > 0) {
         questions = data;
       } else {
-        // Fallback default questions if sheet is empty
         questions = [
           {
             id: 101,
@@ -811,6 +811,49 @@
       }
     } catch(err) {
       console.error("Error fetching users:", err);
+    }
+  }
+
+  function togglePasswordVisibility(fieldId, iconEl) {
+    const field = document.getElementById(fieldId);
+    if (field.type === "password") {
+      field.type = "text";
+      iconEl.style.opacity = "1";
+    } else {
+      field.type = "password";
+      iconEl.style.opacity = "0.8";
+    }
+  }
+
+  function openForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'block';
+    document.getElementById('fpResult').innerHTML = '';
+    document.getElementById('fpName').value = '';
+    document.getElementById('fpDob').value = '';
+  }
+
+  function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+  }
+
+  function verifyAndRecoverAccount() {
+    const nameInput = document.getElementById('fpName').value.trim().toLowerCase();
+    const dobInput = document.getElementById('fpDob').value;
+    const resultEl = document.getElementById('fpResult');
+
+    if(!nameInput || !dobInput) {
+      resultEl.style.color = 'var(--danger)';
+      resultEl.innerText = 'Please enter both Name and Date of Birth.';
+      return;
+    }
+
+    const found = members.find(m => m.name && m.name.trim().toLowerCase() === nameInput && m.dob === dobInput);
+    if(found) {
+      resultEl.style.color = 'var(--success)';
+      resultEl.innerHTML = `Account Found!<br>Username: <b>@${found.username}</b><br>Password: <b>${found.pass}</b>`;
+    } else {
+      resultEl.style.color = 'var(--danger)';
+      resultEl.innerText = 'No matching account found with this Name and DOB.';
     }
   }
 
