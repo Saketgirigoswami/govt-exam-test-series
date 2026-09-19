@@ -256,6 +256,13 @@
         <p style="font-size: 0.78rem; color: var(--muted); text-align: center;">100% test completion par progress reset hogi aur Revision Count +1 ho jayega!</p>
       </div>
 
+      <!-- Shortcut Button: Try Free Mock Test -->
+      <div class="card" style="background: linear-gradient(135deg, #10b981, #059669); border: none; text-align: center; padding: 24px;">
+        <h3 style="color: #fff; margin-bottom: 8px;">🔥 Ready for Full Real Exam Test?</h3>
+        <p style="color: #ecfdf5; font-size: 0.9rem; margin-bottom: 16px;">Attempt a full mix of 100 questions from all subjects with unique randomized sequence every time!</p>
+        <button class="btn btn-warning" style="font-size: 1.05rem; padding: 12px 24px; font-weight: bold; background: #facc15; color: #000;" onclick="startFullFreeMockTest()">🚀 Try Free Mock Test (100 Marks)</button>
+      </div>
+
       <!-- Global Ranking Box (Top 10) -->
       <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.4);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
@@ -428,7 +435,7 @@
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="startPyqFilteredQuiz(false)">Start Quiz Practice</button>
-            <button class="btn btn-success" onclick="startPyqFilteredQuiz(true)">Start Timed Official Test (100M)</button>
+            <button class="btn btn-success" onclick="startPyqFilteredQuiz(true)">Start Timed Official Test</button>
           </div>
         </div>
       </div>
@@ -454,7 +461,6 @@
           <div>
             <span style="color:var(--muted); font-size:0.88rem;">Total Configured Questions: </span>
             <strong id="fltTotalSelectedCount" style="color:#60a5fa; font-size:1.15rem; margin-left:4px;">0</strong>
-            <span style="font-size:0.78rem; color:var(--muted); margin-left:8px;">(Scaled to 100M)</span>
           </div>
           <button class="btn btn-success" onclick="startCustomFLT()">Start Custom Test Now</button>
         </div>
@@ -527,7 +533,7 @@
       <div class="card" id="latest-scorecard" style="display:none;">
         <h3>Recent Test Scorecard</h3>
         <div class="stats-grid">
-          <div class="stat-card"><span>Final Scaled Marks</span><h4 id="resMarks" style="color:#60a5fa;">0</h4><span>/ 100</span></div>
+          <div class="stat-card"><span>Final Marks Scored</span><h4 id="resMarks" style="color:#60a5fa;">0</h4><span id="resTotalMarksSub">/ 100</span></div>
           <div class="stat-card"><span>Correct</span><h4 id="resCorrect" style="color:var(--success);">0</h4></div>
           <div class="stat-card"><span>Wrong (-1/4th)</span><h4 id="resWrong" style="color:var(--danger);">0</h4></div>
           <div class="stat-card"><span>Not Attempted</span><h4 id="resLeft" style="color:var(--muted);">0</h4></div>
@@ -1266,7 +1272,7 @@
     if(pool.length === 0) return alert('No questions found matching your filter criteria.');
 
     activeEngineMode = isOfficialTimed ? 'test' : 'practice';
-    activeQuestions = chosenSub === 'OFFICIAL_FULL' ? [...pool] : [...pool].sort(() => Math.random() - 0.5);
+    activeQuestions = chosenSub === 'OFFICIAL_FULL' ? [...pool].sort(() => Math.random() - 0.5) : [...pool].sort(() => Math.random() - 0.5);
     userResponses = {};
     currentQIdx = 0;
 
@@ -1344,16 +1350,35 @@
       const count = el ? parseInt(el.value || 0, 10) : 0;
       if(count > 0) {
         let subPool = questions.filter(q => q.subject === sub);
-        let unattemptedPool = subPool.filter(q => !attemptedQIds.includes(q.id)).sort(() => Math.random() - 0.5);
-        let alreadyAttemptedPool = subPool.filter(q => attemptedQIds.includes(q.id)).sort(() => Math.random() - 0.5);
-        selectedQuestions.push(...[...unattemptedPool, ...alreadyAttemptedPool].slice(0, count));
+        let shuffledSub = [...subPool].sort(() => Math.random() - 0.5);
+        selectedQuestions.push(...shuffledSub.slice(0, count));
       }
     });
 
     if(selectedQuestions.length === 0) return alert('Please select at least 1 question.');
 
     activeEngineMode = 'flt';
-    activeQuestions = selectedQuestions.sort(() => Math.random() - 0.5);
+    activeQuestions = selectedQuestions.sort(() => Math.random() - 0.5); // Random Sequence Shuffle
+    userResponses = {};
+    currentQIdx = 0;
+
+    document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
+    document.getElementById('tab-test').style.display = 'block';
+    document.getElementById('test-config-box').style.display = 'none';
+    document.getElementById('test-player').style.display = 'block';
+    renderTestView();
+  }
+
+  // --- SHORTCUT: TRY FREE MOCK TEST (FULL 100 MARKS MIXED FROM ALL SUBJECTS) ---
+  function startFullFreeMockTest() {
+    if(questions.length === 0) return alert('No questions available in database yet.');
+    
+    // Mix all questions from database and shuffle randomly for a unique experience every time
+    let shuffledPool = [...questions].sort(() => Math.random() - 0.5);
+    
+    // Take up to 100 questions for full mock test
+    activeQuestions = shuffledPool.slice(0, 100);
+    activeEngineMode = 'full_mock';
     userResponses = {};
     currentQIdx = 0;
 
@@ -1602,9 +1627,8 @@
 
     if(pool.length === 0) return alert('No questions available in this selection.');
 
-    let fresh = pool.filter(q => !attemptedQIds.includes(q.id)).sort(() => Math.random() - 0.5);
-    let past = pool.filter(q => attemptedQIds.includes(q.id)).sort(() => Math.random() - 0.5);
-    activeQuestions = [...fresh, ...past];
+    // RANDOM SHUFFLE FOR UNIQUE SEQUENCE EVERY TIME
+    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
 
     userResponses = {};
     currentQIdx = 0;
@@ -1773,7 +1797,7 @@
   function startRevisionQuizEngine(type) {
     let list = JSON.parse(localStorage.getItem(getUserKey(type === 'wrong' ? 'persistent_wrong' : 'persistent_unatt'))) || [];
     if(list.length === 0) return alert('No questions in this revision category!');
-    revQuizQuestions = [...list];
+    revQuizQuestions = [...list].sort(() => Math.random() - 0.5);
     revQuizResponses = {};
     revQuizIdx = 0;
     document.getElementById('rev-sub-wrong').style.display = 'none';
@@ -1866,26 +1890,38 @@
     localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(pWrong));
     localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(pUnatt));
 
-    const markPerQ = 100 / activeQuestions.length;
-    const penalty = markPerQ / 4;
-    let finalMarks = Math.max(0, (correct * markPerQ) - (wrong * penalty));
+    // --- 1 MARK PER QUESTION SCORING SYSTEM ---
+    const totalQCount = activeQuestions.length;
+    let finalMarks = Math.max(0, correct - (wrong * 0.25)); // 1 mark correct, -0.25 negative marking
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
-    let testSubjectName = activeEngineMode === 'flt' ? 'Custom Test' : (activeQuestions[0].subject || 'General Test');
+    // Determine Test Name dynamically (e.g. Full Mock Test 1, 2... or Subject Name)
+    let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
+    let userHistory = allHistories.filter(h => currentUser && h.username === currentUser.username);
+    
+    let testSubjectName = '';
+    if(activeEngineMode === 'full_mock') {
+      let mockCount = userHistory.filter(h => h.subject.startsWith('Full Mock Test')).length + 1;
+      testSubjectName = `Full Mock Test ${mockCount}`;
+    } else if(activeEngineMode === 'flt') {
+      testSubjectName = 'Custom FLT';
+    } else {
+      testSubjectName = activeQuestions[0].subject || 'General Test';
+    }
 
     lastAttemptSummary = {
       marks: finalMarks.toFixed(2),
+      totalMarks: totalQCount,
       correct, wrong, unattempted,
       accuracy: accuracy + '%',
       wrongQs, correctQs, unattemptedQs,
       subject: testSubjectName
     };
 
-    let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
     allHistories.push({
       username: currentUser.username, studentName: currentUser.name,
       subject: testSubjectName, correct, wrong, unattempted,
-      marks: parseFloat(finalMarks.toFixed(2)), accuracy: accuracy + '%', date: new Date().toLocaleDateString()
+      marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
     });
     localStorage.setItem('cg_history', JSON.stringify(allHistories));
 
@@ -1932,6 +1968,7 @@
     if(!lastAttemptSummary) return;
     document.getElementById('latest-scorecard').style.display = 'block';
     document.getElementById('resMarks').innerText = lastAttemptSummary.marks;
+    document.getElementById('resTotalMarksSub').innerText = `/ ${lastAttemptSummary.totalMarks}`;
     document.getElementById('resCorrect').innerText = lastAttemptSummary.correct;
     document.getElementById('resWrong').innerText = lastAttemptSummary.wrong;
     document.getElementById('resLeft').innerText = lastAttemptSummary.unattempted;
@@ -2027,18 +2064,18 @@
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
         <td style="padding:10px; border:1px solid var(--border);">${h.subject}</td>
-        <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#60a5fa;">${h.marks} / 100</td>
+        <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#60a5fa;">${h.marks} / ${h.totalMarks || 100}</td>
         <td style="padding:10px; border:1px solid var(--border); text-align:center; color:var(--success);">${h.correct}</td>
         <td style="padding:10px; border:1px solid var(--border); text-align:center; color:var(--danger);">${h.wrong}</td>
       </tr>`).join('');
   }
 
-  // --- UPDATED RADAR ANALYSIS: ALL SUBJECTS SHOWN WITH 🔥, 😰, & 😴 AT THE END POINT ---
+  // --- RADAR ANALYSIS WITH 🔥, 😰, 😴 AT EXACT END POINTS ---
   function renderRadarAnalytics() {
     const radarBox = document.getElementById('subject-radar-container');
     if(!radarBox) return;
 
-    syncDynamicSubjects(); // Saare available/dynamic subjects uthao
+    syncDynamicSubjects(); 
     let userSubProgress = currentUser && currentUser.subject_progress ? currentUser.subject_progress : {};
 
     if(subjects.length === 0) {
@@ -2056,7 +2093,6 @@
         subPercent = Math.min(100, Math.round((userCorrect / totalDbSubQ) * 100));
       }
 
-      // Emojis Logic: 🔥 for >=80%, 😰 for <50% (if attempted), 😴 for 0% (Ignored)
       let emojiTag = "";
       if (subPercent >= 80 && userCorrect > 0) {
         emojiTag = "🔥";
@@ -2066,7 +2102,6 @@
         emojiTag = "😴";
       }
 
-      // Position fix for 0% so it stays neatly at the beginning/end point of 0% line
       let emojiLeft = subPercent === 0 ? '12px' : `${subPercent}%`;
       let emojiTransform = subPercent === 0 ? 'translateY(-50%)' : 'translate(-50%, -50%)';
 
@@ -2079,10 +2114,7 @@
             </span>
           </div>
           <div style="position: relative; background:#070a12; height:12px; border-radius:6px; overflow:visible; border:1px solid var(--border);">
-            <!-- Progress Fill Bar -->
             <div style="background:${subPercent >= 80 ? 'linear-gradient(90deg, #3b82f6, #4ade80)' : (subPercent < 50 && userCorrect > 0 ? '#ef4444' : '#3b82f6')}; width:${subPercent}%; height:100%; border-radius:6px; transition: width 0.5s;"></div>
-            
-            <!-- Floating Emoji at the Exact End Point of the Line -->
             <span style="position: absolute; left: ${emojiLeft}; top: 50%; transform: ${emojiTransform}; font-size: 0.85rem; filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));">${emojiTag}</span>
           </div>
         </div>
