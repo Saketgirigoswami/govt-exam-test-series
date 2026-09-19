@@ -899,7 +899,6 @@
       let data = await res.json();
       if(Array.isArray(data)) {
         members = data;
-        // Current user object ko bhi cloud ke latest data se sync kar lo taaki subject progress mil sake
         if(currentUser) {
           let updatedMe = members.find(m => m.username === currentUser.username);
           if(updatedMe) {
@@ -1838,7 +1837,6 @@
     let correct = 0, wrong = 0, unattempted = 0;
     let wrongQs = [], correctQs = [], unattemptedQs = [];
 
-    // Track subject-wise correct answers in this test run
     let testSubMap = {};
 
     let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
@@ -1891,7 +1889,6 @@
     });
     localStorage.setItem('cg_history', JSON.stringify(allHistories));
 
-    // Send progress and subject radar breakdown to Google Sheet
     updateUserProgressToCloud(correct, testSubMap);
 
     document.getElementById('test-player').style.display = 'none';
@@ -1903,7 +1900,6 @@
     if(!currentUser) return;
     const totalDbTestQuestions = questions.length > 0 ? questions.length : 100;
     
-    // Default primary subject for this test batch
     let primarySub = Object.keys(testSubMap)[0] || "General";
     let subCorrect = testSubMap[primarySub] ? testSubMap[primarySub].correct : newCorrectCount;
     let subTotalQ = questions.filter(q => q.subject === primarySub).length || 1;
@@ -1925,8 +1921,6 @@
       });
       let result = await res.json();
       if(result.status === "success") {
-        console.log("Progress & Radar synced to cloud successfully!");
-        // Refresh local user profile data from cloud response/fetch
         fetchUsersFromCloud();
       }
     } catch(err) {
@@ -2039,13 +2033,12 @@
       </tr>`).join('');
   }
 
-  // --- RENDER SUBJECT-WISE RADAR STRENGTH ANALYSIS WITH FLUCTUATION, 🔥 & 😰 ---
+  // --- UPDATED RADAR ANALYSIS: ALL SUBJECTS SHOWN WITH 🔥, 😰, & 😴 AT THE END POINT ---
   function renderRadarAnalytics() {
     const radarBox = document.getElementById('subject-radar-container');
     if(!radarBox) return;
 
-    syncDynamicSubjects(); // Saare live subjects uthao (naye add hue subjects bhi sath mein aayenge)
-    
+    syncDynamicSubjects(); // Saare available/dynamic subjects uthao
     let userSubProgress = currentUser && currentUser.subject_progress ? currentUser.subject_progress : {};
 
     if(subjects.length === 0) {
@@ -2054,39 +2047,43 @@
     }
 
     radarBox.innerHTML = subjects.map(sub => {
-      // Live database mein is subject ke total kitne questions hain
       let totalDbSubQ = questions.filter(q => q.subject === sub).length;
-      
-      // User ke is subject mein kitne correct hue
       let subData = userSubProgress[sub] || { correct: 0 };
       let userCorrect = subData.correct || 0;
 
-      // Dynamic Percentage calculation (Database questions badhne par percentage automatically fluctuate hoga)
       let subPercent = 0;
       if (totalDbSubQ > 0) {
         subPercent = Math.min(100, Math.round((userCorrect / totalDbSubQ) * 100));
       }
 
-      // Status Emojis Logic: >80% par 🔥, <50% par 😰 (agar kuch attempt kiya ho ya 0% par ignored)
-      let emoji = "";
+      // Emojis Logic: 🔥 for >=80%, 😰 for <50% (if attempted), 😴 for 0% (Ignored)
+      let emojiTag = "";
       if (subPercent >= 80 && userCorrect > 0) {
-        emoji = " 🔥 (Strong)";
+        emojiTag = "🔥";
       } else if (subPercent < 50 && userCorrect > 0) {
-        emoji = " 😰 (Weak)";
-      } else if (userCorrect === 0) {
-        emoji = " (Ignored / Unseen)";
+        emojiTag = "😰";
+      } else if (subPercent === 0 || userCorrect === 0) {
+        emojiTag = "😴";
       }
 
+      // Position fix for 0% so it stays neatly at the beginning/end point of 0% line
+      let emojiLeft = subPercent === 0 ? '12px' : `${subPercent}%`;
+      let emojiTransform = subPercent === 0 ? 'translateY(-50%)' : 'translate(-50%, -50%)';
+
       return `
-        <div style="margin-bottom:14px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:4px; font-weight:600;">
+        <div style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:5px; font-weight:600;">
             <span>${sub}</span>
             <span style="color:${subPercent >= 80 ? '#4ade80' : (subPercent < 50 && userCorrect > 0 ? '#f87171' : '#38bdf8')}">
-              ${subPercent}% ${emoji}
+              ${subPercent}%
             </span>
           </div>
-          <div style="background:#070a12; height:10px; border-radius:5px; overflow:hidden; border:1px solid var(--border);">
-            <div style="background:${subPercent >= 80 ? 'linear-gradient(90deg, #3b82f6, #4ade80)' : (subPercent < 50 && userCorrect > 0 ? '#ef4444' : '#3b82f6')}; width:${subPercent}%; height:100%; transition: width 0.5s;"></div>
+          <div style="position: relative; background:#070a12; height:12px; border-radius:6px; overflow:visible; border:1px solid var(--border);">
+            <!-- Progress Fill Bar -->
+            <div style="background:${subPercent >= 80 ? 'linear-gradient(90deg, #3b82f6, #4ade80)' : (subPercent < 50 && userCorrect > 0 ? '#ef4444' : '#3b82f6')}; width:${subPercent}%; height:100%; border-radius:6px; transition: width 0.5s;"></div>
+            
+            <!-- Floating Emoji at the Exact End Point of the Line -->
+            <span style="position: absolute; left: ${emojiLeft}; top: 50%; transform: ${emojiTransform}; font-size: 0.85rem; filter: drop-shadow(0 0 2px rgba(0,0,0,0.8));">${emojiTag}</span>
           </div>
         </div>
       `;
@@ -2102,7 +2099,7 @@
       let usersData = await res.json();
       
       if(Array.isArray(usersData) && usersData.length > 0) {
-        members = usersData; // Global members update kar lo
+        members = usersData;
         
         usersData.sort((a, b) => {
           let scoreA = parseFloat(a.combined_score || 0);
@@ -2123,7 +2120,7 @@
           let myIndex = usersData.findIndex(u => u.username === currentUser.username);
           if(myIndex !== -1) {
             let myData = usersData[myIndex];
-            currentUser = { ...currentUser, ...myData }; // Sync latest data
+            currentUser = { ...currentUser, ...myData };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
             document.getElementById('myRankVal').innerText = `#${myIndex + 1}`;
