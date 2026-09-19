@@ -227,7 +227,7 @@
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
     </div>
 
-    <!-- 0. DASHBOARD HOME OVERVIEW (UPDATED WITH GAME-LIKE PROGRESS, REVISION & RANKING) -->
+    <!-- 0. DASHBOARD HOME OVERVIEW -->
     <div id="tab-home" class="tab-view">
       <div class="card" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%); border: none; box-shadow: 0 10px 30px rgba(37,99,235,0.4);">
         <h2 id="homeWelcomeGreeting" style="color:#ffffff; font-size:1.6rem; margin-bottom:6px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">India's Structured Online Test Series Platform</h2>
@@ -1111,7 +1111,6 @@
     const randomTip = eduTips[Math.floor(Math.random() * eduTips.length)];
     document.getElementById('educationalTipText').innerText = randomTip;
 
-    // Fetch live user progress and leaderboard sync
     syncOnlineLeaderboard();
   }
 
@@ -1858,23 +1857,25 @@
     let finalMarks = Math.max(0, (correct * markPerQ) - (wrong * penalty));
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
+    // FIX: Using actual question subject instead of exam tag for radar analysis and history log
+    let testSubjectName = activeEngineMode === 'flt' ? 'Custom Test' : (activeQuestions[0].subject || 'General Test');
+
     lastAttemptSummary = {
       marks: finalMarks.toFixed(2),
       correct, wrong, unattempted,
       accuracy: accuracy + '%',
       wrongQs, correctQs, unattemptedQs,
-      subject: activeEngineMode === 'flt' ? 'Custom Test' : (activeQuestions[0].exam || activeQuestions[0].subject)
+      subject: testSubjectName
     };
 
     let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
     allHistories.push({
       username: currentUser.username, studentName: currentUser.name,
-      subject: lastAttemptSummary.subject, correct, wrong, unattempted,
+      subject: testSubjectName, correct, wrong, unattempted,
       marks: parseFloat(finalMarks.toFixed(2)), accuracy: accuracy + '%', date: new Date().toLocaleDateString()
     });
     localStorage.setItem('cg_history', JSON.stringify(allHistories));
 
-    // --- GAME-LIKE PROGRESS & REVISION UPDATE TO GOOGLE SHEET VIA APPS SCRIPT ---
     updateUserProgressToCloud(correct);
 
     document.getElementById('test-player').style.display = 'none';
@@ -2031,7 +2032,6 @@
     }).join('');
   }
 
-  // --- SYNC LEADERBOARD & RENDER TOP 10 + USER STANDING ---
   async function syncOnlineLeaderboard() {
     const tbody = document.getElementById('topTenLeaderboardBody');
     if (!tbody) return;
@@ -2041,14 +2041,12 @@
       let usersData = await res.json();
       
       if(Array.isArray(usersData) && usersData.length > 0) {
-        // Sort by Combined Score (Overall % + Revisions) descending
         usersData.sort((a, b) => {
           let scoreA = parseFloat(a.combined_score || 0);
           let scoreB = parseFloat(b.combined_score || 0);
           return scoreB - scoreA;
         });
 
-        // Top 10 Leaderboard Table
         let top10 = usersData.slice(0, 10);
         tbody.innerHTML = top10.map((u, idx) => `
           <tr>
@@ -2058,7 +2056,6 @@
             <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#facc15; font-weight:bold;">${u.revision_count || 0}</td>
           </tr>`).join('');
 
-        // Find Current Logged-in User Standing
         if(currentUser) {
           let myIndex = usersData.findIndex(u => u.username === currentUser.username);
           if(myIndex !== -1) {
@@ -2067,7 +2064,6 @@
             document.getElementById('myPercentVal').innerText = `${myData.current_percentage || 0}%`;
             document.getElementById('myRevisionVal').innerText = myData.revision_count || 0;
 
-            // Update Header/Summary percentage display as well
             document.getElementById('currentPercentageVal').innerText = `${myData.current_percentage || 0}%`;
             document.getElementById('revisionCountVal').innerText = myData.revision_count || 0;
             document.getElementById('dynamicProgressBar').style.width = `${myData.current_percentage || 0}%`;
