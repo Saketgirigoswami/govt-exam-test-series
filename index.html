@@ -786,7 +786,7 @@
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
-  const QUESTIONS_API_URL = "https://script.google.com/macros/s/AKfycbxj7dh25Ylxihrc6U_TYmk2eTuuJmc2oZUSuEdHEFnpZ-HfKGOjVLLaq67bkmiDKhf-/exec";
+  const QUESTIONS_API_URL = "https://script.google.com/macros/s/AKfycbx7QhvQi1_Am1I6nRT9mH9dPdU1q3pTN9-nvM0Cg9flFxQrtFHOd4OCI9gcjNenKI8C/exec";
   const USERS_API_URL = "https://script.google.com/macros/s/AKfycbzuPQnDdlaeutLZvuQpqMMQDOjY-u_xH0e9CtOmmQKE-dV7IAuhqG0dDgXryO-VpdK_/exec";
 
   let defaultSubs = [
@@ -828,7 +828,6 @@
   ];
 
   async function init() {
-    // Instant UI render based on saved session to avoid flicker
     if (currentUser) {
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('portal-screen').style.display = 'block';
@@ -858,26 +857,16 @@
           if(typeof q.options === 'string') {
             try { q.options = JSON.parse(q.options); } catch(e) {}
           }
+          if(!q.options || typeof q.options !== 'object') {
+            q.options = { A: q.optionA || "", B: q.optionB || "", C: q.optionC || "", D: q.optionD || "" };
+          }
           if(typeof q.matchRows === 'string') {
             try { q.matchRows = JSON.parse(q.matchRows); } catch(e) {}
           }
           return q;
         });
       } else {
-        questions = [
-          {
-            id: 101,
-            subject: "Indian History",
-            topic: "Mauryan Empire",
-            subtopic: "Mauryan Administration",
-            exam: "CGPSC Pre 2021",
-            type: "standard",
-            text: "मौर्य प्रशासन के संदर्भ में 'समाहर्ता' (Samaharta) नामक अधिकारी का मुख्य कार्य क्या था?",
-            options: { A: "राजस्व संग्रह (Revenue Collection)", B: "सैन्य कमान (Military Command)", C: "न्यायाधीश (Judiciary)", D: "गुप्तचर प्रमुख (Intelligence)" },
-            ans: "A",
-            expl: "मौर्य काल में 'समाहर्ता' का मुख्य कार्य राजस्व एकत्रित करना और आय-व्यय का ब्यौरा रखना होता था."
-          }
-        ];
+        questions = [];
       }
     } catch(err) {
       console.error("Error fetching questions:", err);
@@ -1472,6 +1461,9 @@
 
     let opts = q.options;
     if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
+    if(!opts || typeof opts !== 'object') {
+      opts = { A: q.optionA || '', B: q.optionB || '', C: q.optionC || '', D: q.optionD || '' };
+    }
     document.getElementById('editA').value = opts?.A || '';
     document.getElementById('editB').value = opts?.B || '';
     document.getElementById('editC').value = opts?.C || '';
@@ -1655,6 +1647,9 @@
 
     let opts = q.options;
     if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
+    if(!opts || typeof opts !== 'object') {
+      opts = { A: q.optionA || '', B: q.optionB || '', C: q.optionC || '', D: q.optionD || '' };
+    }
 
     const optContainer = document.getElementById('t-opts');
     optContainer.innerHTML = '';
@@ -1718,6 +1713,9 @@
 
     let opts = q.options;
     if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
+    if(!opts || typeof opts !== 'object') {
+      opts = { A: q.optionA || '', B: q.optionB || '', C: q.optionC || '', D: q.optionD || '' };
+    }
 
     const optContainer = document.getElementById('p-opts');
     const explBox = document.getElementById('p-expl');
@@ -1794,6 +1792,9 @@
 
     let opts = q.options;
     if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
+    if(!opts || typeof opts !== 'object') {
+      opts = { A: q.optionA || '', B: q.optionB || '', C: q.optionC || '', D: q.optionD || '' };
+    }
 
     const chosen = revQuizResponses[revQuizIdx];
     ['A', 'B', 'C', 'D'].forEach(k => {
