@@ -62,11 +62,13 @@
     .nav-btn:hover { border-color: var(--primary); color: #fff; }
     .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: var(--glow-blue); }
     
-    .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; display: flex; justify-content: space-around; align-items: center; padding: 10px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    /* Neon Glow Floating Bottom Navigation */
+    .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; display: flex; justify-content: space-around; align-items: center; padding: 8px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
     @media(min-width: 768px) { .floating-bottom-nav { display: none; } }
-    .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 1; }
-    .f-nav-item span { font-size: 1.2rem; }
-    .f-nav-item:hover, .f-nav-item.active { color: #60a5fa; text-shadow: 0 0 10px rgba(96,165,250,0.5); }
+    .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 1; }
+    .f-nav-icon-badge { width: 36px; height: 36px; background: rgba(30, 41, 59, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid var(--border); transition: 0.2s; }
+    .f-nav-item:hover .f-nav-icon-badge, .f-nav-item.active .f-nav-icon-badge { background: rgba(59, 130, 246, 0.2); border-color: var(--primary); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); color: #38bdf8; }
+    .f-nav-item.active { color: #60a5fa; }
 
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
@@ -279,13 +281,23 @@
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
     </div>
 
-    <!-- Floating Bottom Navigation Bar for Mobile -->
+    <!-- Neon Glow Floating Bottom Navigation Bar for Mobile -->
     <div class="floating-bottom-nav">
-      <button class="f-nav-item active" id="fNavHome" onclick="navigate('tab-home')"><span>🏠</span>Home</button>
-      <button class="f-nav-item" id="fNavTest" onclick="navigate('tab-test')"><span>📝</span>Tests</button>
-      <button class="f-nav-item" id="fNavPrac" onclick="navigate('tab-practice')"><span>⚡</span>Quiz</button>
-      <button class="f-nav-item" id="fNavRev" onclick="navigate('tab-revision')"><span>🔄</span>Revise</button>
-      <button class="f-nav-item" id="fNavRes" onclick="navigate('tab-results')"><span>📊</span>Results</button>
+      <button class="f-nav-item active" id="fNavHome" onclick="navigate('tab-home')">
+        <div class="f-nav-icon-badge">🏠</div>Home
+      </button>
+      <button class="f-nav-item" id="fNavTest" onclick="navigate('tab-test')">
+        <div class="f-nav-icon-badge">📝</div>Tests
+      </button>
+      <button class="f-nav-item" id="fNavPrac" onclick="navigate('tab-practice')">
+        <div class="f-nav-icon-badge">⚡</div>Quiz
+      </button>
+      <button class="f-nav-item" id="fNavRev" onclick="navigate('tab-revision')">
+        <div class="f-nav-icon-badge">🔄</div>Revise
+      </button>
+      <button class="f-nav-item" id="fNavRes" onclick="navigate('tab-results')">
+        <div class="f-nav-icon-badge">📊</div>Results
+      </button>
     </div>
 
     <!-- 0. DASHBOARD HOME OVERVIEW -->
@@ -345,28 +357,34 @@
         </div>
       </div>
 
-      <!-- Responsive Carousel / Side-by-side action wrapper -->
+      <!-- Responsive Carousel / Side-by-side action wrapper with Neon Icons -->
       <div class="dashboard-action-wrapper">
         <div class="dashboard-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(16,185,129,0.85), rgba(5,150,105,0.85)); border: none; text-align: center; padding: 22px; margin-bottom: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.9), rgba(13,17,28,0.95)); border: 1px solid rgba(16,185,129,0.3); text-align: center; padding: 22px; margin-bottom: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <h3 style="color: #fff; margin-bottom: 6px; font-size: 1.2rem;">🔥 Full Mock Test</h3>
-              <p style="color: #ecfdf5; font-size: 0.85rem; margin-bottom: 14px;">100 questions from all subjects with randomized sequence!</p>
+              <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);">
+                <span style="font-size: 1.5rem;">🔥</span>
+              </div>
+              <h3 style="color: #fff; margin-bottom: 6px; font-size: 1.2rem;">Full Mock Test</h3>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">100 questions from all subjects with randomized sequence!</p>
             </div>
             <div>
-              <button class="btn btn-warning" style="font-size: 0.95rem; padding: 10px 18px; font-weight: bold; background: #facc15; color: #000; width: 100%; justify-content: center;" onclick="startFullFreeMockTest()">🚀 Try Free Mock Test</button>
+              <button class="btn btn-warning" style="font-size: 0.95rem; padding: 10px 18px; font-weight: bold; background: #facc15; color: #000; width: 100%; justify-content: center;" onclick="startFullFreeMockTest()">🚀 Start Test</button>
             </div>
           </div>
         </div>
 
         <div class="dashboard-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(37,99,235,0.85)); border: none; text-align: center; padding: 22px; margin-bottom: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.9), rgba(13,17,28,0.95)); border: 1px solid rgba(59,130,246,0.3); text-align: center; padding: 22px; margin-bottom: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <h3 style="color: #fff; margin-bottom: 6px; font-size: 1.2rem;">📑 Custom FLT Builder</h3>
-              <p style="color: #eff6ff; font-size: 0.85rem; margin-bottom: 14px;">customize Full Length Test With number of questions per subjects in your syllabus.</p>
+              <div style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);">
+                <span style="font-size: 1.5rem;">📑</span>
+              </div>
+              <h3 style="color: #fff; margin-bottom: 6px; font-size: 1.2rem;">Custom FLT</h3>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">customize Full Length Test With number of questions per subjects in your syllabus.</p>
             </div>
             <div>
-              <button class="btn btn-success" style="font-size: 0.95rem; padding: 10px 18px; font-weight: bold; background: #10b981; color: #fff; width: 100%; justify-content: center;" onclick="navigate('tab-flt')">⚙️ Build Custom FLT</button>
+              <button class="btn btn-success" style="font-size: 0.95rem; padding: 10px 18px; font-weight: bold; background: #10b981; color: #fff; width: 100%; justify-content: center;" onclick="navigate('tab-flt')">⚙️ Build FLT</button>
             </div>
           </div>
         </div>
