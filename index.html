@@ -871,7 +871,35 @@
     populatePyqFilterOptions();
     buildFltSubjectInputs();
     syncOnlineLeaderboard();
+
+    // BACKGROUND POLLING AUTO-SYNC EVERY 8 SECONDS
+    setInterval(async () => {
+      if (currentUser && document.visibilityState === "visible") {
+        await fetchUsersFromCloud(true); // Silent sync without breaking UI
+      }
+    }, 8000);
   }
+
+  // AUTO-SYNC ON TAB FOCUS
+  document.addEventListener("visibilitychange", async function() {
+    if (document.visibilityState === "visible" && currentUser) {
+      await fetchUsersFromCloud();
+      syncOnlineLeaderboard();
+      if(document.getElementById('tab-results').style.display === 'block') {
+        renderRadarAnalytics();
+      }
+    }
+  });
+
+  window.addEventListener("focus", async function() {
+    if (currentUser) {
+      await fetchUsersFromCloud();
+      syncOnlineLeaderboard();
+      if(document.getElementById('tab-results').style.display === 'block') {
+        renderRadarAnalytics();
+      }
+    }
+  });
 
   async function fetchQuestionsFromCloud() {
     try {
@@ -886,7 +914,7 @@
             q.options = { A: q.optionA || "", B: q.optionB || "", C: q.optionC || "", D: q.optionD || "" };
           }
           if(typeof q.matchRows === 'string') {
-            try { q.matchRows = JSON.parse(q.matchRows); } catch(e) {}
+            try { q.matchRows = JSON.parse(q.matchRows); } catch(e){}
           }
           return q;
         });
@@ -899,7 +927,7 @@
     }
   }
 
-  async function fetchUsersFromCloud() {
+  async function fetchUsersFromCloud(isSilent = false) {
     try {
       let res = await fetch(USERS_API_URL + "?action=getUsers");
       let data = await res.json();
@@ -914,6 +942,27 @@
               subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {})
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+            
+            // If active tab is results or home, auto-refresh components smoothly
+            if(!isSilent) {
+              syncOnlineLeaderboard();
+              if(document.getElementById('tab-results').style.display === 'block') {
+                renderRadarAnalytics();
+              }
+            } else {
+              // Even in silent mode, if user is looking at results or dashboard, update values dynamically
+              if(document.getElementById('tab-results').style.display === 'block') {
+                renderRadarAnalytics();
+              }
+              let rankEl = document.getElementById('myPercentVal');
+              if(rankEl && currentUser.current_percentage !== undefined) {
+                document.getElementById('currentPercentageVal').innerText = `${currentUser.current_percentage}%`;
+                document.getElementById('revisionCountVal').innerText = currentUser.revision_count || 0;
+                document.getElementById('dynamicProgressBar').style.width = `${currentUser.current_percentage}%`;
+                document.getElementById('myPercentVal').innerText = `${currentUser.current_percentage}%`;
+                document.getElementById('myRevisionVal').innerText = currentUser.revision_count || 0;
+              }
+            }
           }
         }
       }
@@ -1101,6 +1150,8 @@
 
     const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
     if(btn) btn.classList.add('active');
+
+    fetchUsersFromCloud();
 
     if(tabId === 'tab-home') renderHomeDashboard();
     if(tabId === 'tab-test') {
@@ -1928,6 +1979,14 @@
     });
     localStorage.setItem('cg_history', JSON.stringify(allHistories));
 
+    // --- OPTIMISTIC UI UPDATE (INSTANT LOCAL REFLECT BEFORE CLOUD RESPONSE) ---
+    if(!currentUser.subject_progress) currentUser.subject_progress = {};
+    for(let sub in testSubMap) {
+      if(!currentUser.subject_progress[sub]) currentUser.subject_progress[sub] = { correct: 0 };
+      currentUser.subject_progress[sub].correct += testSubMap[sub].correct;
+    }
+    localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+
     updateUserProgressToCloud(correct, testSubMap);
 
     document.getElementById('test-player').style.display = 'none';
@@ -1964,7 +2023,7 @@
           currentUser.revision_count = result.revisions;
         }
         localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-        fetchUsersFromCloud();
+        renderRadarAnalytics();
       }
     } catch(err) {
       console.error("Cloud progress sync error:", err);
