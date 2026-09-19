@@ -137,7 +137,7 @@
 <div class="container">
 
   <!-- AUTH SCREEN -->
-  <div id="auth-screen">
+  <div id="auth-screen" style="display:none;">
     <div class="card" style="max-width: 420px; margin: 50px auto;">
       <div style="display:flex; border-bottom: 1px solid var(--border); margin-bottom: 18px;">
         <button class="nav-btn active" id="tabBtnMember" style="flex:1; border-radius:0; border:none; background:transparent;" onclick="switchAuthTab('member')">Student Login</button>
@@ -692,9 +692,47 @@
           <input type="text" id="editExam">
         </div>
       </div>
+      
+      <div style="margin: 10px 0;">
+        <label>Question Type</label>
+        <select id="editType" onchange="toggleQTypeFields(this.value, 'edit')">
+          <option value="standard">Standard MCQ</option>
+          <option value="ar">Type 1: Assertion & Reasoning</option>
+          <option value="match">Type 2: Match the Following (Table)</option>
+        </select>
+      </div>
+
+      <div id="edit-ar-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:8px; margin-bottom:10px;">
+        <label>Assertion (A):</label><textarea id="editAssert" rows="2" placeholder="Write assertion statement..."></textarea>
+        <label>Reason (R):</label><textarea id="editReason" rows="2" placeholder="Write reason statement..."></textarea>
+      </div>
+
+      <div id="edit-match-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:8px; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:10px; margin-bottom:8px;">
+          <div>
+            <label>List 1 Sequence (Col 1)</label>
+            <select id="editMatchSeq1">
+              <option value="num">1, 2, 3, 4</option>
+              <option value="roman">I, II, III, IV</option>
+            </select>
+          </div>
+          <div><label>Heading 1 (List 1)</label><input type="text" id="editMatchHead1" value="List I"></div>
+          <div>
+            <label>List 2 Alphabet Sequence (Col 3)</label>
+            <select id="editMatchSeq2">
+              <option value="alphaLower">a, b, c, d</option>
+              <option value="alphaUpper">A, B, C, D</option>
+            </select>
+          </div>
+          <div><label>Heading 2 (List 2)</label><input type="text" id="editMatchHead2" value="List II"></div>
+        </div>
+        <label>Table Rows (Format: Heading 1 Item | Heading 2 Item)</label>
+        <textarea id="editMatchPairs" rows="4" placeholder="Item A | Item 1&#10;Item B | Item 2"></textarea>
+      </div>
+
       <div>
         <label>Question Body</label>
-        <textarea id="editText" rows="3" required></textarea>
+        <textarea id="editText" rows="3"></textarea>
       </div>
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:10px;">
         <div><label>Option (A)</label><input type="text" id="editA" required></div>
@@ -789,9 +827,16 @@
   ];
 
   async function init() {
+    // Instant UI render based on saved session to avoid flicker
+    if (currentUser) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('portal-screen').style.display = 'block';
+    }
+    
     await fetchQuestionsFromCloud();
     await fetchUsersFromCloud();
     syncDynamicSubjects();
+    
     if(currentUser) {
       showPortal();
     } else {
@@ -811,6 +856,9 @@
         questions = data.map(q => {
           if(typeof q.options === 'string') {
             try { q.options = JSON.parse(q.options); } catch(e) {}
+          }
+          if(typeof q.matchRows === 'string') {
+            try { q.matchRows = JSON.parse(q.matchRows); } catch(e) {}
           }
           return q;
         });
@@ -1406,8 +1454,21 @@
     document.getElementById('editTop').value = q.topic || '';
     document.getElementById('editSubtop').value = q.subtopic || '';
     document.getElementById('editExam').value = q.exam || '';
-    document.getElementById('editText').value = q.text || '';
     
+    const qType = q.type || 'standard';
+    document.getElementById('editType').value = qType;
+    toggleQTypeFields(qType, 'edit');
+
+    if(qType === 'ar') {
+      document.getElementById('editAssert').value = q.assertion || '';
+      document.getElementById('editReason').value = q.reason || '';
+      document.getElementById('editText').value = '';
+    } else if(qType === 'match') {
+      document.getElementById('editText').value = q.text || '';
+    } else {
+      document.getElementById('editText').value = q.text || '';
+    }
+
     let opts = q.options;
     if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
     document.getElementById('editA').value = opts?.A || '';
@@ -1429,6 +1490,7 @@
     if(currentUser.role !== 'admin') return;
 
     const qId = document.getElementById('editQId').value;
+    const type = document.getElementById('editType').value;
     let optionsObj = {
       A: document.getElementById('editA').value.trim(),
       B: document.getElementById('editB').value.trim(),
@@ -1441,7 +1503,10 @@
       topic: document.getElementById('editTop').value.trim(),
       subtopic: document.getElementById('editSubtop').value.trim(),
       exam: document.getElementById('editExam').value.trim(),
+      type: type,
       text: document.getElementById('editText').value.trim(),
+      assertion: type === 'ar' ? document.getElementById('editAssert').value.trim() : "",
+      reason: type === 'ar' ? document.getElementById('editReason').value.trim() : "",
       options: optionsObj,
       optionA: optionsObj.A,
       optionB: optionsObj.B,
@@ -1451,7 +1516,6 @@
       expl: document.getElementById('editExpl').value.trim()
     };
 
-    // Update locally
     let idx = questions.findIndex(q => q.id.toString() === qId.toString());
     if(idx !== -1) {
       questions[idx] = { ...questions[idx], ...updatedFields };
