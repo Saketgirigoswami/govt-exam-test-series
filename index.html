@@ -908,7 +908,11 @@
         if(currentUser) {
           let updatedMe = members.find(m => m.username === currentUser.username);
           if(updatedMe) {
-            currentUser = { ...currentUser, ...updatedMe };
+            currentUser = { 
+              ...currentUser, 
+              ...updatedMe,
+              subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {})
+            };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
           }
         }
@@ -1058,7 +1062,12 @@
     const found = members.find(m => m.username && m.username.toLowerCase() === user && m.pass === pass);
 
     if(found) {
-      currentUser = { name: found.name, username: found.username, role: 'member', subject_progress: found.subject_progress || {} };
+      currentUser = { 
+        name: found.name, 
+        username: found.username, 
+        role: 'member', 
+        subject_progress: typeof found.subject_progress === 'string' ? JSON.parse(found.subject_progress) : (found.subject_progress || {}) 
+      };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
     } else {
@@ -1934,7 +1943,7 @@
       username: currentUser.username,
       correctAnswers: newCorrectCount,
       totalDbQuestions: totalDbTestQuestions,
-      subMap: testSubMap // Sending all subject-wise correct counts for radar sync
+      subMap: testSubMap 
     };
 
     try {
@@ -1945,9 +1954,8 @@
       });
       let result = await res.json();
       if(result.status === "success") {
-        // Immediately update currentUser with returned cloud progress data
         if(result.subject_progress) {
-          currentUser.subject_progress = result.subject_progress;
+          currentUser.subject_progress = typeof result.subject_progress === 'string' ? JSON.parse(result.subject_progress) : result.subject_progress;
         }
         if(result.percentage !== undefined) {
           currentUser.current_percentage = result.percentage;
@@ -2151,7 +2159,11 @@
           let myIndex = usersData.findIndex(u => u.username === currentUser.username);
           if(myIndex !== -1) {
             let myData = usersData[myIndex];
-            currentUser = { ...currentUser, ...myData };
+            currentUser = { 
+              ...currentUser, 
+              ...myData,
+              subject_progress: typeof myData.subject_progress === 'string' ? JSON.parse(myData.subject_progress) : (myData.subject_progress || {})
+            };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
             document.getElementById('myRankVal').innerText = `#${myIndex + 1}`;
