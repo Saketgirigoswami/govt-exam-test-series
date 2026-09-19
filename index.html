@@ -227,25 +227,68 @@
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
     </div>
 
-    <!-- 0. DASHBOARD HOME OVERVIEW -->
+    <!-- 0. DASHBOARD HOME OVERVIEW (UPDATED WITH GAME-LIKE PROGRESS, REVISION & RANKING) -->
     <div id="tab-home" class="tab-view">
       <div class="card" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%); border: none; box-shadow: 0 10px 30px rgba(37,99,235,0.4);">
         <h2 id="homeWelcomeGreeting" style="color:#ffffff; font-size:1.6rem; margin-bottom:6px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">India's Structured Online Test Series Platform</h2>
-        <p style="color:#e2e8f0; font-size:0.95rem; margin-bottom:15px;">Boost your exam preparation with Test Series for CGPSC, CGVYAPAM, Banking, SSC & All State Exams.</p>
+        <p style="color:#e2e8f0; font-size:0.95rem; margin-bottom:0;">Boost your exam preparation with Test Series for CGPSC, CGVYAPAM, Banking, SSC & All State Exams.</p>
+      </div>
+
+      <!-- Game-Like Dynamic Progress & Revision Summary Card -->
+      <div class="card" style="background: linear-gradient(145deg, #1e1b4b, #0f172a); border: 1px solid rgba(124,58,237,0.3);">
+        <h3 style="color:#a78bfa; margin-bottom: 12px;"><i class="fas fa-chart-line"></i> Test Section Progress & Revisions</h3>
         
-        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); padding: 12px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid rgba(255,255,255,0.2);">
-          <input type="text" placeholder="Search for your Exam (e.g. CGPSC Pre, RTO Constable)..." style="background: transparent; border: none; color: #fff; outline: none; margin: 0; font-size: 0.95rem;" />
-          <span style="font-size: 1.2rem; cursor:pointer;">🔍</span>
+        <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 15px; flex-wrap: wrap;">
+          <div style="background: #1e293b; padding: 14px; border-radius: 10px; flex: 1; min-width: 140px; text-align: center; border: 1px solid var(--border);">
+            <span style="font-size: 0.78rem; color: var(--muted); display: block; font-weight: 600;">Overall Percentage</span>
+            <span style="font-size: 1.8rem; font-weight: 700; color: #4ade80;" id="currentPercentageVal">0%</span>
+          </div>
+          <div style="background: #1e293b; padding: 14px; border-radius: 10px; flex: 1; min-width: 140px; text-align: center; border: 1px solid var(--border);">
+            <span style="font-size: 0.78rem; color: var(--muted); display: block; font-weight: 600;">Revision Cycles</span>
+            <span style="font-size: 1.8rem; font-weight: 700; color: #facc15;" id="revisionCountVal">0</span>
+          </div>
+        </div>
+
+        <!-- Visual Progress Bar -->
+        <div style="background: #2d2d44; border-radius: 8px; height: 14px; width: 100%; overflow: hidden; margin-bottom: 8px; border: 1px solid var(--border);">
+          <div id="dynamicProgressBar" style="background: linear-gradient(90deg, #3b82f6, #4ade80); height: 100%; width: 0%; transition: width 0.5s ease-in-out;"></div>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--muted); text-align: center;">100% test completion par progress reset hogi aur Revision Count +1 ho jayega!</p>
+      </div>
+
+      <!-- Global Ranking Box (Top 10) -->
+      <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.4);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 style="color:#60a5fa; margin:0;">🏆 Global Leaderboard (Top 10)</h3>
+            <p style="color:var(--muted); font-size:0.82rem; margin-top:2px;">Ranking based on Combined Score (Overall % + Revisions in Tests).</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="syncOnlineLeaderboard()">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+            <thead>
+              <tr style="background:var(--card-inner); color:#93c5fd;">
+                <th style="padding:10px; border:1px solid var(--border); text-align:left;">Rank</th>
+                <th style="padding:10px; border:1px solid var(--border); text-align:left;">Student Name</th>
+                <th style="padding:10px; border:1px solid var(--border); text-align:center;">Overall %</th>
+                <th style="padding:10px; border:1px solid var(--border); text-align:center;">Revisions</th>
+              </tr>
+            </thead>
+            <tbody id="topTenLeaderboardBody">
+              <tr><td colspan="4" style="text-align:center; padding:15px; color:var(--muted);">Loading Leaderboard...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="card" style="background: linear-gradient(145deg, #1e1b4b, #0f172a); border: 1px solid rgba(124,58,237,0.3);">
-        <h3 style="color:#a78bfa; margin-bottom: 10px;">📈 Your Performance Summary</h3>
-        <div class="stats-grid">
-          <div class="stat-card"><span>Total Questions</span><h4 id="homeStatTotalQ" style="color:#60a5fa;">0</h4></div>
-          <div class="stat-card"><span>Total Tests Attempted</span><h4 id="homeStatTests" style="color:#38bdf8;">0</h4></div>
-          <div class="stat-card"><span>Overall Accuracy</span><h4 id="homeStatAcc" style="color:#34d399;">0%</h4></div>
-          <div class="stat-card"><span>Revision Questions</span><h4 id="homeStatRev" style="color:#fbbf24;">0</h4></div>
+      <!-- Your Personal Ranking Box (Below Top 10) -->
+      <div class="card" style="background: rgba(30, 41, 59, 0.9); border: 1px solid #38bdf8;">
+        <h3 style="color:#38bdf8; margin-bottom:10px;">📍 Your Current Standing</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+          <div class="stat-card"><span>Your Rank</span><h4 id="myRankVal" style="color:#facc15;">--</h4></div>
+          <div class="stat-card"><span>Overall %</span><h4 id="myPercentVal" style="color:#4ade80;">0%</h4></div>
+          <div class="stat-card"><span>Revisions</span><h4 id="myRevisionVal" style="color:#38bdf8;">0</h4></div>
         </div>
       </div>
 
@@ -520,30 +563,6 @@
               </tr>
             </thead>
             <tbody id="pastTestHistoryBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.4);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-          <div>
-            <h3 style="color:#60a5fa; margin:0;">Global Online Leaderboard</h3>
-            <p style="color:var(--muted); font-size:0.85rem; margin-top:2px;">Live comparison across students taking tests on this platform.</p>
-          </div>
-          <button class="btn btn-secondary" onclick="syncOnlineLeaderboard()">🔄 Refresh</button>
-        </div>
-        <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-            <thead>
-              <tr>
-                <th style="padding:8px; border-bottom:1px solid var(--border); text-align:left;">Rank</th>
-                <th style="padding:8px; border-bottom:1px solid var(--border); text-align:left;">Student Username (ID)</th>
-                <th style="padding:8px; border-bottom:1px solid var(--border); text-align:left;">Test Type</th>
-                <th style="padding:8px; border-bottom:1px solid var(--border); text-align:left;">Marks (/100)</th>
-                <th style="padding:8px; border-bottom:1px solid var(--border); text-align:left;">Accuracy</th>
-              </tr>
-            </thead>
-            <tbody id="onlineLeaderboardBody"></tbody>
           </table>
         </div>
       </div>
@@ -945,7 +964,6 @@
     document.getElementById('navAdminBtn').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('adminPreviewBanner').style.display = (currentUser.role === 'admin' && isPreviewMode) ? 'flex' : 'none';
 
-    document.getElementById('homeStatTotalQ').innerText = questions.length;
     navigate(isPreviewMode ? 'tab-home' : (isAdmin ? 'tab-admin' : 'tab-home'));
   }
 
@@ -1089,26 +1107,12 @@
   function renderHomeDashboard() {
     if(!currentUser) return;
     document.getElementById('homeWelcomeGreeting').innerText = `Welcome Back, ${currentUser.name}! 🔥`;
-    document.getElementById('homeStatTotalQ').innerText = questions.length;
     
-    let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
-    let userHistory = allHistories.filter(h => h.username === currentUser.username);
-    
-    let totalCor = 0, totalWrg = 0;
-    userHistory.forEach(h => { totalCor += h.correct; totalWrg += h.wrong; });
-    let totalAttempted = totalCor + totalWrg;
-    let acc = totalAttempted > 0 ? Math.round((totalCor / totalAttempted) * 100) : 0;
-
-    let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
-    let pUnatt = JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || [];
-    let totalRev = pWrong.length + pUnatt.length;
-
-    document.getElementById('homeStatTests').innerText = userHistory.length;
-    document.getElementById('homeStatAcc').innerText = acc + '%';
-    document.getElementById('homeStatRev').innerText = totalRev;
-
     const randomTip = eduTips[Math.floor(Math.random() * eduTips.length)];
     document.getElementById('educationalTipText').innerText = randomTip;
+
+    // Fetch live user progress and leaderboard sync
+    syncOnlineLeaderboard();
   }
 
   function syncDynamicSubjects() {
@@ -1435,7 +1439,6 @@
     }
   }
 
-  // --- ADMIN EDIT & DELETE MODAL FUNCTIONS ---
   function openEditModalForCurrentQ() {
     if(!currentUser || currentUser.role !== 'admin') return;
     const q = activeQuestions[currentQIdx];
@@ -1871,9 +1874,37 @@
     });
     localStorage.setItem('cg_history', JSON.stringify(allHistories));
 
+    // --- GAME-LIKE PROGRESS & REVISION UPDATE TO GOOGLE SHEET VIA APPS SCRIPT ---
+    updateUserProgressToCloud(correct);
+
     document.getElementById('test-player').style.display = 'none';
     navigate('tab-results');
     displayScorecard();
+  }
+
+  async function updateUserProgressToCloud(newCorrectCount) {
+    if(!currentUser) return;
+    const totalDbTestQuestions = questions.length > 0 ? questions.length : 100;
+    
+    let payload = {
+      username: currentUser.username,
+      correctAnswers: newCorrectCount,
+      totalDbQuestions: totalDbTestQuestions
+    };
+
+    try {
+      let res = await fetch(USERS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      let result = await res.json();
+      if(result.status === "success") {
+        console.log("Progress synced successfully!");
+      }
+    } catch(err) {
+      console.error("Cloud progress sync error:", err);
+    }
   }
 
   function displayScorecard() {
@@ -1970,7 +2001,7 @@
     const tbody = document.getElementById('pastTestHistoryBody');
     if(!tbody) return;
     let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
-    let userHistory = allHistories.filter(h => h.username === currentUser.username);
+    let userHistory = allHistories.filter(h => currentUser && h.username === currentUser.username);
     tbody.innerHTML = userHistory.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : userHistory.map(h => `
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
@@ -2000,19 +2031,57 @@
     }).join('');
   }
 
-  function syncOnlineLeaderboard() {
-    const tbody = document.getElementById('onlineLeaderboardBody');
+  // --- SYNC LEADERBOARD & RENDER TOP 10 + USER STANDING ---
+  async function syncOnlineLeaderboard() {
+    const tbody = document.getElementById('topTenLeaderboardBody');
     if (!tbody) return;
-    let combinedHistory = JSON.parse(localStorage.getItem('cg_history')) || [];
-    combinedHistory.sort((a, b) => b.marks - a.marks);
-    tbody.innerHTML = combinedHistory.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No leaderboard records yet.</td></tr>` : combinedHistory.slice(0, 10).map((r, idx) => `
-      <tr>
-        <td style="padding:8px;">#${idx + 1}</td>
-        <td style="padding:8px;">@${r.username} (${r.studentName})</td>
-        <td style="padding:8px; color:var(--muted);">${r.subject}</td>
-        <td style="padding:8px; color:var(--success); font-weight:bold;">${r.marks}</td>
-        <td style="padding:8px;">${r.accuracy}</td>
-      </tr>`).join('');
+
+    try {
+      let res = await fetch(USERS_API_URL + "?action=getUsers");
+      let usersData = await res.json();
+      
+      if(Array.isArray(usersData) && usersData.length > 0) {
+        // Sort by Combined Score (Overall % + Revisions) descending
+        usersData.sort((a, b) => {
+          let scoreA = parseFloat(a.combined_score || 0);
+          let scoreB = parseFloat(b.combined_score || 0);
+          return scoreB - scoreA;
+        });
+
+        // Top 10 Leaderboard Table
+        let top10 = usersData.slice(0, 10);
+        tbody.innerHTML = top10.map((u, idx) => `
+          <tr>
+            <td style="padding:10px; border:1px solid var(--border);">#${idx + 1}</td>
+            <td style="padding:10px; border:1px solid var(--border); font-weight:600; color:#93c5fd;">@${u.username} (${u.name || 'User'})</td>
+            <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80;">${u.current_percentage || 0}%</td>
+            <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#facc15; font-weight:bold;">${u.revision_count || 0}</td>
+          </tr>`).join('');
+
+        // Find Current Logged-in User Standing
+        if(currentUser) {
+          let myIndex = usersData.findIndex(u => u.username === currentUser.username);
+          if(myIndex !== -1) {
+            let myData = usersData[myIndex];
+            document.getElementById('myRankVal').innerText = `#${myIndex + 1}`;
+            document.getElementById('myPercentVal').innerText = `${myData.current_percentage || 0}%`;
+            document.getElementById('myRevisionVal').innerText = myData.revision_count || 0;
+
+            // Update Header/Summary percentage display as well
+            document.getElementById('currentPercentageVal').innerText = `${myData.current_percentage || 0}%`;
+            document.getElementById('revisionCountVal').innerText = myData.revision_count || 0;
+            document.getElementById('dynamicProgressBar').style.width = `${myData.current_percentage || 0}%`;
+          } else {
+            document.getElementById('myRankVal').innerText = 'N/A';
+          }
+        }
+      } else {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--muted);">No users found on leaderboard.</td></tr>`;
+      }
+    } catch(err) {
+      console.error("Leaderboard sync error:", err);
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--danger);">Error loading leaderboard.</td></tr>`;
+    }
   }
 
   init();
