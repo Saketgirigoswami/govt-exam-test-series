@@ -242,6 +242,7 @@
       <div class="card" style="background: linear-gradient(145deg, #1e1b4b, #0f172a); border: 1px solid rgba(124,58,237,0.3);">
         <h3 style="color:#a78bfa; margin-bottom: 10px;">📈 Your Performance Summary</h3>
         <div class="stats-grid">
+          <div class="stat-card"><span>Total Questions</span><h4 id="homeStatTotalQ" style="color:#60a5fa;">0</h4></div>
           <div class="stat-card"><span>Total Tests Attempted</span><h4 id="homeStatTests" style="color:#38bdf8;">0</h4></div>
           <div class="stat-card"><span>Overall Accuracy</span><h4 id="homeStatAcc" style="color:#34d399;">0%</h4></div>
           <div class="stat-card"><span>Revision Questions</span><h4 id="homeStatRev" style="color:#fbbf24;">0</h4></div>
@@ -955,6 +956,7 @@
     document.getElementById('navAdminBtn').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('adminPreviewBanner').style.display = (currentUser.role === 'admin' && isPreviewMode) ? 'flex' : 'none';
 
+    document.getElementById('homeStatTotalQ').innerText = questions.length;
     navigate(isPreviewMode ? 'tab-home' : (isAdmin ? 'tab-admin' : 'tab-home'));
   }
 
@@ -1098,6 +1100,7 @@
   function renderHomeDashboard() {
     if(!currentUser) return;
     document.getElementById('homeWelcomeGreeting').innerText = `Welcome Back, ${currentUser.name}! 🔥`;
+    document.getElementById('homeStatTotalQ').innerText = questions.length;
     
     let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
     let userHistory = allHistories.filter(h => h.username === currentUser.username);
@@ -1463,8 +1466,6 @@
       document.getElementById('editAssert').value = q.assertion || '';
       document.getElementById('editReason').value = q.reason || '';
       document.getElementById('editText').value = '';
-    } else if(qType === 'match') {
-      document.getElementById('editText').value = q.text || '';
     } else {
       document.getElementById('editText').value = q.text || '';
     }
@@ -1499,6 +1500,7 @@
     };
 
     let updatedFields = {
+      id: qId,
       subject: document.getElementById('editSub').value,
       topic: document.getElementById('editTop').value.trim(),
       subtopic: document.getElementById('editSubtop').value.trim(),
@@ -1538,7 +1540,6 @@
         body: JSON.stringify({ 
           action: "saveQuestion", 
           question: { 
-            id: qId, 
             ...updatedFields, 
             options: JSON.stringify(optionsObj),
             matchRows: questions[idx]?.matchRows ? JSON.stringify(questions[idx].matchRows) : "" 
