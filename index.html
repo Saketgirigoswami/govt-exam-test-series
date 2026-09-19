@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Govt Exam Test Series</title>
+  <title>Govt Exam Free Test Series</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,6 @@
 
     .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    /* Clean Compact Custom Language Selector Styling */
     #google_translate_element { transform: scale(0.85); transform-origin: right center; }
     .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 3px 6px !important; border-radius: 6px !important; font-size: 0.72rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
@@ -129,7 +128,7 @@
 <body>
 
 <header>
-  <div class="brand">🚀 Test Series</div>
+  <div class="brand">🚀 Govt Exam Free Test Series</div>
   <div class="header-right">
     <div id="google_translate_element"></div>
   </div>
@@ -226,7 +225,6 @@
       <button class="nav-btn" onclick="navigate('tab-revision')" style="border-color: rgba(239, 68, 68, 0.4);">🔄 Revision Needed</button>
       <button class="nav-btn" onclick="navigate('tab-results')">📊 Results & Radar</button>
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
-      <button class="nav-btn" id="navEditorBtn" onclick="navigate('tab-editor')" style="display:none;">✏️ Question Editor</button>
     </div>
 
     <!-- 0. DASHBOARD HOME OVERVIEW -->
@@ -289,7 +287,7 @@
               </div>
               <div class="q-header-right">
                 <span class="badge-exam-tag" id="t-exam-badge"></span>
-                <div id="t-admin-edit-btn" style="display:none;"></div>
+                <div id="t-admin-edit-btn" style="display:inline-block;"></div>
               </div>
             </div>
             
@@ -334,7 +332,7 @@
             </div>
             <div class="q-header-right">
               <span class="badge-exam-tag" id="p-exam-badge"></span>
-              <div id="p-admin-edit-btn" style="display:none;"></div>
+              <div id="p-admin-edit-btn" style="display:inline-block;"></div>
             </div>
           </div>
           
@@ -429,7 +427,6 @@
           </div>
         </div>
 
-        <!-- Professional Warning Banner -->
         <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.88rem; color: #fca5a5; line-height: 1.5;">
           ⚠️ <strong>Important Note:</strong> Revision history saved in this section is tied to your current browser session. Logging out or clearing browser data may result in data loss. For the best experience and uninterrupted revision tracking, please use a trusted browser where you remain permanently signed in.
         </div>
@@ -660,37 +657,68 @@
       </div>
     </div>
 
-    <!-- 9. QUESTION EDITOR -->
-    <div id="tab-editor" class="tab-view" style="display:none;">
-      <div class="card">
-        <h3>Question Bank Search & Visual Editor</h3>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-bottom:15px;">
-          <div>
-            <label>Filter by Subject</label>
-            <select id="edFilterSub" onchange="renderEditorList()">
-              <option value="ALL">All Subjects</option>
-            </select>
-          </div>
-          <div>
-            <label>Search Keyword in Question</label>
-            <input type="text" id="edSearchKw" placeholder="Type word to search..." oninput="renderEditorList()">
-          </div>
-        </div>
-
-        <div style="max-height: 280px; overflow-y:auto; border:1px solid var(--border); border-radius:10px; margin-bottom:15px;">
-          <table style="margin:0; width:100%; border-collapse:collapse; font-size:0.88rem;">
-            <thead><tr style="background:#111a2e; color:#93c5fd;"><th style="padding:10px; border:1px solid var(--border);">#</th><th style="padding:10px; border:1px solid var(--border);">Subject & Topic</th><th style="padding:10px; border:1px solid var(--border);">Type</th><th style="padding:10px; border:1px solid var(--border);">Snippet</th><th style="padding:10px; border:1px solid var(--border);">Action</th></tr></thead>
-            <tbody id="editorTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <div class="static-bottom-box" id="footerUserBox" style="display:none;">
     <span class="static-user-info" id="footerUserBadge">User</span>
     <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- Edit Question Modal for Admin -->
+<div class="modal-backdrop" id="editQuestionModal">
+  <div class="modal-content" style="max-width:700px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="color:#60a5fa; margin:0;">✏️ Edit Question</h3>
+      <button class="btn btn-secondary" onclick="closeEditModal()">✕ Close</button>
+    </div>
+    <form id="editQForm" onsubmit="handleEditQuestionSubmit(event)">
+      <input type="hidden" id="editQId">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:10px;">
+        <div>
+          <label>Subject</label>
+          <select id="editSub"></select>
+        </div>
+        <div>
+          <label>Topic / Chapter</label>
+          <input type="text" id="editTop" required>
+        </div>
+        <div>
+          <label>Sub-Topic</label>
+          <input type="text" id="editSubtop" required>
+        </div>
+        <div>
+          <label>PYQ Exam Tag</label>
+          <input type="text" id="editExam">
+        </div>
+      </div>
+      <div>
+        <label>Question Body</label>
+        <textarea id="editText" rows="3" required></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:10px;">
+        <div><label>Option (A)</label><input type="text" id="editA" required></div>
+        <div><label>Option (B)</label><input type="text" id="editB" required></div>
+        <div><label>Option (C)</label><input type="text" id="editC" required></div>
+        <div><label>Option (D)</label><input type="text" id="editD" required></div>
+      </div>
+      <div style="display:grid; grid-template-columns: 150px 1fr; gap:10px; margin-top:10px;">
+        <div>
+          <label>Correct Answer</label>
+          <select id="editAns">
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+          </select>
+        </div>
+        <div>
+          <label>Explanation</label>
+          <textarea id="editExpl" rows="2"></textarea>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:15px;">
+        <button type="button" class="btn btn-danger" onclick="deleteCurrentEditingQuestion()">🗑️ Delete Question</button>
+        <button type="submit" class="btn btn-success">💾 Update Question</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -877,7 +905,6 @@
 
     const isAdmin = currentUser.role === 'admin' && !isPreviewMode;
     document.getElementById('navAdminBtn').style.display = isAdmin ? 'inline-block' : 'none';
-    document.getElementById('navEditorBtn').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('adminPreviewBanner').style.display = (currentUser.role === 'admin' && isPreviewMode) ? 'flex' : 'none';
 
     navigate(isPreviewMode ? 'tab-home' : (isAdmin ? 'tab-admin' : 'tab-home'));
@@ -1013,7 +1040,6 @@
       document.getElementById('rev-sub-unatt').style.display = 'none';
       renderRevisionNeededSection();
     }
-    if(tabId === 'tab-editor') renderEditorList();
     if(tabId === 'tab-results') {
       renderRadarAnalytics();
       renderPastTestHistoryTable();
@@ -1059,12 +1085,7 @@
       const el = document.getElementById(id);
       if(el) el.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
     };
-    ['testSub', 'pracSub', 'feedSub'].forEach(fill);
-    
-    const edSubFilter = document.getElementById('edFilterSub');
-    if(edSubFilter) {
-      edSubFilter.innerHTML = '<option value="ALL">All Subjects</option>' + subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-    }
+    ['testSub', 'pracSub', 'feedSub', 'editSub'].forEach(fill);
 
     cascadeTopics('testSub', 'testTop', 'testSubtop');
     cascadeTopics('pracSub', 'pracTop', 'pracSubtop');
@@ -1075,7 +1096,7 @@
     const sub = document.getElementById(subId).value;
     const topEl = document.getElementById(topId);
     const relatedTopics = [...new Set(questions.filter(q => q.subject === sub).map(q => q.topic))];
-    if(topEl.tagName.toLowerCase() === 'select') {
+    if(topEl && topEl.tagName.toLowerCase() === 'select') {
       topEl.innerHTML = '<option value="ALL">All Topics</option>' + relatedTopics.map(t => `<option value="${t}">${t}</option>`).join('');
       cascadeSubtopics(subId, topId, subtopId);
     }
@@ -1086,7 +1107,7 @@
     const top = document.getElementById(topId).value;
     const subtopEl = document.getElementById(subtopId);
     let pool = questions.filter(q => q.subject === sub);
-    if(top !== 'ALL') pool = pool.filter(q => q.topic === top);
+    if(top && top !== 'ALL') pool = pool.filter(q => q.topic === top);
     const relatedSubtopics = [...new Set(pool.map(q => q.subtopic))];
     if(subtopEl && subtopEl.tagName.toLowerCase() === 'select') {
       subtopEl.innerHTML = '<option value="ALL">All Sub-Topics</option>' + relatedSubtopics.map(st => `<option value="${st}">${st}</option>`).join('');
@@ -1214,8 +1235,10 @@
   }
 
   function toggleQTypeFields(type, prefix) {
-    document.getElementById(`${prefix}-ar-fields`).style.display = type === 'ar' ? 'block' : 'none';
-    document.getElementById(`${prefix}-match-fields`).style.display = type === 'match' ? 'block' : 'none';
+    const arField = document.getElementById(`${prefix}-ar-fields`);
+    const matchField = document.getElementById(`${prefix}-match-fields`);
+    if(arField) arField.style.display = type === 'ar' ? 'block' : 'none';
+    if(matchField) matchField.style.display = type === 'match' ? 'block' : 'none';
   }
 
   function buildFltSubjectInputs() {
@@ -1345,10 +1368,13 @@
       newQ.text = document.getElementById('feedText').value;
     }
 
-    // Optimistic UI Update: Instantly add to local array and show success
     let qForSheet = { 
       ...newQ, 
-      options: JSON.stringify(newQ.options), 
+      optionA: optionsObj.A,
+      optionB: optionsObj.B,
+      optionC: optionsObj.C,
+      optionD: optionsObj.D,
+      options: JSON.stringify(optionsObj), 
       matchRows: newQ.matchRows ? JSON.stringify(newQ.matchRows) : "" 
     };
 
@@ -1358,15 +1384,133 @@
     populateAllSubjectDropdowns();
     buildFltSubjectInputs();
 
-    let payload = { action: "saveQuestion", question: qForSheet };
     try {
       await fetch(QUESTIONS_API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ action: "saveQuestion", question: qForSheet })
       });
     } catch(err) {
       console.error("Background sync error:", err);
+    }
+  }
+
+  // --- ADMIN EDIT & DELETE MODAL FUNCTIONS ---
+  function openEditModalForCurrentQ() {
+    if(!currentUser || currentUser.role !== 'admin') return;
+    const q = activeQuestions[currentQIdx];
+    if(!q) return;
+
+    document.getElementById('editQId').value = q.id;
+    document.getElementById('editSub').value = q.subject || subjects[0];
+    document.getElementById('editTop').value = q.topic || '';
+    document.getElementById('editSubtop').value = q.subtopic || '';
+    document.getElementById('editExam').value = q.exam || '';
+    document.getElementById('editText').value = q.text || '';
+    
+    let opts = q.options;
+    if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
+    document.getElementById('editA').value = opts?.A || '';
+    document.getElementById('editB').value = opts?.B || '';
+    document.getElementById('editC').value = opts?.C || '';
+    document.getElementById('editD').value = opts?.D || '';
+    document.getElementById('editAns').value = q.ans || 'A';
+    document.getElementById('editExpl').value = q.expl || '';
+
+    document.getElementById('editQuestionModal').style.display = 'block';
+  }
+
+  function closeEditModal() {
+    document.getElementById('editQuestionModal').style.display = 'none';
+  }
+
+  async function handleEditQuestionSubmit(e) {
+    e.preventDefault();
+    if(currentUser.role !== 'admin') return;
+
+    const qId = document.getElementById('editQId').value;
+    let optionsObj = {
+      A: document.getElementById('editA').value.trim(),
+      B: document.getElementById('editB').value.trim(),
+      C: document.getElementById('editC').value.trim(),
+      D: document.getElementById('editD').value.trim()
+    };
+
+    let updatedFields = {
+      subject: document.getElementById('editSub').value,
+      topic: document.getElementById('editTop').value.trim(),
+      subtopic: document.getElementById('editSubtop').value.trim(),
+      exam: document.getElementById('editExam').value.trim(),
+      text: document.getElementById('editText').value.trim(),
+      options: optionsObj,
+      optionA: optionsObj.A,
+      optionB: optionsObj.B,
+      optionC: optionsObj.C,
+      optionD: optionsObj.D,
+      ans: document.getElementById('editAns').value,
+      expl: document.getElementById('editExpl').value.trim()
+    };
+
+    // Update locally
+    let idx = questions.findIndex(q => q.id.toString() === qId.toString());
+    if(idx !== -1) {
+      questions[idx] = { ...questions[idx], ...updatedFields };
+    }
+    let activeIdx = activeQuestions.findIndex(q => q.id.toString() === qId.toString());
+    if(activeIdx !== -1) {
+      activeQuestions[activeIdx] = { ...activeQuestions[activeIdx], ...updatedFields };
+    }
+
+    closeEditModal();
+    alert('Question Updated Successfully! (Syncing with cloud...)');
+    
+    if(activeEngineMode === 'test') renderTestView();
+    else if(activeEngineMode === 'practice') renderPracticeView();
+
+    try {
+      await fetch(QUESTIONS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+          action: "saveQuestion", 
+          question: { 
+            id: qId, 
+            ...updatedFields, 
+            options: JSON.stringify(optionsObj),
+            matchRows: questions[idx]?.matchRows ? JSON.stringify(questions[idx].matchRows) : "" 
+          } 
+        })
+      });
+    } catch(err) {
+      console.error("Cloud sync update error:", err);
+    }
+  }
+
+  async function deleteCurrentEditingQuestion() {
+    if(!confirm('Are you sure you want to delete this question?')) return;
+    const qId = document.getElementById('editQId').value;
+
+    questions = questions.filter(q => q.id.toString() !== qId.toString());
+    activeQuestions = activeQuestions.filter(q => q.id.toString() !== qId.toString());
+    closeEditModal();
+    alert('Question Deleted Successfully!');
+
+    if(activeQuestions.length === 0) {
+      navigate('tab-home');
+    } else {
+      if(currentQIdx >= activeQuestions.length) currentQIdx = activeQuestions.length - 1;
+      if(activeEngineMode === 'test') renderTestView();
+      else if(activeEngineMode === 'practice') renderPracticeView();
+    }
+
+    try {
+      await fetch(QUESTIONS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "deleteQuestion", id: qId })
+      });
+    } catch(err) {
+      console.error("Cloud delete error:", err);
     }
   }
 
@@ -1415,6 +1559,13 @@
     document.getElementById('t-counter').innerText = `Question ${currentQIdx + 1} of ${activeQuestions.length}`;
     document.getElementById('t-exam-badge').innerText = q.exam || 'PYQ';
     document.getElementById('t-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
+
+    const editBtnContainer = document.getElementById('t-admin-edit-btn');
+    if(currentUser && currentUser.role === 'admin') {
+      editBtnContainer.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="openEditModalForCurrentQ()" title="Edit Question">✏️ Edit</button>`;
+    } else {
+      editBtnContainer.innerHTML = '';
+    }
 
     let bodyHtml = q.text || '';
     if(q.type === 'ar') {
@@ -1473,6 +1624,13 @@
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
     document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
+
+    const editBtnContainer = document.getElementById('p-admin-edit-btn');
+    if(currentUser && currentUser.role === 'admin') {
+      editBtnContainer.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="openEditModalForCurrentQ()" title="Edit Question">✏️ Edit</button>`;
+    } else {
+      editBtnContainer.innerHTML = '';
+    }
 
     let bodyHtml = q.text || '';
     if(q.type === 'ar') bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
@@ -1774,24 +1932,6 @@
       let acc = Math.round((d.cor / (d.cor + d.wrg)) * 100) || 0;
       return `<div style="margin-bottom:10px;"><span>${sub} (${acc}%)</span><div style="background:#070a12; height:6px; border-radius:3px;"><div style="background:#3b82f6; width:${acc}%; height:100%;"></div></div></div>`;
     }).join('');
-  }
-
-  function renderEditorList() {
-    const tbody = document.getElementById('editorTableBody');
-    tbody.innerHTML = questions.map((q, idx) => `
-      <tr>
-        <td style="padding:10px; border:1px solid var(--border);">${idx+1}</td>
-        <td style="padding:10px; border:1px solid var(--border);">${q.subject} > ${q.topic}</td>
-        <td style="padding:10px; border:1px solid var(--border);">${q.type}</td>
-        <td style="padding:10px; border:1px solid var(--border);">${(q.text || '').substring(0, 30)}...</td>
-        <td style="padding:10px; border:1px solid var(--border);"><button class="btn btn-danger btn-sm" onclick="deleteQ(${q.id})">Del</button></td>
-      </tr>`).join('');
-  }
-
-  async function deleteQ(id) {
-    if(!confirm('Delete question?')) return;
-    questions = questions.filter(q => q.id !== id);
-    renderEditorList();
   }
 
   function syncOnlineLeaderboard() {
