@@ -1235,7 +1235,7 @@
     
     document.getElementById(tabId).style.display = 'block';
 
-    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
+    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick'].includes(tabId));
     if(btn) btn.classList.add('active');
 
     if(tabId === 'tab-home') document.getElementById('fNavHome').classList.add('active');
@@ -2345,4 +2345,3 @@
 </script>
 </body>
 </html>
-
