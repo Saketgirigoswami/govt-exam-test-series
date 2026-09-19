@@ -62,10 +62,11 @@
     .nav-btn:hover { border-color: var(--primary); color: #fff; }
     .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: var(--glow-blue); }
     
-    /* Neon Glow Floating Bottom Navigation */
-    .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; display: flex; justify-content: space-around; align-items: center; padding: 8px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+    /* Neon Glow Floating Bottom Navigation with horizontal swipe support */
+    .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 94%; max-width: 550px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; display: flex; justify-content: flex-start; align-items: center; padding: 8px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow-x: auto; scrollbar-width: none; gap: 4px; }
     @media(min-width: 768px) { .floating-bottom-nav { display: none; } }
-    .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 1; }
+    .floating-bottom-nav::-webkit-scrollbar { display: none; }
+    .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 0 0 70px; }
     .f-nav-icon-badge { width: 36px; height: 36px; background: rgba(30, 41, 59, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid var(--border); transition: 0.2s; }
     .f-nav-item:hover .f-nav-icon-badge, .f-nav-item.active .f-nav-icon-badge { background: rgba(59, 130, 246, 0.2); border-color: var(--primary); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); color: #38bdf8; }
     .f-nav-item.active { color: #60a5fa; }
@@ -281,8 +282,8 @@
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
     </div>
 
-    <!-- Neon Glow Floating Bottom Navigation Bar for Mobile -->
-    <div class="floating-bottom-nav">
+    <!-- Neon Glow Floating Bottom Navigation Bar for Mobile (With swipeable Admin Studio for Admin) -->
+    <div class="floating-bottom-nav" id="mobileFloatingNav">
       <button class="f-nav-item active" id="fNavHome" onclick="navigate('tab-home')">
         <div class="f-nav-icon-badge">🏠</div>Home
       </button>
@@ -297,6 +298,9 @@
       </button>
       <button class="f-nav-item" id="fNavRes" onclick="navigate('tab-results')">
         <div class="f-nav-icon-badge">📊</div>Results
+      </button>
+      <button class="f-nav-item" id="fNavAdmin" onclick="navigate('tab-admin')" style="display:none;">
+        <div class="f-nav-icon-badge">🛠️</div>Admin
       </button>
     </div>
 
@@ -1179,6 +1183,7 @@
 
     const isAdmin = currentUser.role === 'admin' && !isPreviewMode;
     document.getElementById('navAdminBtn').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('fNavAdmin').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('adminPreviewBanner').style.display = (currentUser.role === 'admin' && isPreviewMode) ? 'flex' : 'none';
 
     navigate(isPreviewMode ? 'tab-home' : (isAdmin ? 'tab-admin' : 'tab-home'));
@@ -1309,6 +1314,10 @@
     if(tabId === 'tab-practice') document.getElementById('fNavPrac').classList.add('active');
     if(tabId === 'tab-revision') document.getElementById('fNavRev').classList.add('active');
     if(tabId === 'tab-results') document.getElementById('fNavRes').classList.add('active');
+    if(tabId === 'tab-admin') {
+      let adminMobBtn = document.getElementById('fNavAdmin');
+      if(adminMobBtn) adminMobBtn.classList.add('active');
+    }
 
     fetchUsersFromCloud();
 
