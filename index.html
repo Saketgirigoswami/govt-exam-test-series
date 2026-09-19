@@ -545,7 +545,7 @@
 
       <div class="card" style="border: 1px solid rgba(139, 92, 246, 0.4);">
         <h3 style="color:#a78bfa;">🕷️ Subject-Wise Radar Strength Analysis</h3>
-        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Visual breakdown of your performance across different exam subjects.</p>
+        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Visual breakdown of your performance across all available subjects (Live database synchronized).</p>
         <div id="subject-radar-container"></div>
       </div>
 
@@ -899,6 +899,14 @@
       let data = await res.json();
       if(Array.isArray(data)) {
         members = data;
+        // Current user object ko bhi cloud ke latest data se sync kar lo taaki subject progress mil sake
+        if(currentUser) {
+          let updatedMe = members.find(m => m.username === currentUser.username);
+          if(updatedMe) {
+            currentUser = { ...currentUser, ...updatedMe };
+            localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+          }
+        }
       }
     } catch(err) {
       console.error("Error fetching users:", err);
@@ -1030,8 +1038,8 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      members.push({ username: user, name: name, dob: dob, pass: pass });
-      currentUser = { name, username: user, role: 'member' };
+      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {} });
+      currentUser = { name, username: user, role: 'member', subject_progress: {} };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
     } catch(err) {
@@ -1045,7 +1053,7 @@
     const found = members.find(m => m.username && m.username.toLowerCase() === user && m.pass === pass);
 
     if(found) {
-      currentUser = { name: found.name, username: found.username, role: 'member' };
+      currentUser = { name: found.name, username: found.username, role: 'member', subject_progress: found.subject_progress || {} };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
     } else {
@@ -1057,7 +1065,7 @@
     const user = document.getElementById('adminUser').value.trim().toLowerCase();
     const pass = document.getElementById('adminPass').value.trim();
     if(user === "adminsaket" && pass === "Qwertypad@1") {
-      currentUser = { name: "Saket Giri Goswami", username: "adminsaket", role: 'admin' };
+      currentUser = { name: "Saket Giri Goswami", username: "adminsaket", role: 'admin', subject_progress: {} };
       isPreviewMode = false;
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
@@ -1830,6 +1838,9 @@
     let correct = 0, wrong = 0, unattempted = 0;
     let wrongQs = [], correctQs = [], unattemptedQs = [];
 
+    // Track subject-wise correct answers in this test run
+    let testSubMap = {};
+
     let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
     let pUnatt = JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || [];
 
@@ -1837,11 +1848,16 @@
       if(!attemptedQIds.includes(q.id)) attemptedQIds.push(q.id);
       const resp = userResponses[i];
       const item = { q, userAns: resp };
+      
+      let sName = q.subject || 'General';
+      if(!testSubMap[sName]) testSubMap[sName] = { correct: 0 };
+
       if(!resp) {
         unattempted++; unattemptedQs.push(item);
         if(!pUnatt.find(u => u.id === q.id)) pUnatt.push({ ...q, dateAdded: new Date().toLocaleDateString() });
       } else if(resp === q.ans) {
         correct++; correctQs.push(item);
+        testSubMap[sName].correct += 1;
       } else {
         wrong++; wrongQs.push(item);
         if(!pWrong.find(w => w.id === q.id)) pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
@@ -1857,7 +1873,6 @@
     let finalMarks = Math.max(0, (correct * markPerQ) - (wrong * penalty));
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
-    // FIX: Using actual question subject instead of exam tag for radar analysis and history log
     let testSubjectName = activeEngineMode === 'flt' ? 'Custom Test' : (activeQuestions[0].subject || 'General Test');
 
     lastAttemptSummary = {
@@ -1876,21 +1891,30 @@
     });
     localStorage.setItem('cg_history', JSON.stringify(allHistories));
 
-    updateUserProgressToCloud(correct);
+    // Send progress and subject radar breakdown to Google Sheet
+    updateUserProgressToCloud(correct, testSubMap);
 
     document.getElementById('test-player').style.display = 'none';
     navigate('tab-results');
     displayScorecard();
   }
 
-  async function updateUserProgressToCloud(newCorrectCount) {
+  async function updateUserProgressToCloud(newCorrectCount, testSubMap) {
     if(!currentUser) return;
     const totalDbTestQuestions = questions.length > 0 ? questions.length : 100;
     
+    // Default primary subject for this test batch
+    let primarySub = Object.keys(testSubMap)[0] || "General";
+    let subCorrect = testSubMap[primarySub] ? testSubMap[primarySub].correct : newCorrectCount;
+    let subTotalQ = questions.filter(q => q.subject === primarySub).length || 1;
+
     let payload = {
       username: currentUser.username,
       correctAnswers: newCorrectCount,
-      totalDbQuestions: totalDbTestQuestions
+      totalDbQuestions: totalDbTestQuestions,
+      testSubject: primarySub,
+      testCorrectInSub: subCorrect,
+      subjectTotalQ: subTotalQ
     };
 
     try {
@@ -1901,7 +1925,9 @@
       });
       let result = await res.json();
       if(result.status === "success") {
-        console.log("Progress synced successfully!");
+        console.log("Progress & Radar synced to cloud successfully!");
+        // Refresh local user profile data from cloud response/fetch
+        fetchUsersFromCloud();
       }
     } catch(err) {
       console.error("Cloud progress sync error:", err);
@@ -2013,22 +2039,57 @@
       </tr>`).join('');
   }
 
+  // --- RENDER SUBJECT-WISE RADAR STRENGTH ANALYSIS WITH FLUCTUATION, 🔥 & 😰 ---
   function renderRadarAnalytics() {
-    let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
-    let userHistory = allHistories.filter(h => currentUser && h.username === currentUser.username);
-    let subStats = {};
-    userHistory.forEach(h => {
-      if(!subStats[h.subject]) subStats[h.subject] = { cor: 0, wrg: 0 };
-      subStats[h.subject].cor += h.correct;
-      subStats[h.subject].wrg += h.wrong;
-    });
     const radarBox = document.getElementById('subject-radar-container');
     if(!radarBox) return;
-    const subKeys = Object.keys(subStats);
-    radarBox.innerHTML = subKeys.length === 0 ? '<p style="color:var(--muted);">No analytics data yet.</p>' : subKeys.map(sub => {
-      let d = subStats[sub];
-      let acc = Math.round((d.cor / (d.cor + d.wrg)) * 100) || 0;
-      return `<div style="margin-bottom:10px;"><span>${sub} (${acc}%)</span><div style="background:#070a12; height:6px; border-radius:3px;"><div style="background:#3b82f6; width:${acc}%; height:100%;"></div></div></div>`;
+
+    syncDynamicSubjects(); // Saare live subjects uthao (naye add hue subjects bhi sath mein aayenge)
+    
+    let userSubProgress = currentUser && currentUser.subject_progress ? currentUser.subject_progress : {};
+
+    if(subjects.length === 0) {
+      radarBox.innerHTML = '<p style="color:var(--muted);">No subjects available.</p>';
+      return;
+    }
+
+    radarBox.innerHTML = subjects.map(sub => {
+      // Live database mein is subject ke total kitne questions hain
+      let totalDbSubQ = questions.filter(q => q.subject === sub).length;
+      
+      // User ke is subject mein kitne correct hue
+      let subData = userSubProgress[sub] || { correct: 0 };
+      let userCorrect = subData.correct || 0;
+
+      // Dynamic Percentage calculation (Database questions badhne par percentage automatically fluctuate hoga)
+      let subPercent = 0;
+      if (totalDbSubQ > 0) {
+        subPercent = Math.min(100, Math.round((userCorrect / totalDbSubQ) * 100));
+      }
+
+      // Status Emojis Logic: >80% par 🔥, <50% par 😰 (agar kuch attempt kiya ho ya 0% par ignored)
+      let emoji = "";
+      if (subPercent >= 80 && userCorrect > 0) {
+        emoji = " 🔥 (Strong)";
+      } else if (subPercent < 50 && userCorrect > 0) {
+        emoji = " 😰 (Weak)";
+      } else if (userCorrect === 0) {
+        emoji = " (Ignored / Unseen)";
+      }
+
+      return `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:4px; font-weight:600;">
+            <span>${sub}</span>
+            <span style="color:${subPercent >= 80 ? '#4ade80' : (subPercent < 50 && userCorrect > 0 ? '#f87171' : '#38bdf8')}">
+              ${subPercent}% ${emoji}
+            </span>
+          </div>
+          <div style="background:#070a12; height:10px; border-radius:5px; overflow:hidden; border:1px solid var(--border);">
+            <div style="background:${subPercent >= 80 ? 'linear-gradient(90deg, #3b82f6, #4ade80)' : (subPercent < 50 && userCorrect > 0 ? '#ef4444' : '#3b82f6')}; width:${subPercent}%; height:100%; transition: width 0.5s;"></div>
+          </div>
+        </div>
+      `;
     }).join('');
   }
 
@@ -2041,6 +2102,8 @@
       let usersData = await res.json();
       
       if(Array.isArray(usersData) && usersData.length > 0) {
+        members = usersData; // Global members update kar lo
+        
         usersData.sort((a, b) => {
           let scoreA = parseFloat(a.combined_score || 0);
           let scoreB = parseFloat(b.combined_score || 0);
@@ -2060,6 +2123,9 @@
           let myIndex = usersData.findIndex(u => u.username === currentUser.username);
           if(myIndex !== -1) {
             let myData = usersData[myIndex];
+            currentUser = { ...currentUser, ...myData }; // Sync latest data
+            localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+
             document.getElementById('myRankVal').innerText = `#${myIndex + 1}`;
             document.getElementById('myPercentVal').innerText = `${myData.current_percentage || 0}%`;
             document.getElementById('myRevisionVal').innerText = myData.revision_count || 0;
