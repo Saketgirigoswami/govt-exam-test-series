@@ -72,7 +72,6 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
-    /* Mode Selector Cards Grid (3 cards top) */
     .selector-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -307,7 +306,6 @@
       <button class="nav-btn active" onclick="navigate('tab-home')">🏠 Dashboard</button>
       <button class="nav-btn" onclick="navigate('tab-test')">📝 Topic-Wise & Exam Test</button>
       <button class="nav-btn" onclick="navigate('tab-practice')">⚡ Quiz / Practice</button>
-      <button class="nav-btn" onclick="navigate('tab-pyq-filter')">🎯 PYQ Filter</button>
       <button class="nav-btn" onclick="navigate('tab-flt')">📑 FLT Builder</button>
       <button class="nav-btn" onclick="navigate('tab-revision')" style="border-color: rgba(239, 68, 68, 0.4);">🔄 Revision Needed</button>
       <button class="nav-btn" onclick="navigate('tab-results')">📊 Results & Radar</button>
@@ -489,7 +487,6 @@
           </div>
         </div>
 
-        {/* Bottom Expandable Filter Panels */}
         <div class="card" id="panelTestTopic" style="margin-top:20px;">
           <h3 style="color:#60a5fa;">Topic-Wise Mock Test (3-Level Filter)</h3>
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top:14px;">
@@ -618,7 +615,6 @@
           </div>
         </div>
 
-        {/* Bottom Expandable Filter Panels for Quiz */}
         <div class="card" id="panelPracTopic" style="margin-top:20px;">
           <h3 style="color:#10b981;">Instant Practice & Quiz Mode</h3>
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top:14px;">
@@ -706,48 +702,6 @@
           <div style="display: flex; justify-content: space-between; margin-top: 22px;">
             <button class="btn btn-secondary" onclick="movePracQ(-1)">Previous</button>
             <button class="btn" onclick="movePracQ(1)">Next</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. PYQ FILTER -->
-    <div id="tab-pyq-filter" class="tab-view" style="display:none;">
-      <div class="card" id="pyq-filter-config-box">
-        <h3>PYQ Filter & Official Paper Practice</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">
-          Filter questions dynamically by Exam Name + Subject, Year + Subject, or Exam Name + Year + Subject.
-        </p>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
-          <div>
-            <label>1. Exam Name</label>
-            <select id="pyqFilterExam" onchange="updatePyqFilterCount()">
-              <option value="ALL">All Exams</option>
-            </select>
-          </div>
-          <div>
-            <label>2. Year</label>
-            <select id="pyqFilterYear" onchange="updatePyqFilterCount()">
-              <option value="ALL">All Years</option>
-            </select>
-          </div>
-          <div>
-            <label>3. Subject / Official Paper</label>
-            <select id="pyqFilterSubject" onchange="updatePyqFilterCount()">
-              <option value="OFFICIAL_FULL">Official Question Paper (All Subjects Combined)</option>
-              <option value="ALL">All Subjects</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="margin-top:14px; padding:14px; background:var(--card-inner); border-radius:12px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div>
-            <span style="color:var(--muted); font-size:0.88rem;">Matching Questions Found: </span>
-            <strong id="pyqMatchCount" style="color:#60a5fa; font-size:1.15rem; margin-left:4px;">0</strong>
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="startPyqFilteredQuiz(false)">Start Quiz Practice</button>
-            <button class="btn btn-success" onclick="startPyqFilteredQuiz(true)">Start Timed Official Test</button>
           </div>
         </div>
       </div>
@@ -1240,7 +1194,6 @@
       showAuth();
     }
     populateAllSubjectDropdowns();
-    populatePyqFilterOptions();
     buildFltSubjectInputs();
     syncOnlineLeaderboard();
     initNcertClassesDropdowns();
@@ -1853,7 +1806,6 @@
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
       initExamCascades('examPracName', 'examPracYear', 'examPracSub');
     }
-    if(tabId === 'tab-pyq-filter') populatePyqFilterOptions();
     if(tabId === 'tab-flt') buildFltSubjectInputs();
     if(tabId === 'tab-revision') {
       document.getElementById('revision-quiz-player').style.display = 'none';
@@ -1930,7 +1882,6 @@
 
     subjects.push(val);
     populateAllSubjectDropdowns();
-    populatePyqFilterOptions();
     buildFltSubjectInputs();
     input.value = '';
     alert(`Subject "${val}" successfully added!`);
@@ -1945,100 +1896,6 @@
   function extractCleanExamName(examStr) {
     if(!examStr) return '';
     return examStr.replace(/\b(19\d{2}|20\d{2})\b/g, '').replace(/\s+/g, ' ').trim();
-  }
-
-  function populatePyqFilterOptions() {
-    syncDynamicSubjects();
-    const examSelect = document.getElementById('pyqFilterExam');
-    const yearSelect = document.getElementById('pyqFilterYear');
-    const subSelect = document.getElementById('pyqFilterSubject');
-    if(!examSelect || !yearSelect || !subSelect) return;
-
-    let exams = [];
-    let years = [];
-
-    questions.forEach(q => {
-      const qExam = q.exam || '';
-      if(qExam.trim()) {
-        const yr = extractExamYear(qExam);
-        if(yr) years.push(yr);
-        const cleanEx = extractCleanExamName(qExam);
-        if(cleanEx) exams.push(cleanEx);
-        else exams.push(qExam.trim());
-      }
-    });
-
-    exams = [...new Set(exams)].filter(Boolean).sort();
-    years = [...new Set(years)].filter(Boolean).sort((a,b) => b - a);
-
-    examSelect.innerHTML = '<option value="ALL">All Exams</option>' + exams.map(e => `<option value="${e}">${e}</option>`).join('');
-    yearSelect.innerHTML = '<option value="ALL">All Years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
-    subSelect.innerHTML = `
-      <option value="OFFICIAL_FULL">Official Question Paper (All Subjects Combined)</option>
-      <option value="ALL">All Subjects</option>
-      ${subjects.map(s => `<option value="${s}">${s}</option>`).join('')}
-    `;
-    updatePyqFilterCount();
-  }
-
-  function getFilteredPyqQuestions() {
-    const examSelect = document.getElementById('pyqFilterExam');
-    const yearSelect = document.getElementById('pyqFilterYear');
-    const subSelect = document.getElementById('pyqFilterSubject');
-    if(!examSelect || !yearSelect || !subSelect) return [];
-
-    const chosenExam = examSelect.value;
-    const chosenYear = yearSelect.value;
-    const chosenSub = subSelect.value;
-
-    return questions.filter(q => {
-      const qExam = q.exam || '';
-      const qYear = extractExamYear(qExam);
-      const qCleanExam = extractCleanExamName(qExam);
-
-      if (chosenExam !== 'ALL') {
-        const matchExact = qCleanExam.toLowerCase() === chosenExam.toLowerCase();
-        const matchContains = qCleanExam.toLowerCase().includes(chosenExam.toLowerCase()) || qExam.toLowerCase().includes(chosenExam.toLowerCase());
-        if (!matchExact && !matchContains) return false;
-      }
-      if (chosenYear !== 'ALL') {
-        if (qYear !== chosenYear && !qExam.includes(chosenYear)) return false;
-      }
-      if (chosenSub !== 'OFFICIAL_FULL' && chosenSub !== 'ALL') {
-        if (q.subject !== chosenSub) return false;
-      }
-      return true;
-    });
-  }
-
-  function updatePyqFilterCount() {
-    const pool = getFilteredPyqQuestions();
-    const countEl = document.getElementById('pyqMatchCount');
-    if(countEl) countEl.innerText = pool.length;
-  }
-
-  function startPyqFilteredQuiz(isOfficialTimed) {
-    const chosenSub = document.getElementById('pyqFilterSubject').value;
-    const pool = getFilteredPyqQuestions();
-    if(pool.length === 0) return alert('No questions found matching your filter criteria.');
-
-    activeEngineMode = isOfficialTimed ? 'test' : 'practice';
-    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
-    userResponses = {};
-    currentQIdx = 0;
-
-    document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
-    if(isOfficialTimed) {
-      document.getElementById('tab-test').style.display = 'block';
-      document.getElementById('testConfigWrapper').style.display = 'none';
-      document.getElementById('test-player').style.display = 'block';
-      renderTestView();
-    } else {
-      document.getElementById('tab-practice').style.display = 'block';
-      document.getElementById('pracConfigWrapper').style.display = 'none';
-      document.getElementById('prac-player').style.display = 'block';
-      renderPracticeView();
-    }
   }
 
   function toggleQTypeFields(type, prefix) {
