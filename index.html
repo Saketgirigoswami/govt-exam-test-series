@@ -39,24 +39,15 @@
     }
     
     header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
-    .brand { font-size: 0.85rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
-    @media(min-width: 480px) { .brand { font-size: 1.05rem; max-width: 75%; } }
+    .brand { font-size: 0.82rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 62%; }
+    @media(min-width: 480px) { .brand { font-size: 1.05rem; max-width: 72%; } }
 
-    .header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    /* Exact Testbook-Style Custom Translate Button & Dropdown */
-    .tb-translate-container { position: relative; display: inline-block; }
-    .tb-translate-btn { background: #1e293b; border: 1px solid var(--border); color: #f8fafc; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
-    .tb-translate-btn:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.15); }
-    
-    .tb-translate-dropdown { display: none; position: absolute; right: 0; top: 120%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 1100; min-width: 130px; overflow: hidden; }
-    .tb-translate-dropdown.show { display: block; }
-    .tb-lang-option { padding: 8px 12px; font-size: 0.78rem; color: #cbd5e1; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.15s; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .tb-lang-option:last-child { border-bottom: none; }
-    .tb-lang-option:hover { background: rgba(59, 130, 246, 0.25); color: #fff; }
-
-    /* Completely Hidden Google element container for API processing */
-    #google_translate_element { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+    /* Official Google Translate Widget Compact Style */
+    #google_translate_element { transform: scale(0.8); transform-origin: right center; display: inline-block; }
+    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 4px 6px !important; border-radius: 6px !important; font-size: 0.75rem !important; outline: none !important; cursor: pointer; }
+    .goog-logo-link, .gsk-translate-gadget { display: none !important; }
     .goog-te-banner-frame { display: none !important; }
     body { top: 0 !important; }
 
@@ -233,20 +224,7 @@
 <header>
   <div class="brand">🚀 Govt Exam Free Test Series</div>
   <div class="header-right">
-    <div class="tb-translate-container">
-      <button class="tb-translate-btn" onclick="toggleTbTranslateMenu(event)">
-        <span style="display:inline-flex; align-items:center; gap:2px; font-weight:bold; font-size:0.75rem;">अ<span style="font-size:0.6rem; color:#38bdf8;">E</span></span>
-        <span style="font-size:0.6rem;">▼</span>
-      </button>
-      <div class="tb-translate-dropdown" id="tbTranslateDropdown">
-        <div class="tb-lang-option" onclick="triggerGoogleTranslate('en')">
-          <span style="font-weight:bold; color:#38bdf8;">E</span> English
-        </div>
-        <div class="tb-lang-option" onclick="triggerGoogleTranslate('hi')">
-          <span style="font-weight:bold; color:#facc15;">अ</span> हिन्दी (Hindi)
-        </div>
-      </div>
-    </div>
+    <div id="google_translate_element"></div>
   </div>
 </header>
 
@@ -1151,41 +1129,6 @@
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'hi,en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
-  }
-
-  function toggleTbTranslateMenu(event) {
-    event.stopPropagation();
-    document.getElementById('tbTranslateDropdown').classList.toggle('show');
-  }
-
-  window.addEventListener('click', function() {
-    const dropdown = document.getElementById('tbTranslateDropdown');
-    if (dropdown && dropdown.classList.contains('show')) {
-      dropdown.classList.remove('show');
-    }
-  });
-
-  function triggerGoogleTranslate(langCode) {
-    const tryTranslating = () => {
-      const selectEl = document.querySelector('.goog-te-combo');
-      if (selectEl) {
-        selectEl.value = langCode;
-        selectEl.dispatchEvent(new Event('change'));
-        return true;
-      }
-      return false;
-    };
-
-    if (!tryTranslating()) {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        if (tryTranslating() || attempts > 10) {
-          clearInterval(interval);
-        }
-      }, 300);
-    }
-    document.getElementById('tbTranslateDropdown').classList.remove('show');
   }
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
