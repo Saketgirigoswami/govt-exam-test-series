@@ -73,7 +73,7 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
-    /* Carousel / Side-by-side action wrapper for mobile & desktop */
+    /* Perfect Equal & Symmetrical 3-Column Grid for Desktop & Swipe for Mobile */
     .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
       display: flex;
       gap: 15px;
@@ -92,11 +92,14 @@
       .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
+        align-items: stretch;
         overflow-x: visible;
         scroll-snap-type: none;
       }
       .dashboard-action-item, .test-action-item, .prac-action-item {
         flex: unset;
+        display: flex;
+        flex-direction: column;
       }
     }
 
