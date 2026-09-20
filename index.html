@@ -779,16 +779,16 @@
       <!-- 3 Futuristic Selector Cards for Revision Sub-Navigation with Swipe Indicator -->
       <div class="selector-grid" id="revisionSelectorGrid" onscroll="updateSwipeIndicator('revisionSelectorGrid', 'revisionSwipeDots')">
         <div class="selector-card active" id="selRevWrong" onclick="switchRevisionSubTab('wrong')">
-          <h4 style="color:#f87171; margin-bottom:6px;">🔄 Wrong Attempts</h4>
-          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Revise all wrong questions attempted in test</p>
+          <h4 style="color:#f87171; margin-bottom:4px;">🔄 Wrong Attempts</h4>
+          <p style="color:var(--muted); font-size:0.75rem; margin:0;">Revise all wrong questions attempted in test</p>
         </div>
         <div class="selector-card" id="selRevUnatt" onclick="switchRevisionSubTab('unattempted')">
-          <h4 style="color:#38bdf8; margin-bottom:6px;">⚡ Unattempted Questions</h4>
-          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Practice all questions left unattempted in exams</p>
+          <h4 style="color:#38bdf8; margin-bottom:4px;">⚡ Unattempted Questions</h4>
+          <p style="color:var(--muted); font-size:0.75rem; margin:0;">Practice all questions left unattempted in exams</p>
         </div>
         <div class="selector-card" id="selRevSaved" onclick="switchRevisionSubTab('saved')">
-          <h4 style="color:#facc15; margin-bottom:6px;">⭐ Saved Questions</h4>
-          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Access your starred bookmarked questions anywhere</p>
+          <h4 style="color:#facc15; margin-bottom:4px;">⭐ Saved Questions</h4>
+          <p style="color:var(--muted); font-size:0.75rem; margin:0;">Access your starred bookmarked questions anywhere</p>
         </div>
       </div>
       <div class="swipe-indicator-bar" id="revisionSwipeDots">
@@ -800,10 +800,12 @@
       <!-- SUB-TAB 1: WRONG ATTEMPTS -->
       <div id="rev-sub-wrong" class="rev-sub-view">
         <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.4);">
+          <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #fca5a5; line-height: 1.5;">
+            ⚠️ <strong>Important Note:</strong> Revision history saved in this section is tied to your current browser session. Logging out or clearing browser data may result in data loss. For the best experience and uninterrupted revision tracking, please use a trusted browser where you remain permanently signed in.
+          </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
             <div>
               <h3 style="color:#f87171; margin:0;">🔄 Wrong Attempts (<span id="countRevWrong">0</span>)</h3>
-              <p style="color:var(--muted); font-size:0.82rem;">Revise all wrong questions attempted in test</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('wrong')">▶ Start Quiz</button>
@@ -817,10 +819,12 @@
       <!-- SUB-TAB 2: UNATTEMPTED QUESTIONS -->
       <div id="rev-sub-unatt" class="rev-sub-view" style="display:none;">
         <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.4);">
+          <div style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #7dd3fc; line-height: 1.5;">
+            ⚠️ <strong>Important Note:</strong> Unattempted question history is tied to your active session. Make sure you use your primary browser for regular practice.
+          </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
             <div>
               <h3 style="color:#38bdf8; margin:0;">⚡ Unattempted Questions (<span id="countRevUnatt">0</span>)</h3>
-              <p style="color:var(--muted); font-size:0.82rem;">Practice all questions left unattempted in exams</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('unattempted')">▶ Start Quiz</button>
