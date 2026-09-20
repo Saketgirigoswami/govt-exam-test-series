@@ -862,10 +862,16 @@
     <!-- 8. ADMIN STUDIO -->
     <div id="tab-admin" class="tab-view" style="display:none;">
       
-      <!-- Admin Sub-Navigation Tabs -->
-      <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; overflow-x: auto;">
-        <button class="nav-btn active" id="adminSubTabFeed" onclick="switchAdminSubTab('feed')">📝 Feed Questions</button>
-        <button class="nav-btn" id="adminSubTabManage" onclick="switchAdminSubTab('manage')">⚙️ Subject Manager</button>
+      <!-- Futuristic Selector Cards for Admin Sub-Navigation -->
+      <div class="selector-grid" style="margin-bottom: 20px;">
+        <div class="selector-card active" id="selAdminFeed" onclick="switchAdminSubTab('feed')">
+          <h4 style="color:#60a5fa; margin-bottom:6px;">📝 Feed Questions</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Add and manage exam questions with live preview.</p>
+        </div>
+        <div class="selector-card" id="selAdminManage" onclick="switchAdminSubTab('manage')">
+          <h4 style="color:#38bdf8; margin-bottom:6px;">⚙️ Subject Manager</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Add new subjects and manage exam categories.</p>
+        </div>
       </div>
 
       <!-- TAB 1: QUESTION FEED FORM WITH STATEMENT BUILDER & LIVE PREVIEW -->
@@ -1348,10 +1354,13 @@
   });
 
   function switchAdminSubTab(subTab) {
-    document.getElementById('adminSubTabFeed').classList.toggle('active', subTab === 'feed');
-    document.getElementById('adminSubTabManage').classList.toggle('active', subTab === 'manage');
+    document.getElementById('selAdminFeed').classList.toggle('active', subTab === 'feed');
+    document.getElementById('selAdminManage').classList.toggle('active', subTab === 'manage');
     document.getElementById('admin-sub-feed').style.display = subTab === 'feed' ? 'block' : 'none';
     document.getElementById('admin-sub-manage').style.display = subTab === 'manage' ? 'block' : 'none';
+
+    const targetId = subTab === 'feed' ? 'selAdminFeed' : 'selAdminManage';
+    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function getFormattedLabel(idx, styleType) {
@@ -2560,7 +2569,7 @@
 
     if(q.type === 'ar') {
       bodyHtml = `
-        <div style="margin-bottom:2px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
