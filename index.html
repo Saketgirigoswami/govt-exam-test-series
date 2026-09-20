@@ -62,7 +62,6 @@
     .nav-btn:hover { border-color: var(--primary); color: #fff; }
     .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: var(--glow-blue); }
     
-    /* Neon Glow Floating Bottom Navigation with horizontal swipe support */
     .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 94%; max-width: 500px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; display: flex; justify-content: space-around; align-items: center; padding: 8px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
     @media(min-width: 768px) { .floating-bottom-nav { display: none; } }
     .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 1; }
@@ -73,8 +72,39 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
-    /* Perfect Equal & Symmetrical 3-Column Grid for Desktop with Full Stretch Height */
-    .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
+    /* Mode Selector Cards Grid (3 cards top) */
+    .selector-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    @media(max-width: 768px) {
+      .selector-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .selector-card {
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      cursor: pointer;
+      transition: 0.25s;
+      text-align: left;
+    }
+    .selector-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+    }
+    .selector-card.active {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.12);
+      box-shadow: var(--glow-blue);
+    }
+
+    .dashboard-action-wrapper {
       display: flex;
       gap: 15px;
       overflow-x: auto;
@@ -83,33 +113,24 @@
       margin-bottom: 20px;
       scrollbar-width: none;
     }
-    .dashboard-action-wrapper::-webkit-scrollbar, .test-action-wrapper::-webkit-scrollbar, .prac-action-wrapper::-webkit-scrollbar { display: none; }
-    .dashboard-action-item, .test-action-item, .prac-action-item {
+    .dashboard-action-wrapper::-webkit-scrollbar { display: none; }
+    .dashboard-action-item {
       flex: 0 0 100%;
       scroll-snap-align: start;
     }
     @media(min-width: 768px) {
-      .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
+      .dashboard-action-wrapper {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         align-items: stretch;
         overflow-x: visible;
         scroll-snap-type: none;
       }
-      .dashboard-action-item, .test-action-item, .prac-action-item {
+      .dashboard-action-item {
         flex: unset;
         display: flex;
         flex-direction: column;
       }
-    }
-
-    /* Professional Card Interior Fix for Desktop Symmetry */
-    .test-action-item .card, .prac-action-item .card {
-      margin-bottom: 0 !important;
-      height: 100% !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: space-between !important;
     }
 
     h2, h3, h4 { color: #f3f4f6; margin-bottom: 12px; font-weight: 600; }
@@ -449,104 +470,98 @@
       </div>
     </div>
 
-    <!-- 1. TESTS SECTION (Topic-Wise, NCERT, and Exam Based) -->
+    <!-- 1. TESTS SECTION (Interactive Accordion / Expandable Layout) -->
     <div id="tab-test" class="tab-view" style="display:none;">
-      <div class="test-action-wrapper" id="testConfigWrapper">
-        
-        <!-- Card 1: Topic-Wise Test -->
-        <div class="test-action-item">
-          <div class="card">
-            <div>
-              <h3>Topic-Wise Mock Test (3-Level Filter)</h3>
-              <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Practice questions using 3-level cascading filters.</p>
-              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
-                <div>
-                  <label>1. Subject</label>
-                  <select id="testSub" onchange="cascadeTopics('testSub', 'testTop', 'testSubtop')"></select>
-                </div>
-                <div>
-                  <label>2. Topic / Chapter</label>
-                  <select id="testTop" onchange="cascadeSubtopics('testSub', 'testTop', 'testSubtop')"></select>
-                </div>
-                <div>
-                  <label>3. Sub-Topic</label>
-                  <select id="testSubtop"><option value="ALL">All Sub-Topics</option></select>
-                </div>
-              </div>
-            </div>
-            <div style="margin-top: 16px;">
-              <button class="btn" style="width:100%; justify-content:center;" onclick="startEngine('test')">Start Timed Test</button>
-            </div>
+      <div id="testConfigWrapper">
+        <!-- Top 3 Selector Cards -->
+        <div class="selector-grid">
+          <div class="selector-card active" id="selTestTopic" onclick="switchTestMode('topic')">
+            <h4 style="color:#60a5fa; margin-bottom:6px;">Topic-Wise Mock Test</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin:0;">Practice questions using 3-level cascading filters.</p>
+          </div>
+          <div class="selector-card" id="selTestNcert" onclick="switchTestMode('ncert')">
+            <h4 style="color:#38bdf8; margin-bottom:6px;">NCERT Based PYQ</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin:0;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+          </div>
+          <div class="selector-card" id="selTestExam" onclick="switchTestMode('exam')">
+            <h4 style="color:#facc15; margin-bottom:6px;">Exam Based Mock Test</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin:0;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
           </div>
         </div>
 
-        <!-- Card 2: NCERT Based PYQ Test -->
-        <div class="test-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(59,130,246,0.3);">
+        {/* Bottom Expandable Filter Panels */}
+        <div class="card" id="panelTestTopic" style="margin-top:20px;">
+          <h3 style="color:#60a5fa;">Topic-Wise Mock Test (3-Level Filter)</h3>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top:14px;">
             <div>
-              <h3>NCERT Based PYQ</h3>
-              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
-              
-              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
-                <div>
-                  <label>1. Book Name</label>
-                  <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')">
-                    <option value="NCERT">NCERT</option>
-                    <option value="CG SCERT">CG SCERT</option>
-                  </select>
-                </div>
-                <div>
-                  <label>2. Class</label>
-                  <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub')"></select>
-                </div>
-                <div>
-                  <label>3. Subject</label>
-                  <select id="ncertTestSub" onchange="cascadeNcertChapters('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap')"></select>
-                </div>
-                <div>
-                  <label>4. Chapter Name</label>
-                  <select id="ncertTestChap"><option value="ALL">All Chapters</option></select>
-                </div>
-              </div>
+              <label>1. Subject</label>
+              <select id="testSub" onchange="cascadeTopics('testSub', 'testTop', 'testSubtop')"></select>
             </div>
-            <div style="margin-top: 16px;">
-              <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
+            <div>
+              <label>2. Topic / Chapter</label>
+              <select id="testTop" onchange="cascadeSubtopics('testSub', 'testTop', 'testSubtop')"></select>
+            </div>
+            <div>
+              <label>3. Sub-Topic</label>
+              <select id="testSubtop"><option value="ALL">All Sub-Topics</option></select>
             </div>
           </div>
+          <button class="btn" style="margin-top: 16px;" onclick="startEngine('test')">Start Timed Test</button>
         </div>
 
-        <!-- Card 3: Exam Based Mock Test -->
-        <div class="test-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3);">
+        <div class="card" id="panelTestNcert" style="margin-top:20px; display:none; background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(59,130,246,0.3);">
+          <h3 style="color:#38bdf8;">NCERT Based PYQ</h3>
+          <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
             <div>
-              <h3>Exam Based Mock Test</h3>
-              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
-              
-              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
-                <div>
-                  <label>1. Exam Name</label>
-                  <select id="examTestName" onchange="cascadeExamYears('examTestName', 'examTestYear', 'examTestSub')">
-                    <option value="ALL">All Exams</option>
-                  </select>
-                </div>
-                <div>
-                  <label>2. Year</label>
-                  <select id="examTestYear" onchange="cascadeExamSubjects('examTestName', 'examTestYear', 'examTestSub')">
-                    <option value="ALL">All Years</option>
-                  </select>
-                </div>
-                <div>
-                  <label>3. Subjects</label>
-                  <select id="examTestSub">
-                    <option value="ALL">All Subjects</option>
-                  </select>
-                </div>
-              </div>
+              <label>1. Book Name</label>
+              <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')">
+                <option value="NCERT">NCERT</option>
+                <option value="CG SCERT">CG SCERT</option>
+              </select>
             </div>
-            <div style="margin-top: 16px;">
-              <button class="btn btn-warning" style="width:100%; justify-content:center; background:#facc15; color:#000;" onclick="startExamEngine('test')">Start Exam Mock Test</button>
+            <div>
+              <label>2. Class</label>
+              <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub')"></select>
+            </div>
+            <div>
+              <label>3. Subject</label>
+              <select id="ncertTestSub" onchange="cascadeNcertChapters('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap')"></select>
+            </div>
+            <div>
+              <label>4. Chapter Name</label>
+              <select id="ncertTestChap"><option value="ALL">All Chapters</option></select>
             </div>
           </div>
+          <button class="btn btn-success" style="margin-top: 16px;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
+        </div>
+
+        <div class="card" id="panelTestExam" style="margin-top:20px; display:none; background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3);">
+          <h3 style="color:#facc15;">Exam Based Mock Test</h3>
+          <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+            <div>
+              <label>1. Exam Name</label>
+              <select id="examTestName" onchange="cascadeExamYears('examTestName', 'examTestYear', 'examTestSub')">
+                <option value="ALL">All Exams</option>
+              </select>
+            </div>
+            <div>
+              <label>2. Year</label>
+              <select id="examTestYear" onchange="cascadeExamSubjects('examTestName', 'examTestYear', 'examTestSub')">
+                <option value="ALL">All Years</option>
+              </select>
+            </div>
+            <div>
+              <label>3. Subjects</label>
+              <select id="examTestSub">
+                <option value="ALL">All Subjects</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-warning" style="margin-top: 16px; background:#facc15; color:#000;" onclick="startExamEngine('test')">Start Exam Mock Test</button>
         </div>
 
       </div>
@@ -584,95 +599,89 @@
       </div>
     </div>
 
-    <!-- 2. QUIZ SECTION (Practice, NCERT Quiz, and Exam Quiz) -->
+    <!-- 2. QUIZ SECTION (Interactive Accordion / Expandable Layout) -->
     <div id="tab-practice" class="tab-view" style="display:none;">
-      <div class="prac-action-wrapper" id="pracConfigWrapper">
-        
-        <!-- Card 1: Instant Practice & Quiz Mode -->
-        <div class="prac-action-item">
-          <div class="card">
-            <div>
-              <h3>Instant Practice & Quiz Mode</h3>
-              <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">Immediate right/wrong feedback with Google-style AI analysis.</p>
-              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
-                <div><label>Subject</label><select id="pracSub" onchange="cascadeTopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
-                <div><label>Topic / Chapter</label><select id="pracTop" onchange="cascadeSubtopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
-                <div><label>Sub-Topic</label><select id="pracSubtop"><option value="ALL">All Sub-Topics</option></select></div>
-              </div>
-            </div>
-            <div style="margin-top: 16px;">
-              <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startEngine('practice')">Start Practice</button>
-            </div>
+      <div id="pracConfigWrapper">
+        <!-- Top 3 Selector Cards for Quiz -->
+        <div class="selector-grid">
+          <div class="selector-card active" id="selPracTopic" onclick="switchPracMode('topic')">
+            <h4 style="color:#10b981; margin-bottom:6px;">Instant Practice & Quiz</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin:0;">Immediate right/wrong feedback with AI analysis.</p>
+          </div>
+          <div class="selector-card" id="selPracNcert" onclick="switchPracMode('ncert')">
+            <h4 style="color:#38bdf8; margin-bottom:6px;">NCERT Based PYQ Quiz</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin:0;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+          </div>
+          <div class="selector-card" id="selPracExam" onclick="switchPracMode('exam')">
+            <h4 style="color:#facc15; margin-bottom:6px;">Exam Based Mock Quiz</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin:0;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
           </div>
         </div>
 
-        <!-- Card 2: NCERT Based PYQ Quiz -->
-        <div class="prac-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(16,185,129,0.3);">
-            <div>
-              <h3>NCERT Based PYQ Quiz</h3>
-              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
-              
-              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
-                <div>
-                  <label>1. Book Name</label>
-                  <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')">
-                    <option value="NCERT">NCERT</option>
-                    <option value="CG SCERT">CG SCERT</option>
-                  </select>
-                </div>
-                <div>
-                  <label>2. Class</label>
-                  <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub')"></select>
-                </div>
-                <div>
-                  <label>3. Subject</label>
-                  <select id="ncertPracSub" onchange="cascadeNcertChapters('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap')"></select>
-                </div>
-                <div>
-                  <label>4. Chapter Name</label>
-                  <select id="ncertPracChap"><option value="ALL">All Chapters</option></select>
-                </div>
-              </div>
-            </div>
-            <div style="margin-top: 16px;">
-              <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startNcertEngine('practice')">Start NCERT Practice Quiz</button>
-            </div>
+        {/* Bottom Expandable Filter Panels for Quiz */}
+        <div class="card" id="panelPracTopic" style="margin-top:20px;">
+          <h3 style="color:#10b981;">Instant Practice & Quiz Mode</h3>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top:14px;">
+            <div><label>Subject</label><select id="pracSub" onchange="cascadeTopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
+            <div><label>Topic / Chapter</label><select id="pracTop" onchange="cascadeSubtopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
+            <div><label>Sub-Topic</label><select id="pracSubtop"><option value="ALL">All Sub-Topics</option></select></div>
           </div>
+          <button class="btn btn-success" style="margin-top: 16px;" onclick="startEngine('practice')">Start Practice</button>
         </div>
 
-        <!-- Card 3: Exam Based Mock Quiz -->
-        <div class="prac-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3);">
+        <div class="card" id="panelPracNcert" style="margin-top:20px; display:none; background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(16,185,129,0.3);">
+          <h3 style="color:#38bdf8;">NCERT Based PYQ Quiz</h3>
+          <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
             <div>
-              <h3>Exam Based Mock Quiz</h3>
-              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
-              
-              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
-                <div>
-                  <label>1. Exam Name</label>
-                  <select id="examPracName" onchange="cascadeExamYears('examPracName', 'examPracYear', 'examPracSub')">
-                    <option value="ALL">All Exams</option>
-                  </select>
-                </div>
-                <div>
-                  <label>2. Year</label>
-                  <select id="examPracYear" onchange="cascadeExamSubjects('examPracName', 'examPracYear', 'examPracSub')">
-                    <option value="ALL">All Years</option>
-                  </select>
-                </div>
-                <div>
-                  <label>3. Subjects</label>
-                  <select id="examPracSub">
-                    <option value="ALL">All Subjects</option>
-                  </select>
-                </div>
-              </div>
+              <label>1. Book Name</label>
+              <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')">
+                <option value="NCERT">NCERT</option>
+                <option value="CG SCERT">CG SCERT</option>
+              </select>
             </div>
-            <div style="margin-top: 16px;">
-              <button class="btn btn-warning" style="width:100%; justify-content:center; background:#facc15; color:#000;" onclick="startExamEngine('practice')">Start Exam Practice Quiz</button>
+            <div>
+              <label>2. Class</label>
+              <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub')"></select>
+            </div>
+            <div>
+              <label>3. Subject</label>
+              <select id="ncertPracSub" onchange="cascadeNcertChapters('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap')"></select>
+            </div>
+            <div>
+              <label>4. Chapter Name</label>
+              <select id="ncertPracChap"><option value="ALL">All Chapters</option></select>
             </div>
           </div>
+          <button class="btn btn-success" style="margin-top: 16px;" onclick="startNcertEngine('practice')">Start NCERT Practice Quiz</button>
+        </div>
+
+        <div class="card" id="panelPracExam" style="margin-top:20px; display:none; background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3);">
+          <h3 style="color:#facc15;">Exam Based Mock Quiz</h3>
+          <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+            <div>
+              <label>1. Exam Name</label>
+              <select id="examPracName" onchange="cascadeExamYears('examPracName', 'examPracYear', 'examPracSub')">
+                <option value="ALL">All Exams</option>
+              </select>
+            </div>
+            <div>
+              <label>2. Year</label>
+              <select id="examPracYear" onchange="cascadeExamSubjects('examPracName', 'examPracYear', 'examPracSub')">
+                <option value="ALL">All Years</option>
+              </select>
+            </div>
+            <div>
+              <label>3. Subjects</label>
+              <select id="examPracSub">
+                <option value="ALL">All Subjects</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-warning" style="margin-top: 16px; background:#facc15; color:#000;" onclick="startExamEngine('practice')">Start Exam Practice Quiz</button>
         </div>
 
       </div>
@@ -1267,6 +1276,28 @@
     }
   });
 
+  // Toggle modes for Test section
+  function switchTestMode(mode) {
+    document.getElementById('selTestTopic').classList.toggle('active', mode === 'topic');
+    document.getElementById('selTestNcert').classList.toggle('active', mode === 'ncert');
+    document.getElementById('selTestExam').classList.toggle('active', mode === 'exam');
+
+    document.getElementById('panelTestTopic').style.display = mode === 'topic' ? 'block' : 'none';
+    document.getElementById('panelTestNcert').style.display = mode === 'ncert' ? 'block' : 'none';
+    document.getElementById('panelTestExam').style.display = mode === 'exam' ? 'block' : 'none';
+  }
+
+  // Toggle modes for Quiz section
+  function switchPracMode(mode) {
+    document.getElementById('selPracTopic').classList.toggle('active', mode === 'topic');
+    document.getElementById('selPracNcert').classList.toggle('active', mode === 'ncert');
+    document.getElementById('selPracExam').classList.toggle('active', mode === 'exam');
+
+    document.getElementById('panelPracTopic').style.display = mode === 'topic' ? 'block' : 'none';
+    document.getElementById('panelPracNcert').style.display = mode === 'ncert' ? 'block' : 'none';
+    document.getElementById('panelPracExam').style.display = mode === 'exam' ? 'block' : 'none';
+  }
+
   function toggleNcertContainer(prefix) {
     const isChecked = document.getElementById(`${prefix}NcertCheck`).checked;
     const container = document.getElementById(`${prefix}NcertContainer`);
@@ -1811,13 +1842,13 @@
       updateAchievementBadgesUI();
     }
     if(tabId === 'tab-test') {
-      document.getElementById('testConfigWrapper').style.display = 'flex';
+      document.getElementById('testConfigWrapper').style.display = 'block';
       document.getElementById('test-player').style.display = 'none';
       initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
       initExamCascades('examTestName', 'examTestYear', 'examTestSub');
     }
     if(tabId === 'tab-practice') {
-      document.getElementById('pracConfigWrapper').style.display = 'flex';
+      document.getElementById('pracConfigWrapper').style.display = 'block';
       document.getElementById('prac-player').style.display = 'none';
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
       initExamCascades('examPracName', 'examPracYear', 'examPracSub');
@@ -2204,7 +2235,6 @@
     document.getElementById('editSubtop').value = q.subtopic || '';
     document.getElementById('editExam').value = q.exam || '';
 
-    // NCERT Edit Population
     const isNcert = q.ncert_tag === "true" || q.ncert_tag === true;
     document.getElementById('editNcertCheck').checked = isNcert;
     document.getElementById('editNcertContainer').style.display = isNcert ? 'grid' : 'none';
