@@ -44,10 +44,9 @@
 
     .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    /* Official Google Translate Compact Style */
-    .translate-box-wrapper { display: flex; align-items: center; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 6px; border-radius: 8px; backdrop-filter: blur(10px); }
-    #google_translate_element { transform: scale(0.75); transform-origin: right center; display: inline-block; max-width: 110px; overflow: hidden; }
-    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 2px 4px !important; border-radius: 6px !important; font-size: 0.7rem !important; outline: none !important; cursor: pointer; }
+    /* Clean & Compact Official Google Translate Widget Style without extra box */
+    #google_translate_element { transform: scale(0.72); transform-origin: right center; display: inline-block; max-width: 105px; overflow: hidden; }
+    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 2px 4px !important; border-radius: 6px !important; font-size: 0.68rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
     .goog-te-banner-frame { display: none !important; }
     body { top: 0 !important; }
@@ -225,9 +224,7 @@
 <header>
   <div class="brand">🚀 Govt Exam Free Test Series</div>
   <div class="header-right">
-    <div class="translate-box-wrapper">
-      <div id="google_translate_element"></div>
-    </div>
+    <div id="google_translate_element"></div>
   </div>
 </header>
 
