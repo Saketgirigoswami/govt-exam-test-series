@@ -130,7 +130,7 @@
     @media(min-width: 768px) {
       .selector-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         overflow-x: visible;
         scroll-snap-type: none;
       }
@@ -830,48 +830,100 @@
 
     <!-- 7. RESULTS & RADAR ANALYTICS SECTION -->
     <div id="tab-results" class="tab-view" style="display:none;">
-      <div class="card" id="latest-scorecard" style="display:none;">
-        <h3>Recent Test Scorecard</h3>
-        <div class="stats-grid">
-          <div class="stat-card"><span>Final Marks Scored</span><h4 id="resMarks" style="color:#60a5fa;">0</h4><span id="resTotalMarksSub">/ 100</span></div>
-          <div class="stat-card"><span>Correct</span><h4 id="resCorrect" style="color:var(--success);">0</h4></div>
-          <div class="stat-card"><span>Wrong (-1/4th)</span><h4 id="resWrong" style="color:var(--danger);">0</h4></div>
-          <div class="stat-card"><span>Not Attempted</span><h4 id="resLeft" style="color:var(--muted);">0</h4></div>
-          <div class="stat-card"><span>Accuracy</span><h4 id="resAcc" style="color:var(--warning);">0%</h4></div>
+      
+      <!-- 4 Futuristic Selector Cards for Results Sub-Navigation with Swipe Indicator -->
+      <div class="selector-grid" id="resultsSelectorGrid" onscroll="updateSwipeIndicator('resultsSelectorGrid', 'resultsSwipeDots')">
+        <div class="selector-card active" id="selResPrev" onclick="switchResultsSubTab('prev')">
+          <h4 style="color:#60a5fa; margin-bottom:6px;">📝 Previous Test Result</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Detailed breakdown of your last test attempt.</p>
         </div>
-
-        <h4 style="margin-top:18px; color:#93c5fd;">Question Review by Category</h4>
-        <div class="review-tabs">
-          <button class="review-tab-btn active" id="btnTabWrong" onclick="switchReviewFilter('wrong')">Wrong Answers (<span id="countWrong">0</span>)</button>
-          <button class="review-tab-btn" id="btnTabCorrect" onclick="switchReviewFilter('correct')">Correct Answers (<span id="countCorrect">0</span>)</button>
-          <button class="review-tab-btn" id="btnTabLeft" onclick="switchReviewFilter('unattempted')">Not Attempted (<span id="countLeft">0</span>)</button>
+        <div class="selector-card" id="selResRadar" onclick="switchResultsSubTab('radar')">
+          <h4 style="color:#a78bfa; margin-bottom:6px;">🕷️ Subject Strength Analysis</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Visual radar strength breakdown across subjects.</p>
         </div>
-        <div id="review-questions-list"></div>
-      </div>
-
-      <div class="card" style="border: 1px solid rgba(139, 92, 246, 0.4);">
-        <h3 style="color:#a78bfa;">🕷️ Subject-Wise Radar Strength Analysis</h3>
-        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Visual breakdown of your performance across all available subjects (Live database synchronized).</p>
-        <div id="subject-radar-container"></div>
-      </div>
-
-      <div class="card">
-        <h3>📊 Detailed Test History Log</h3>
-        <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-            <thead>
-              <tr style="background:var(--card-inner); color:#93c5fd;">
-                <th style="padding:10px; border:1px solid var(--border); text-align:left;">Date</th>
-                <th style="padding:10px; border:1px solid var(--border); text-align:left;">Test / Subject</th>
-                <th style="padding:10px; border:1px solid var(--border); text-align:center;">Marks Scored</th>
-                <th style="padding:10px; border:1px solid var(--border); text-align:center;">Right Qs</th>
-                <th style="padding:10px; border:1px solid var(--border); text-align:center;">Wrong Qs</th>
-              </tr>
-            </thead>
-            <tbody id="pastTestHistoryBody"></tbody>
-          </table>
+        <div class="selector-card" id="selResHistory" onclick="switchResultsSubTab('history')">
+          <h4 style="color:#38bdf8; margin-bottom:6px;">📊 Detailed Test History</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Complete log of all past test attempts.</p>
+        </div>
+        <div class="selector-card" id="selResSwot" onclick="switchResultsSubTab('swot')">
+          <h4 style="color:#facc15; margin-bottom:6px;">🎯 SWOT Analysis</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Graphical strength & weakness evaluation.</p>
         </div>
       </div>
+      <div class="swipe-indicator-bar" id="resultsSwipeDots">
+        <div class="swipe-dot active" onclick="scrollToCard('resultsSelectorGrid', 0)"></div>
+        <div class="swipe-dot" onclick="scrollToCard('resultsSelectorGrid', 1)"></div>
+        <div class="swipe-dot" onclick="scrollToCard('resultsSelectorGrid', 2)"></div>
+        <div class="swipe-dot" onclick="scrollToCard('resultsSelectorGrid', 3)"></div>
+      </div>
+
+      <!-- SUB-TAB 1: PREVIOUS TEST RESULT -->
+      <div id="results-sub-prev" class="results-sub-view">
+        <div class="card" id="latest-scorecard" style="display:none;">
+          <h3>Recent Test Scorecard</h3>
+          <div class="stats-grid">
+            <div class="stat-card"><span>Final Marks Scored</span><h4 id="resMarks" style="color:#60a5fa;">0</h4><span id="resTotalMarksSub">/ 100</span></div>
+            <div class="stat-card"><span>Correct</span><h4 id="resCorrect" style="color:var(--success);">0</h4></div>
+            <div class="stat-card"><span>Wrong (-1/4th)</span><h4 id="resWrong" style="color:var(--danger);">0</h4></div>
+            <div class="stat-card"><span>Not Attempted</span><h4 id="resLeft" style="color:var(--muted);">0</h4></div>
+            <div class="stat-card"><span>Accuracy</span><h4 id="resAcc" style="color:var(--warning);">0%</h4></div>
+          </div>
+
+          <h4 style="margin-top:18px; color:#93c5fd;">Question Review by Category</h4>
+          <div class="review-tabs">
+            <button class="review-tab-btn active" id="btnTabWrong" onclick="switchReviewFilter('wrong')">Wrong Answers (<span id="countWrong">0</span>)</button>
+            <button class="review-tab-btn" id="btnTabCorrect" onclick="switchReviewFilter('correct')">Correct Answers (<span id="countCorrect">0</span>)</button>
+            <button class="review-tab-btn" id="btnTabLeft" onclick="switchReviewFilter('unattempted')">Not Attempted (<span id="countLeft">0</span>)</button>
+          </div>
+          <div id="review-questions-list"></div>
+        </div>
+        <div id="no-recent-scorecard" class="card" style="text-align:center; padding:30px;">
+          <p style="color:var(--muted);">No recent test attempt found in this session. Take a test to view detailed scorecard!</p>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: SUBJECT-WISE STRENGTH ANALYSIS -->
+      <div id="results-sub-radar" class="results-sub-view" style="display:none;">
+        <div class="card" style="border: 1px solid rgba(139, 92, 246, 0.4);">
+          <h3 style="color:#a78bfa;">🕷️ Subject-Wise Radar Strength Analysis</h3>
+          <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Visual breakdown of your performance across all available subjects (Live database synchronized).</p>
+          <div id="subject-radar-container"></div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: DETAILED TEST HISTORY LOG -->
+      <div id="results-sub-history" class="results-sub-view" style="display:none;">
+        <div class="card">
+          <h3>📊 Detailed Test History Log</h3>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+              <thead>
+                <tr style="background:var(--card-inner); color:#93c5fd;">
+                  <th style="padding:10px; border:1px solid var(--border); text-align:left;">Date of Exam</th>
+                  <th style="padding:10px; border:1px solid var(--border); text-align:left;">Test / Subject</th>
+                  <th style="padding:10px; border:1px solid var(--border); text-align:center;">Marks Scored</th>
+                  <th style="padding:10px; border:1px solid var(--border); text-align:center;">Right Qs</th>
+                  <th style="padding:10px; border:1px solid var(--border); text-align:center;">Wrong Qs</th>
+                </tr>
+              </thead>
+              <tbody id="pastTestHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 4: SWOT ANALYSIS -->
+      <div id="results-sub-swot" class="results-sub-view" style="display:none;">
+        <div class="card" style="border: 1px solid rgba(250, 204, 21, 0.4);">
+          <h3 style="color:#facc15; margin-bottom:6px;">🎯 SWOT Performance Evaluation</h3>
+          <p style="color:var(--muted); font-size:0.85rem; margin-bottom:18px;">Graphical presentation of your academic Strengths, Weaknesses, Opportunities, and Threats.</p>
+          
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:15px;" id="swotGridContainer">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- 8. ADMIN STUDIO -->
@@ -1378,6 +1430,65 @@
     } catch(e) {
       tickerEl.innerText = "“Believe you can and you're halfway there.” — Theodore Roosevelt";
     }
+  }
+
+  function switchResultsSubTab(subTab) {
+    document.getElementById('selResPrev').classList.toggle('active', subTab === 'prev');
+    document.getElementById('selResRadar').classList.toggle('active', subTab === 'radar');
+    document.getElementById('selResHistory').classList.toggle('active', subTab === 'history');
+    document.getElementById('selResSwot').classList.toggle('active', subTab === 'swot');
+
+    document.getElementById('results-sub-prev').style.display = subTab === 'prev' ? 'block' : 'none';
+    document.getElementById('results-sub-radar').style.display = subTab === 'radar' ? 'block' : 'none';
+    document.getElementById('results-sub-history').style.display = subTab === 'history' ? 'block' : 'none';
+    document.getElementById('results-sub-swot').style.display = subTab === 'swot' ? 'block' : 'none';
+
+    let targetId = subTab === 'prev' ? 'selResPrev' : (subTab === 'radar' ? 'selResRadar' : (subTab === 'history' ? 'selResHistory' : 'selResSwot'));
+    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    if(subTab === 'swot') {
+      renderSwotAnalysis();
+    }
+  }
+
+  function renderSwotAnalysis() {
+    const swotGrid = document.getElementById('swotGridContainer');
+    if(!swotGrid) return;
+
+    syncDynamicSubjects();
+    let userSubProgress = currentUser && currentUser.subject_progress ? currentUser.subject_progress : {};
+
+    let strongSubs = [];
+    let weakSubs = [];
+
+    subjects.forEach(sub => {
+      let totalDbSubQ = questions.filter(q => q.subject === sub).length;
+      let subData = userSubProgress[sub] || { correct: 0 };
+      let userCorrect = subData.correct || 0;
+      let pct = totalDbSubQ > 0 ? Math.round((userCorrect / totalDbSubQ) * 100) : 0;
+
+      if(pct >= 75) strongSubs.push(`${sub} (${pct}%)`);
+      else if(pct < 50) weakSubs.push(`${sub} (${pct}%)`);
+    });
+
+    swotGrid.innerHTML = `
+      <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:14px; padding:16px;">
+        <h4 style="color:#4ade80; margin-bottom:8px;">💪 Strengths (High Accuracy)</h4>
+        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">${strongSubs.length > 0 ? strongSubs.join(', ') : 'Keep practicing to establish solid core subjects!'}</p>
+      </div>
+      <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); border-radius:14px; padding:16px;">
+        <h4 style="color:#f87171; margin-bottom:8px;">⚠️ Weaknesses (Needs Revision)</h4>
+        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">${weakSubs.length > 0 ? weakSubs.join(', ') : 'No major weaknesses identified yet. Attempt more tests!'}</p>
+      </div>
+      <div style="background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); border-radius:14px; padding:16px;">
+        <h4 style="color:#60a5fa; margin-bottom:8px;">🚀 Opportunities (Growth Areas)</h4>
+        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">Regular usage of Custom FLT and Revision Needed sections will boost overall exam percentile by 35%.</p>
+      </div>
+      <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); border-radius:14px; padding:16px;">
+        <h4 style="color:#facc15; margin-bottom:8px;">⚡ Threats (Risk Factors)</h4>
+        <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">Negative marking in competitive exams (-0.25). Focus on eliminating incorrect options rather than blind guessing.</p>
+      </div>
+    `;
   }
 
   function toggleQTypeFields(type, prefix) {
@@ -2444,9 +2555,17 @@
       renderRevisionNeededSection();
     }
     if(tabId === 'tab-results') {
+      switchResultsSubTab('prev');
       renderRadarAnalytics();
       renderPastTestHistoryTable();
       syncOnlineLeaderboard();
+      if(lastAttemptSummary) {
+        document.getElementById('latest-scorecard').style.display = 'block';
+        document.getElementById('no-recent-scorecard').style.display = 'none';
+      } else {
+        document.getElementById('latest-scorecard').style.display = 'none';
+        document.getElementById('no-recent-scorecard').style.display = 'block';
+      }
     }
   }
 
@@ -3327,6 +3446,7 @@
   function displayScorecard() {
     if(!lastAttemptSummary) return;
     document.getElementById('latest-scorecard').style.display = 'block';
+    document.getElementById('no-recent-scorecard').style.display = 'none';
     document.getElementById('resMarks').innerText = lastAttemptSummary.marks;
     document.getElementById('resTotalMarksSub').innerText = `/ ${lastAttemptSummary.totalMarks}`;
     document.getElementById('resCorrect').innerText = lastAttemptSummary.correct;
