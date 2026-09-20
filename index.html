@@ -177,7 +177,7 @@
     .palette-box.answered { background: rgba(16, 185, 129, 0.25); border-color: var(--success); color: var(--success); }
     .palette-box.current { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); color: #fff; }
 
-    /* Professional Hanging Indent Option & Statement Style */
+    /* Professional Hanging Indent Option Style */
     .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
     .test-opt input[type="radio"] { width: 16px !important; height: 16px !important; min-width: 16px; margin-top: 3px !important; cursor: pointer; accent-color: var(--primary); }
     .test-opt-label { font-size: 0.95rem; color: var(--text); line-height: 1.55; flex: 1; text-align: left; display: flex; gap: 6px; }
@@ -187,8 +187,8 @@
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-    /* Statement List Item Hanging Indent Style */
-    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 8px; line-height: 1.55; }
+    /* Compact Statement List Item Hanging Indent Style */
+    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 4px; line-height: 1.45; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
@@ -960,10 +960,19 @@
               <div id="feed-statement-fields" style="display:none; background:var(--card-inner); padding:16px; border-radius:14px; margin-bottom:14px; border:1px solid var(--border);">
                 <h4 style="color:#38bdf8; margin-bottom:10px;">📝 Multi-Statement Question Builder</h4>
                 
+                <div style="margin-bottom:12px;">
+                  <label>Numbering / Bullet Style</label>
+                  <select id="feedStStyle" onchange="updateLivePreview()">
+                    <option value="num">1, 2, 3, 4 (Numeric)</option>
+                    <option value="roman">i, ii, iii, iv (Roman)</option>
+                    <option value="alpha">a, b, c, d (Alphabet)</option>
+                  </select>
+                </div>
+
                 <label>1. Intro / Heading Text (e.g., Consider the following statements:)</label>
                 <textarea id="feedStIntro" rows="2" placeholder="Enter introductory sentence..." oninput="updateLivePreview()"></textarea>
 
-                <label style="margin-top:10px;">2. Statement List (Auto-numbered with Hanging Indent):</label>
+                <label style="margin-top:10px;">2. Statement List (With Hanging Indent alignment):</label>
                 <div id="statementInputsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px;"></div>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="addStatementInputField()">+ Add Statement</button>
 
@@ -1332,6 +1341,14 @@
     document.getElementById('admin-sub-manage').style.display = subTab === 'manage' ? 'block' : 'none';
   }
 
+  function getFormattedLabel(idx, styleType) {
+    const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
+    const alphas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+    if (styleType === 'roman') return (romans[idx] || (idx + 1)) + '.';
+    if (styleType === 'alpha') return (alphas[idx] || (idx + 1)) + '.';
+    return (idx + 1) + '.';
+  }
+
   function updateLivePreview() {
     const sub = document.getElementById('feedSub').value || 'Subject';
     const top = document.getElementById('feedTop').value || 'Topic';
@@ -1353,25 +1370,26 @@
     } else if(type === 'statement') {
       const intro = document.getElementById('feedStIntro').value || 'Consider the following statements:';
       const conclusion = document.getElementById('feedStConclusion').value || 'Which of the statements given above are correct?';
+      const styleType = document.getElementById('feedStStyle').value;
       
       let stmtInputs = document.querySelectorAll('.statement-item-input');
-      let stHtml = `<div style="margin-bottom:8px;">${intro}</div>`;
+      let stHtml = `<div style="margin-bottom:4px;">${intro}</div>`;
       stmtInputs.forEach((inp, idx) => {
         let stText = inp.value || `Statement ${idx+1} text...`;
+        let lbl = getFormattedLabel(idx, styleType);
         stHtml += `
           <div class="statement-preview-item">
-            <span class="st-num">${idx + 1}.</span>
+            <span class="st-num">${lbl}</span>
             <span class="st-text">${stText}</span>
           </div>
         `;
       });
-      stHtml += `<div style="margin-top:8px;">${conclusion}</div>`;
+      stHtml += `<div style="margin-top:4px;">${conclusion}</div>`;
       bodyHtml = stHtml;
     } else {
       bodyHtml = document.getElementById('feedText').value || 'Your question description will appear here...';
     }
 
-    document.getElementById('prevBodyTestWrap' )?.remove();
     let bodyContainer = document.getElementById('prevBodyText');
     if(type === 'statement') {
       bodyContainer.innerHTML = bodyHtml;
@@ -2265,6 +2283,7 @@
       newQ.statements = stList;
       newQ.stIntro = document.getElementById('feedStIntro').value.trim();
       newQ.stConclusion = document.getElementById('feedStConclusion').value.trim();
+      newQ.stStyle = document.getElementById('feedStStyle').value;
       newQ.text = "";
     } else {
       newQ.text = document.getElementById('feedText').value;
@@ -2517,18 +2536,19 @@
       let stArr = q.statements;
       if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
       
-      bodyHtml = `<div style="margin-bottom:8px;">${q.stIntro || 'Consider the following statements:'}</div>`;
+      bodyHtml = `<div style="margin-bottom:4px;">${q.stIntro || 'Consider the following statements:'}</div>`;
       if(Array.isArray(stArr)) {
         stArr.forEach((st, idx) => {
+          let lbl = getFormattedLabel(idx, q.stStyle);
           bodyHtml += `
             <div class="statement-preview-item">
-              <span class="st-num">${idx + 1}.</span>
+              <span class="st-num">${lbl}</span>
               <span class="st-text">${st}</span>
             </div>
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:8px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:4px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2614,18 +2634,19 @@
       let stArr = q.statements;
       if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
       
-      bodyHtml = `<div style="margin-bottom:8px;">${q.stIntro || 'Consider the following statements:'}</div>`;
+      bodyHtml = `<div style="margin-bottom:4px;">${q.stIntro || 'Consider the following statements:'}</div>`;
       if(Array.isArray(stArr)) {
         stArr.forEach((st, idx) => {
+          let lbl = getFormattedLabel(idx, q.stStyle);
           bodyHtml += `
             <div class="statement-preview-item">
-              <span class="st-num">${idx + 1}.</span>
+              <span class="st-num">${lbl}</span>
               <span class="st-text">${st}</span>
             </div>
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:8px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:4px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
