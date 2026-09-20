@@ -22,6 +22,7 @@
       --warning: #f59e0b;
       --purple: #8b5cf6;
       --glow-blue: 0 0 25px rgba(59, 130, 246, 0.3);
+      --glow-neon: 0 0 15px rgba(139, 92, 246, 0.5);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Noto Sans Devanagari', system-ui, sans-serif; }
     
@@ -37,12 +38,16 @@
       background-attachment: fixed;
     }
     
-    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
-    .brand { font-size: 0.9rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex: 1; min-width: 0; }
-    @media(min-width: 480px) { .brand { font-size: 1.05rem; } }
+    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 12px; flex-wrap: wrap; }
+    .brand { font-size: 0.95rem; font-weight: 700; color: #60a5fa; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex: 1; min-width: 150px; }
+    @media(min-width: 480px) { .brand { font-size: 1.1rem; } }
 
-    .header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
     
+    /* Futuristic Neon Toggle Button Styling */
+    .neon-toggle-btn { background: rgba(30, 27, 75, 0.9); border: 1px solid var(--purple); color: #c4b5fd; padding: 6px 12px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; box-shadow: var(--glow-neon); transition: 0.25s; text-decoration: none; }
+    .neon-toggle-btn:hover { background: rgba(139, 92, 246, 0.25); color: #fff; box-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
+
     #google_translate_element { transform: scale(0.85); transform-origin: right center; }
     .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 4px 8px !important; border-radius: 8px !important; font-size: 0.75rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
@@ -214,7 +219,7 @@
 
 <header>
   <div class="brand">🚀 Govt Exam Free Test Series</div>
-  <div class="header-right">
+  <div class="header-right" id="headerRightActions">
     <div id="google_translate_element"></div>
   </div>
 </header>
@@ -296,11 +301,6 @@
   <!-- PORTAL SCREEN -->
   <div id="portal-screen" style="display:none;">
     
-    <div id="adminPreviewBanner" style="display:none; background:rgba(131, 24, 67, 0.85); border:1px solid #f43f5e; color:#fbcfe8; padding:8px 14px; border-radius:12px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(10px);">
-      <span style="font-size:0.82rem; font-weight:600;">👀 Admin Preview Mode: You are viewing the app as a regular user.</span>
-      <button class="btn btn-secondary" onclick="exitAdminPreview()">Exit Preview</button>
-    </div>
-
     <!-- Desktop Navigation Bar -->
     <div class="nav-bar">
       <button class="nav-btn active" onclick="navigate('tab-home')">🏠 Dashboard</button>
@@ -842,16 +842,6 @@
 
     <!-- 8. ADMIN STUDIO -->
     <div id="tab-admin" class="tab-view" style="display:none;">
-      <div class="card" style="background:rgba(30,27,75,0.85); border: 1px solid var(--purple);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div>
-            <h4 style="color:#a78bfa; margin:0;">👁️ User View Preview</h4>
-            <p style="font-size:0.8rem; color:var(--muted);">Test how the app appears to normal students right now.</p>
-          </div>
-          <button class="btn btn-purple" onclick="previewAsUser()">Switch to User View Mode</button>
-        </div>
-      </div>
-
       <div class="card">
         <h3>Add New Subject to Portal</h3>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -1648,6 +1638,7 @@
     document.getElementById('auth-screen').style.display = 'block';
     document.getElementById('portal-screen').style.display = 'none';
     document.getElementById('footerUserBox').style.display = 'none';
+    updateHeaderRightActions();
   }
 
   function showPortal() {
@@ -1659,9 +1650,38 @@
     const isAdmin = currentUser.role === 'admin' && !isPreviewMode;
     document.getElementById('navAdminBtn').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('fNavAdmin').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('adminPreviewBanner').style.display = (currentUser.role === 'admin' && isPreviewMode) ? 'flex' : 'none';
 
+    updateHeaderRightActions();
     navigate(isPreviewMode ? 'tab-home' : (isAdmin ? 'tab-admin' : 'tab-home'));
+  }
+
+  function updateHeaderRightActions() {
+    const headerRight = document.getElementById('headerRightActions');
+    if (!headerRight) return;
+
+    let translateHtml = `<div id="google_translate_element"></div>`;
+    let toggleBtnHtml = '';
+
+    if (currentUser && currentUser.username === 'adminsaket') {
+      if (isPreviewMode) {
+        toggleBtnHtml = `
+          <a href="javascript:void(0)" class="neon-toggle-btn" onclick="exitAdminPreview()" title="Switch to Admin View">
+            🛡️ <span style="font-size:0.65rem; display:block; line-height:1;">Admin View</span>
+          </a>
+        `;
+      } else {
+        toggleBtnHtml = `
+          <a href="javascript:void(0)" class="neon-toggle-btn" onclick="previewAsUser()" title="Switch to User View">
+            👁️ <span style="font-size:0.65rem; display:block; line-height:1;">User View</span>
+          </a>
+        `;
+      }
+    }
+
+    headerRight.innerHTML = toggleBtnHtml + translateHtml;
+    if (typeof googleTranslateElementInit === 'function') {
+      googleTranslateElementInit();
+    }
   }
 
   function previewAsUser() {
