@@ -73,7 +73,7 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
-    /* Perfect Equal & Symmetrical 3-Column Grid for Desktop & Swipe for Mobile */
+    /* Perfect Equal & Symmetrical 3-Column Grid for Desktop with Full Stretch Height */
     .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
       display: flex;
       gap: 15px;
@@ -101,6 +101,15 @@
         display: flex;
         flex-direction: column;
       }
+    }
+
+    /* Professional Card Interior Fix for Desktop Symmetry */
+    .test-action-item .card, .prac-action-item .card {
+      margin-bottom: 0 !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
     }
 
     h2, h3, h4 { color: #f3f4f6; margin-bottom: 12px; font-weight: 600; }
@@ -446,7 +455,7 @@
         
         <!-- Card 1: Topic-Wise Test -->
         <div class="test-action-item">
-          <div class="card" style="margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card">
             <div>
               <h3>Topic-Wise Mock Test (3-Level Filter)</h3>
               <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Practice questions using 3-level cascading filters.</p>
@@ -473,7 +482,7 @@
 
         <!-- Card 2: NCERT Based PYQ Test -->
         <div class="test-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(59,130,246,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(59,130,246,0.3);">
             <div>
               <h3>NCERT Based PYQ</h3>
               <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
@@ -508,7 +517,7 @@
 
         <!-- Card 3: Exam Based Mock Test -->
         <div class="test-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3);">
             <div>
               <h3>Exam Based Mock Test</h3>
               <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
@@ -581,7 +590,7 @@
         
         <!-- Card 1: Instant Practice & Quiz Mode -->
         <div class="prac-action-item">
-          <div class="card" style="margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card">
             <div>
               <h3>Instant Practice & Quiz Mode</h3>
               <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">Immediate right/wrong feedback with Google-style AI analysis.</p>
@@ -599,7 +608,7 @@
 
         <!-- Card 2: NCERT Based PYQ Quiz -->
         <div class="prac-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(16,185,129,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(16,185,129,0.3);">
             <div>
               <h3>NCERT Based PYQ Quiz</h3>
               <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
@@ -634,7 +643,7 @@
 
         <!-- Card 3: Exam Based Mock Quiz -->
         <div class="prac-action-item">
-          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3);">
             <div>
               <h3>Exam Based Mock Quiz</h3>
               <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
