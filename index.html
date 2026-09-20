@@ -1353,16 +1353,6 @@
     }
   });
 
-  function switchAdminSubTab(subTab) {
-    document.getElementById('selAdminFeed').classList.toggle('active', subTab === 'feed');
-    document.getElementById('selAdminManage').classList.toggle('active', subTab === 'manage');
-    document.getElementById('admin-sub-feed').style.display = subTab === 'feed' ? 'block' : 'none';
-    document.getElementById('admin-sub-manage').style.display = subTab === 'manage' ? 'block' : 'none';
-
-    const targetId = subTab === 'feed' ? 'selAdminFeed' : 'selAdminManage';
-    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
   function getFormattedLabel(idx, styleType) {
     const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
     const alphas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
