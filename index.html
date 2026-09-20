@@ -38,17 +38,16 @@
       background-attachment: fixed;
     }
     
-    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 4px; }
-    .brand { font-size: 0.78rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
-    @media(min-width: 480px) { .brand { font-size: 0.98rem; max-width: 75%; } }
+    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
+    .brand { font-size: 0.85rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
+    @media(min-width: 480px) { .brand { font-size: 1.05rem; max-width: 75%; } }
 
     .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    /* Strict Compact Official Google Translate Override */
-    .translate-box-wrapper { display: flex; align-items: center; gap: 4px; background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 5px; border-radius: 6px; backdrop-filter: blur(10px); }
-    .translate-icon-img { width: 14px; height: 14px; object-fit: contain; }
-    #google_translate_element { transform: scale(0.7); transform-origin: right center; display: inline-block; max-width: 100px; overflow: hidden; }
-    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 1px 3px !important; border-radius: 4px !important; font-size: 0.65rem !important; outline: none !important; cursor: pointer; }
+    /* Official Google Translate Compact Style */
+    .translate-box-wrapper { display: flex; align-items: center; background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 6px; border-radius: 8px; backdrop-filter: blur(10px); }
+    #google_translate_element { transform: scale(0.75); transform-origin: right center; display: inline-block; max-width: 110px; overflow: hidden; }
+    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 2px 4px !important; border-radius: 6px !important; font-size: 0.7rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
     .goog-te-banner-frame { display: none !important; }
     body { top: 0 !important; }
@@ -227,7 +226,6 @@
   <div class="brand">🚀 Govt Exam Free Test Series</div>
   <div class="header-right">
     <div class="translate-box-wrapper">
-      <img src="https://www.gstatic.com/images/branding/product/1x/translate_48dp.png" alt="Translate" class="translate-icon-img">
       <div id="google_translate_element"></div>
     </div>
   </div>
