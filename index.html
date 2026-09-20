@@ -38,7 +38,6 @@
       background-attachment: fixed;
     }
     
-    /* Top Browser-Style Loading Progress Bar */
     #topProgressBar {
       position: fixed;
       top: 0;
@@ -52,7 +51,8 @@
     }
 
     header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
-    .brand { font-size: 0.82rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 62%; }
+    .brand { font-size: 0.82rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 62%; cursor: pointer; transition: 0.2s; }
+    .brand:hover { color: #93c5fd; }
     @media(min-width: 480px) { .brand { font-size: 1.05rem; max-width: 72%; } }
 
     .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
@@ -92,7 +92,6 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
-    /* Moving Banner Ticker for Motivational Quotes */
     .quote-ticker-card { background: linear-gradient(135deg, rgba(30, 27, 75, 0.85), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 12px 18px; margin-bottom: 16px; overflow: hidden; white-space: nowrap; box-shadow: var(--glow-neon); display: flex; align-items: center; gap: 12px; }
     .quote-ticker-icon { font-size: 1.2rem; flex-shrink: 0; animation: pulseGlow 2s infinite; }
     .quote-ticker-text { display: inline-block; animation: marqueeScroll 28s linear infinite; font-size: 0.92rem; color: #c4b5fd; font-weight: 500; }
@@ -105,7 +104,6 @@
       50% { opacity: 1; transform: scale(1.1); }
     }
 
-    /* Horizontal Swipeable Cards for Mobile with Indicator */
     .selector-grid {
       display: flex;
       gap: 15px;
@@ -149,7 +147,6 @@
       box-shadow: var(--glow-blue);
     }
 
-    /* Swipe Indicator Line */
     .swipe-indicator-bar { display: flex; justify-content: center; gap: 6px; margin-top: -10px; margin-bottom: 16px; }
     @media(min-width: 768px) { .swipe-indicator-bar { display: none; } }
     .swipe-dot { width: 24px; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; transition: 0.3s; }
@@ -222,7 +219,6 @@
     .palette-box.answered { background: rgba(16, 185, 129, 0.25); border-color: var(--success); color: var(--success); }
     .palette-box.current { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); color: #fff; }
 
-    /* Professional Hanging Indent Option Style */
     .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
     .test-opt input[type="radio"] { width: 16px !important; height: 16px !important; min-width: 16px; margin-top: 3px !important; cursor: pointer; accent-color: var(--primary); }
     .test-opt-label { font-size: 0.95rem; color: var(--text); line-height: 1.55; flex: 1; text-align: left; display: flex; gap: 6px; }
@@ -232,13 +228,11 @@
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-    /* Ultra-Tight & Compact Assertion & Reasoning Layout */
     .ar-block { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; margin-bottom: 4px; }
     .ar-item { display: flex; align-items: flex-start; gap: 6px; line-height: 1.4; margin: 0; padding: 0; }
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    /* Ultra-Compact Statement List Item Hanging Indent Style */
     .statement-preview-item { display: flex; gap: 8px; margin-bottom: 1px !important; margin-top: 1px !important; line-height: 1.35; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
@@ -274,7 +268,7 @@
 <div id="topProgressBar"></div>
 
 <header>
-  <div class="brand">🚀 Govt Exam Free Test Series</div>
+  <div class="brand" onclick="navigate('tab-home')">🚀 Govt Exam Free Test Series</div>
   <div class="header-right">
     <div id="google_translate_element"></div>
   </div>
@@ -362,12 +356,12 @@
     
     <!-- Desktop Navigation Bar -->
     <div class="nav-bar">
-      <button class="nav-btn active" onclick="navigate('tab-home')">🏠 Dashboard</button>
-      <button class="nav-btn" onclick="navigate('tab-test')">📝 Topic-Wise & Exam Test</button>
-      <button class="nav-btn" onclick="navigate('tab-practice')">⚡ Quiz / Practice</button>
-      <button class="nav-btn" onclick="navigate('tab-flt')">📑 FLT Builder</button>
-      <button class="nav-btn" onclick="navigate('tab-revision')" style="border-color: rgba(239, 68, 68, 0.4);">🔄 Revision Needed</button>
-      <button class="nav-btn" onclick="navigate('tab-results')">📊 Results & Radar</button>
+      <button class="nav-btn active" id="navHomeBtn" onclick="navigate('tab-home')">🏠 Dashboard</button>
+      <button class="nav-btn" id="navTestBtn" onclick="navigate('tab-test')">📝 Topic-Wise & Exam Test</button>
+      <button class="nav-btn" id="navPracBtn" onclick="navigate('tab-practice')">⚡ Quiz / Practice</button>
+      <button class="nav-btn" id="navFltBtn" onclick="navigate('tab-flt')">📑 FLT Builder</button>
+      <button class="nav-btn" id="navRevBtn" onclick="navigate('tab-revision')" style="border-color: rgba(239, 68, 68, 0.4);">🔄 Revision Needed</button>
+      <button class="nav-btn" id="navResBtn" onclick="navigate('tab-results')">📊 Results & Radar</button>
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
     </div>
 
@@ -779,15 +773,15 @@
       <!-- 3 Futuristic Selector Cards for Revision Sub-Navigation with Swipe Indicator -->
       <div class="selector-grid" id="revisionSelectorGrid" onscroll="updateSwipeIndicator('revisionSelectorGrid', 'revisionSwipeDots')">
         <div class="selector-card active" id="selRevWrong" onclick="switchRevisionSubTab('wrong')">
-          <h4 style="color:#f87171; margin-bottom:4px;">🔄 Wrong Attempts</h4>
+          <h4 style="color:#f87171; margin-bottom:4px;">🔄 Wrong Attempts (<span id="countRevWrong">0</span>)</h4>
           <p style="color:var(--muted); font-size:0.75rem; margin:0;">Revise all wrong questions attempted in test</p>
         </div>
         <div class="selector-card" id="selRevUnatt" onclick="switchRevisionSubTab('unattempted')">
-          <h4 style="color:#38bdf8; margin-bottom:4px;">⚡ Unattempted Questions</h4>
+          <h4 style="color:#38bdf8; margin-bottom:4px;">⚡ Unattempted Questions (<span id="countRevUnatt">0</span>)</h4>
           <p style="color:var(--muted); font-size:0.75rem; margin:0;">Practice all questions left unattempted in exams</p>
         </div>
         <div class="selector-card" id="selRevSaved" onclick="switchRevisionSubTab('saved')">
-          <h4 style="color:#facc15; margin-bottom:4px;">⭐ Saved Questions</h4>
+          <h4 style="color:#facc15; margin-bottom:4px;">⭐ Saved Questions (<span id="countRevSaved">0</span>)</h4>
           <p style="color:var(--muted); font-size:0.75rem; margin:0;">Access your starred bookmarked questions anywhere</p>
         </div>
       </div>
@@ -803,16 +797,16 @@
           <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #fca5a5; line-height: 1.5;">
             ⚠️ <strong>Important Note:</strong> Revision history saved in this section is tied to your current browser session. Logging out or clearing browser data may result in data loss. For the best experience and uninterrupted revision tracking, please use a trusted browser where you remain permanently signed in.
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
-              <h3 style="color:#f87171; margin:0;">🔄 Wrong Attempts (<span id="countRevWrong">0</span>)</h3>
+              <h3 style="color:#f87171; margin:0;">🔄 Wrong Attempts</h3>
+              <p style="color:var(--muted); font-size:0.82rem;">Revise all wrong questions attempted in test</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('wrong')">▶ Start Quiz</button>
               <button class="btn btn-danger btn-sm" onclick="clearAllWrongQuestions()">Clear All</button>
             </div>
           </div>
-          <div id="wrong-summary-list"></div>
         </div>
       </div>
 
@@ -822,25 +816,25 @@
           <div style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #7dd3fc; line-height: 1.5;">
             ⚠️ <strong>Important Note:</strong> Unattempted question history is tied to your active session. Make sure you use your primary browser for regular practice.
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
-              <h3 style="color:#38bdf8; margin:0;">⚡ Unattempted Questions (<span id="countRevUnatt">0</span>)</h3>
+              <h3 style="color:#38bdf8; margin:0;">⚡ Unattempted Questions</h3>
+              <p style="color:var(--muted); font-size:0.82rem;">Practice all questions left unattempted in exams</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('unattempted')">▶ Start Quiz</button>
               <button class="btn btn-secondary btn-sm" onclick="clearAllUnattQuestions()">Clear All</button>
             </div>
           </div>
-          <div id="unatt-summary-list"></div>
         </div>
       </div>
 
       <!-- SUB-TAB 3: SAVED QUESTIONS -->
       <div id="rev-sub-saved" class="rev-sub-view" style="display:none;">
         <div class="card" style="border: 1px solid rgba(250, 204, 21, 0.4);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
-              <h3 style="color:#facc15; margin:0;">⭐ Saved / Bookmarked Questions (<span id="countRevSaved">0</span>)</h3>
+              <h3 style="color:#facc15; margin:0;">⭐ Saved / Bookmarked Questions</h3>
               <p style="color:var(--muted); font-size:0.82rem;">Your star-marked questions synced across all your logins</p>
             </div>
             <div style="display:flex; gap:8px;">
@@ -848,11 +842,10 @@
               <button class="btn btn-secondary btn-sm" onclick="clearAllSavedQuestions()">Clear All</button>
             </div>
           </div>
-          <div id="saved-summary-list"></div>
         </div>
       </div>
 
-      <!-- Revision Quiz Player Screen with Question Navigation Drawer & Toggle -->
+      <!-- Revision Quiz Player Screen with Question Navigation Drawer & Remove Button -->
       <div id="revision-quiz-player" class="card" style="display:none; border: 1px solid var(--primary);">
         <div class="q-header-bar">
           <div class="q-header-left">
@@ -860,6 +853,7 @@
             <span class="badge badge-sub" id="rq-hier-badge"></span>
           </div>
           <div class="q-header-right">
+            <button class="btn btn-danger btn-sm" onclick="removeCurrentRevQuestion()" title="Remove from this list">🗑️ Remove</button>
             <button class="btn btn-warning btn-sm" onclick="toggleRevPaletteDrawer()" title="Question Palette">📋 Palette</button>
             <button class="btn btn-secondary btn-sm" onclick="exitRevisionQuizPlayer()">✕ Exit</button>
           </div>
@@ -2452,7 +2446,14 @@
     document.getElementById('fNavAdmin').style.display = isAdmin ? 'flex' : 'none';
 
     updateNeonToggleBar();
-    navigate(isPreviewMode ? 'tab-home' : (isAdmin ? 'tab-admin' : 'tab-home'));
+    let savedTab = localStorage.getItem('cg_active_tab') || 'tab-home';
+    if(isAdmin && savedTab === 'tab-admin') {
+      navigate('tab-admin');
+    } else if(!isAdmin && savedTab === 'tab-admin') {
+      navigate('tab-home');
+    } else {
+      navigate(savedTab);
+    }
   }
 
   function updateNeonToggleBar() {
@@ -2596,17 +2597,19 @@
     currentUser = null;
     isPreviewMode = false;
     localStorage.removeItem('cg_auth_user');
+    localStorage.removeItem('cg_active_tab');
     init();
   }
 
   function navigate(tabId) {
+    localStorage.setItem('cg_active_tab', tabId);
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.f-nav-item').forEach(b => b.classList.remove('active'));
     
     document.getElementById(tabId).style.display = 'block';
 
-    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
+    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick'].includes(tabId));
     if(btn) btn.classList.add('active');
 
     if(tabId === 'tab-home') document.getElementById('fNavHome').classList.add('active');
@@ -3416,6 +3419,27 @@
     renderRevisionQuizView();
   }
 
+  function removeCurrentRevQuestion() {
+    if(revQuizQuestions.length === 0) return;
+    let qToRemove = revQuizQuestions[revQuizIdx];
+    let listKey = activeRevisionCategory === 'wrong' ? 'persistent_wrong' : (activeRevisionCategory === 'unattempted' ? 'persistent_unatt' : 'persistent_saved');
+    let list = JSON.parse(localStorage.getItem(getUserKey(listKey))) || [];
+    
+    list = list.filter(item => item.id.toString() !== qToRemove.id.toString());
+    localStorage.setItem(getUserKey(listKey), JSON.stringify(list));
+
+    revQuizQuestions.splice(revQuizIdx, 1);
+    alert('Question removed from this list!');
+
+    if(revQuizQuestions.length === 0) {
+      alert('All questions in this list have been cleared/removed.');
+      exitRevisionQuizPlayer();
+    } else {
+      if(revQuizIdx >= revQuizQuestions.length) revQuizIdx = revQuizQuestions.length - 1;
+      renderRevisionQuizView();
+    }
+  }
+
   function renderRevisionQuizView() {
     const q = revQuizQuestions[revQuizIdx];
     document.getElementById('rq-counter').innerText = `Revision Q ${revQuizIdx + 1} of ${revQuizQuestions.length}`;
@@ -3640,46 +3664,10 @@
     document.getElementById('countRevWrong').innerText = pWrong.length;
     document.getElementById('countRevUnatt').innerText = pUnatt.length;
     document.getElementById('countRevSaved').innerText = pSaved.length;
-
-    document.getElementById('wrong-summary-list').innerHTML = pWrong.length === 0 ? `<p style="color:var(--muted); text-align:center; padding:15px;">Empty</p>` : pWrong.map((q, i) => `
-      <div style="background:var(--card-inner); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-        <span>#${i+1} ${q.subject} > ${q.topic}</span>
-        <button class="btn btn-danger btn-sm" onclick="removeWrongQuestion(${q.id})">Remove</button>
-      </div>`).join('');
-
-    document.getElementById('unatt-summary-list').innerHTML = pUnatt.length === 0 ? `<p style="color:var(--muted); text-align:center; padding:15px;">Empty</p>` : pUnatt.map((q, i) => `
-      <div style="background:var(--card-inner); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-        <span>#${i+1} ${q.subject} > ${q.topic}</span>
-        <button class="btn btn-secondary btn-sm" onclick="removeUnattQuestion(${q.id})">Remove</button>
-      </div>`).join('');
-
-    document.getElementById('saved-summary-list').innerHTML = pSaved.length === 0 ? `<p style="color:var(--muted); text-align:center; padding:15px;">No saved/bookmarked questions yet.</p>` : pSaved.map((q, i) => `
-      <div style="background:var(--card-inner); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-        <span>#${i+1} ${q.subject} > ${q.topic}</span>
-        <button class="btn btn-danger btn-sm" onclick="removeSavedQuestion(${q.id})">Remove</button>
-      </div>`).join('');
   }
 
-  function removeWrongQuestion(qId) {
-    let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
-    pWrong = pWrong.filter(q => q.id !== qId);
-    localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(pWrong));
-    renderRevisionNeededSection();
-  }
   function clearAllWrongQuestions() { localStorage.removeItem(getUserKey('persistent_wrong')); renderRevisionNeededSection(); }
-  function removeUnattQuestion(qId) {
-    let pUnatt = JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || [];
-    pUnatt = pUnatt.filter(q => q.id !== qId);
-    localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(pUnatt));
-    renderRevisionNeededSection();
-  }
   function clearAllUnattQuestions() { localStorage.removeItem(getUserKey('persistent_unatt')); renderRevisionNeededSection(); }
-  function removeSavedQuestion(qId) {
-    let pSaved = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
-    pSaved = pSaved.filter(q => q.id !== qId);
-    localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(pSaved));
-    renderRevisionNeededSection();
-  }
   function clearAllSavedQuestions() { localStorage.removeItem(getUserKey('persistent_saved')); renderRevisionNeededSection(); }
 
   function renderPastTestHistoryTable() {
