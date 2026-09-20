@@ -92,6 +92,19 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
+    /* Moving Banner Ticker for Motivational Quotes */
+    .quote-ticker-card { background: linear-gradient(135deg, rgba(30, 27, 75, 0.85), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 12px 18px; margin-bottom: 16px; overflow: hidden; white-space: nowrap; box-shadow: var(--glow-neon); display: flex; align-items: center; gap: 12px; }
+    .quote-ticker-icon { font-size: 1.2rem; flex-shrink: 0; animation: pulseGlow 2s infinite; }
+    .quote-ticker-text { display: inline-block; animation: marqueeScroll 28s linear infinite; font-size: 0.92rem; color: #c4b5fd; font-weight: 500; }
+    @keyframes marqueeScroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
     /* Horizontal Swipeable Cards for Mobile with Indicator */
     .selector-grid {
       display: flex;
@@ -245,13 +258,6 @@
     .review-tab-btn { background: var(--card-inner); border: 1px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: 0.2s; }
     .review-tab-btn.active { color: white; border-color: var(--primary); background: var(--primary); box-shadow: var(--glow-blue); }
 
-    .badges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 15px; }
-    .badge-card { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); border-radius: 16px; padding: 16px; text-align: center; backdrop-filter: blur(10px); transition: 0.3s; opacity: 0.4; filter: grayscale(1); }
-    .badge-card.unlocked { opacity: 1; filter: grayscale(0); border-color: rgba(250, 204, 21, 0.5); box-shadow: 0 0 20px rgba(250, 204, 21, 0.15); background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(59, 130, 246, 0.2)); }
-    .badge-icon { font-size: 2.2rem; margin-bottom: 6px; display: block; }
-    .badge-title { font-size: 0.85rem; font-weight: 700; color: #f3f4f6; margin-bottom: 4px; }
-    .badge-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.3; }
-
     .flt-builder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 15px; }
     .flt-sub-item { background: var(--card-inner); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
     .flt-sub-item .sub-meta { display: flex; flex-direction: column; }
@@ -389,6 +395,15 @@
 
     <!-- 0. DASHBOARD HOME OVERVIEW -->
     <div id="tab-home" class="tab-view">
+      
+      <!-- Moving Motivational Quote Banner (Top of Dashboard) -->
+      <div class="quote-ticker-card">
+        <div class="quote-ticker-icon">✨</div>
+        <div style="overflow:hidden; width:100%;">
+          <div class="quote-ticker-text" id="liveQuoteTicker">Loading daily inspiration from cloud...</div>
+        </div>
+      </div>
+
       <div class="card" style="background: linear-gradient(135deg, rgba(37,99,235,0.8) 0%, rgba(124,58,237,0.8) 50%, rgba(219,39,119,0.8) 100%); border: none; box-shadow: 0 10px 30px rgba(37,99,235,0.4);">
         <h2 id="homeWelcomeGreeting" style="color:#ffffff; font-size:1.6rem; margin-bottom:6px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">India's Structured Online Test Series Platform</h2>
         <p style="color:#e2e8f0; font-size:0.95rem; margin-bottom:0;">Boost your exam preparation with Test Series for CGPSC, CGVYAPAM, Banking, SSC & All State Exams.</p>
@@ -414,34 +429,6 @@
           <div id="dynamicProgressBar" style="background: linear-gradient(90deg, #3b82f6, #4ade80); height: 100%; width: 0%; transition: width 0.5s ease-in-out;"></div>
         </div>
         <p style="font-size: 0.78rem; color: var(--muted); text-align: center;">100% test completion par progress reset hogi aur Revision Count +1 ho jayega!</p>
-      </div>
-
-      <!-- Gamified Badges & Achievement Cards -->
-      <div class="card" style="border: 1px solid rgba(250, 204, 21, 0.3);">
-        <h3 style="color:#facc15; margin-bottom: 4px;">🏆 Achievement Badges</h3>
-        <p style="color:var(--muted); font-size:0.85rem; margin-bottom:12px;">Complete tests and revisions to unlock special status badges!</p>
-        <div class="badges-grid" id="achievementBadgesGrid">
-          <div class="badge-card" id="badge-bronze">
-            <span class="badge-icon">🥉</span>
-            <div class="badge-title">Bronze Challenger</div>
-            <div class="badge-desc">Attempt your 1st Test</div>
-          </div>
-          <div class="badge-card" id="badge-silver">
-            <span class="badge-icon">🥈</span>
-            <div class="badge-title">Silver Scholar</div>
-            <div class="badge-desc">Complete 5 Tests</div>
-          </div>
-          <div class="badge-card" id="badge-gold">
-            <span class="badge-icon">🥇</span>
-            <div class="badge-title">Gold Topper</div>
-            <div class="badge-desc">Reach 80%+ Overall %</div>
-          </div>
-          <div class="badge-card" id="badge-legend">
-            <span class="badge-icon">💎</span>
-            <div class="badge-title">Legendary Achiever</div>
-            <div class="badge-desc">Achieve 1st Revision Cycle</div>
-          </div>
-        </div>
       </div>
 
       <!-- Responsive Carousel / Side-by-side action wrapper with Neon Icons -->
@@ -477,12 +464,12 @@
         </div>
       </div>
 
-      <!-- Global Ranking Box (Top 10) -->
+      <!-- Global Ranking Box (Top 10 + User's Standing Inside) -->
       <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.4);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
           <div>
-            <h3 style="color:#60a5fa; margin:0;">🏆 Global Leaderboard (Top 10)</h3>
-            <p style="color:var(--muted); font-size:0.82rem; margin-top:2px;">Ranking based on Combined Score (Overall % + Revisions in Tests).</p>
+            <h3 style="color:#60a5fa; margin:0;">🏆 Global Leaderboard & Standings</h3>
+            <p style="color:var(--muted); font-size:0.82rem; margin-top:2px;">Top scorers and your current ranking position.</p>
           </div>
           <button class="btn btn-secondary btn-sm" onclick="syncOnlineLeaderboard()">🔄 Refresh</button>
         </div>
@@ -503,22 +490,6 @@
         </div>
       </div>
 
-      <!-- Your Personal Ranking Box (Below Top 10) -->
-      <div class="card" style="background: rgba(30, 41, 59, 0.85); border: 1px solid #38bdf8;">
-        <h3 style="color:#38bdf8; margin-bottom:10px;">📍 Your Current Standing</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-          <div class="stat-card"><span>Your Rank</span><h4 id="myRankVal" style="color:#facc15;">--</h4></div>
-          <div class="stat-card"><span>Overall %</span><h4 id="myPercentVal" style="color:#4ade80;">0%</h4></div>
-          <div class="stat-card"><span>Revisions</span><h4 id="myRevisionVal" style="color:#38bdf8;">0</h4></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>💡 Knowledge Tip of the Day</h3>
-        <p id="educationalTipText" style="font-size:0.92rem; color:#cbd5e1; line-height:1.6; background:var(--card-inner); padding:14px; border-radius:12px; border:1px solid var(--border);">
-          Tip: Always analyze your wrong attempts in the 'Revision Needed' section. Regular spaced repetition increases retention by up to 85%!
-        </p>
-      </div>
     </div>
 
     <!-- 1. TESTS SECTION (Interactive Accordion / Expandable Layout) -->
@@ -1393,6 +1364,22 @@
     }
   }
 
+  async function fetchLiveMotivationalQuote() {
+    const tickerEl = document.getElementById('liveQuoteTicker');
+    if(!tickerEl) return;
+    try {
+      let res = await fetch("https://zenquotes.io/api/random");
+      let data = await res.json();
+      if(Array.isArray(data) && data.length > 0) {
+        tickerEl.innerText = `"${data[0].q}" — ${data[0].a}`;
+      } else {
+        tickerEl.innerText = "“Success is not final; failure is not fatal: It is the courage to continue that counts.” — Winston Churchill";
+      }
+    } catch(e) {
+      tickerEl.innerText = "“Believe you can and you're halfway there.” — Theodore Roosevelt";
+    }
+  }
+
   function toggleQTypeFields(type, prefix) {
     const arField = document.getElementById(`${prefix}-ar-fields`);
     const matchField = document.getElementById(`${prefix}-match-fields`);
@@ -1491,13 +1478,6 @@
   let revQuizResponses = {};
   let revQuizIdx = 0;
 
-  const eduTips = [
-    "💡 Tip: Revision is the secret weapon of toppers. Review your wrong attempts weekly.",
-    "🚀 Fact: Attempting PYQs (Previous Year Questions) increases success rate by 40% in CGPSC.",
-    "🎯 Strategy: In negative marking exams, eliminate 2 incorrect options first to tilt odds in your favor.",
-    "📚 Habit: Read standard reference books and practice topic-wise tests daily without fail."
-  ];
-
   async function init() {
     setProgress(20);
     if (currentUser) {
@@ -1506,7 +1486,6 @@
     }
     
     setProgress(40);
-    // Non-blocking parallel background fetch for speed optimization
     fetchQuestionsFromCloud();
     fetchUsersFromCloud();
     
@@ -2181,8 +2160,6 @@
               subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {})
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-            
-            updateAchievementBadgesUI();
 
             if(!isSilent) {
               syncOnlineLeaderboard();
@@ -2198,8 +2175,6 @@
                 document.getElementById('currentPercentageVal').innerText = `${currentUser.current_percentage}%`;
                 document.getElementById('revisionCountVal').innerText = currentUser.revision_count || 0;
                 document.getElementById('dynamicProgressBar').style.width = `${currentUser.current_percentage}%`;
-                document.getElementById('myPercentVal').innerText = `${currentUser.current_percentage}%`;
-                document.getElementById('myRevisionVal').innerText = currentUser.revision_count || 0;
               }
             }
           }
@@ -2233,26 +2208,6 @@
     } else {
       resultEl.style.color = 'var(--danger)';
       resultEl.innerText = 'No matching account found with this Name and DOB.';
-    }
-  }
-
-  function updateAchievementBadgesUI() {
-    if(!currentUser) return;
-    const currentPct = currentUser.current_percentage || 0;
-    const revCount = currentUser.revision_count || 0;
-    const totalHistories = (JSON.parse(localStorage.getItem('cg_history')) || []).filter(h => h.username === currentUser.username).length;
-
-    if(totalHistories > 0 || currentPct > 0 || revCount > 0) {
-      document.getElementById('badge-bronze').classList.add('unlocked');
-    }
-    if(totalHistories >= 5) {
-      document.getElementById('badge-silver').classList.add('unlocked');
-    }
-    if(currentPct >= 80) {
-      document.getElementById('badge-gold').classList.add('unlocked');
-    }
-    if(revCount > 0) {
-      document.getElementById('badge-legend').classList.add('unlocked');
     }
   }
 
@@ -2467,7 +2422,7 @@
 
     if(tabId === 'tab-home') {
       renderHomeDashboard();
-      updateAchievementBadgesUI();
+      fetchLiveMotivationalQuote();
     }
     if(tabId === 'tab-test') {
       document.getElementById('testConfigWrapper').style.display = 'block';
@@ -2498,10 +2453,6 @@
   function renderHomeDashboard() {
     if(!currentUser) return;
     document.getElementById('homeWelcomeGreeting').innerText = `Welcome Back, ${currentUser.name}! 🔥`;
-    
-    const randomTip = eduTips[Math.floor(Math.random() * eduTips.length)];
-    document.getElementById('educationalTipText').innerText = randomTip;
-
     syncOnlineLeaderboard();
   }
 
@@ -3367,7 +3318,6 @@
         }
         localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
         renderRadarAnalytics();
-        updateAchievementBadgesUI();
       }
     } catch(err) {
       console.error("Cloud progress sync error:", err);
@@ -3549,8 +3499,8 @@
         });
 
         let top10 = usersData.slice(0, 10);
-        tbody.innerHTML = top10.map((u, idx) => `
-          <tr>
+        let htmlRows = top10.map((u, idx) => `
+          <tr style="${currentUser && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
             <td style="padding:10px; border:1px solid var(--border);">#${idx + 1}</td>
             <td style="padding:10px; border:1px solid var(--border); font-weight:600; color:#93c5fd;">@${u.username} (${u.name || 'User'})</td>
             <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80;">${u.current_percentage || 0}%</td>
@@ -3568,19 +3518,23 @@
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
-            document.getElementById('myRankVal').innerText = `#${myIndex + 1}`;
-            document.getElementById('myPercentVal').innerText = `${myData.current_percentage || 0}%`;
-            document.getElementById('myRevisionVal').innerText = myData.revision_count || 0;
-
             document.getElementById('currentPercentageVal').innerText = `${myData.current_percentage || 0}%`;
             document.getElementById('revisionCountVal').innerText = myData.revision_count || 0;
             document.getElementById('dynamicProgressBar').style.width = `${myData.current_percentage || 0}%`;
-            
-            updateAchievementBadgesUI();
-          } else {
-            document.getElementById('myRankVal').innerText = 'N/A';
+
+            if(myIndex >= 10) {
+              htmlRows += `
+                <tr style="background:rgba(59,130,246,0.25); border-top:2px dashed var(--primary);">
+                  <td style="padding:10px; border:1px solid var(--border); color:#facc15; font-weight:bold;">#${myIndex + 1}</td>
+                  <td style="padding:10px; border:1px solid var(--border); font-weight:bold; color:#38bdf8;">@${myData.username} (${myData.name || 'You'}) [You]</td>
+                  <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80; font-weight:bold;">${myData.current_percentage || 0}%</td>
+                  <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#facc15; font-weight:bold;">${myData.revision_count || 0}</td>
+                </tr>
+              `;
+            }
           }
         }
+        tbody.innerHTML = htmlRows;
       } else {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--muted);">No users found on leaderboard.</td></tr>`;
       }
