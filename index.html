@@ -177,7 +177,7 @@
     .palette-box.answered { background: rgba(16, 185, 129, 0.25); border-color: var(--success); color: var(--success); }
     .palette-box.current { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); color: #fff; }
 
-    /* Professional Hanging Indent Option & Statement Style */
+    /* Professional Hanging Indent Option Style */
     .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
     .test-opt input[type="radio"] { width: 16px !important; height: 16px !important; min-width: 16px; margin-top: 3px !important; cursor: pointer; accent-color: var(--primary); }
     .test-opt-label { font-size: 0.95rem; color: var(--text); line-height: 1.55; flex: 1; text-align: left; display: flex; gap: 6px; }
@@ -187,14 +187,14 @@
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-    /* Assertion & Reasoning Hanging Indent Layout */
-    .ar-block { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
-    .ar-item { display: flex; align-items: flex-start; gap: 8px; line-height: 1.6; }
-    .ar-label { font-weight: 700; color: #38bdf8; min-width: 115px; flex-shrink: 0; }
+    /* Compact & Tight Assertion & Reasoning Layout */
+    .ar-block { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; margin-bottom: 6px; }
+    .ar-item { display: flex; align-items: flex-start; gap: 8px; line-height: 1.45; margin: 0; padding: 0; }
+    .ar-label { font-weight: 700; color: #38bdf8; min-width: 110px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    /* Compact Statement List Item Hanging Indent Style */
-    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 4px; margin-top: 4px; line-height: 1.5; }
+    /* Ultra-Compact Statement List Item Hanging Indent Style */
+    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 2px !important; margin-top: 2px !important; line-height: 1.4; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
@@ -1382,7 +1382,7 @@
       const reason = document.getElementById('feedReason').value || 'Reason text...';
       
       bodyHtml = `
-        <div style="margin-bottom:10px;">${arText}</div>
+        <div style="margin-bottom:6px;">${arText}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -1400,7 +1400,7 @@
       const styleType = document.getElementById('feedStStyle').value;
       
       let stmtInputs = document.querySelectorAll('.statement-item-input');
-      let stHtml = `<div style="margin-bottom:4px;">${intro}</div>`;
+      let stHtml = `<div style="margin-bottom:2px;">${intro}</div>`;
       stmtInputs.forEach((inp, idx) => {
         let stText = inp.value || `Statement ${idx+1} text...`;
         let lbl = getFormattedLabel(idx, styleType);
@@ -1411,7 +1411,7 @@
           </div>
         `;
       });
-      stHtml += `<div style="margin-top:4px;">${conclusion}</div>`;
+      stHtml += `<div style="margin-top:2px;">${conclusion}</div>`;
       bodyHtml = stHtml;
     } else {
       bodyHtml = document.getElementById('feedText').value || 'Your question description will appear here...';
@@ -2560,7 +2560,7 @@
 
     if(q.type === 'ar') {
       bodyHtml = `
-        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2576,7 +2576,7 @@
       let stArr = q.statements;
       if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
       
-      bodyHtml = `<div style="margin-bottom:4px;">${q.stIntro || 'Consider the following statements:'}</div>`;
+      bodyHtml = `<div style="margin-bottom:2px;">${q.stIntro || 'Consider the following statements:'}</div>`;
       if(Array.isArray(stArr)) {
         stArr.forEach((st, idx) => {
           let lbl = getFormattedLabel(idx, q.stStyle);
@@ -2588,7 +2588,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:4px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:2px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2670,7 +2670,7 @@
 
     if(q.type === 'ar') {
       bodyHtml = `
-        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2686,7 +2686,7 @@
       let stArr = q.statements;
       if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
       
-      bodyHtml = `<div style="margin-bottom:4px;">${q.stIntro || 'Consider the following statements:'}</div>`;
+      bodyHtml = `<div style="margin-bottom:2px;">${q.stIntro || 'Consider the following statements:'}</div>`;
       if(Array.isArray(stArr)) {
         stArr.forEach((st, idx) => {
           let lbl = getFormattedLabel(idx, q.stStyle);
@@ -2698,7 +2698,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:4px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:2px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
