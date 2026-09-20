@@ -1229,7 +1229,7 @@
     }
   });
 
-  // Toggle modes for Test section
+  // Toggle modes for Test section with smooth scroll animation
   function switchTestMode(mode) {
     document.getElementById('selTestTopic').classList.toggle('active', mode === 'topic');
     document.getElementById('selTestNcert').classList.toggle('active', mode === 'ncert');
@@ -1238,9 +1238,12 @@
     document.getElementById('panelTestTopic').style.display = mode === 'topic' ? 'block' : 'none';
     document.getElementById('panelTestNcert').style.display = mode === 'ncert' ? 'block' : 'none';
     document.getElementById('panelTestExam').style.display = mode === 'exam' ? 'block' : 'none';
+
+    const panelId = mode === 'topic' ? 'panelTestTopic' : (mode === 'ncert' ? 'panelTestNcert' : 'panelTestExam');
+    document.getElementById(panelId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  // Toggle modes for Quiz section
+  // Toggle modes for Quiz section with smooth scroll animation
   function switchPracMode(mode) {
     document.getElementById('selPracTopic').classList.toggle('active', mode === 'topic');
     document.getElementById('selPracNcert').classList.toggle('active', mode === 'ncert');
@@ -1249,6 +1252,9 @@
     document.getElementById('panelPracTopic').style.display = mode === 'topic' ? 'block' : 'none';
     document.getElementById('panelPracNcert').style.display = mode === 'ncert' ? 'block' : 'none';
     document.getElementById('panelPracExam').style.display = mode === 'exam' ? 'block' : 'none';
+
+    const panelId = mode === 'topic' ? 'panelPracTopic' : (mode === 'ncert' ? 'panelPracNcert' : 'panelPracExam');
+    document.getElementById(panelId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function toggleNcertContainer(prefix) {
