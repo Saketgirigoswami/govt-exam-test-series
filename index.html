@@ -38,6 +38,19 @@
       background-attachment: fixed;
     }
     
+    /* Top Browser-Style Loading Progress Bar */
+    #topProgressBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #38bdf8, #8b5cf6, #10b981);
+      width: 0%;
+      z-index: 9999;
+      transition: width 0.4s ease-out, opacity 0.3s ease-in;
+      box-shadow: 0 0 10px #38bdf8;
+    }
+
     header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
     .brand { font-size: 0.82rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 62%; }
     @media(min-width: 480px) { .brand { font-size: 1.05rem; max-width: 72%; } }
@@ -251,6 +264,8 @@
   </style>
 </head>
 <body>
+
+<div id="topProgressBar"></div>
 
 <header>
   <div class="brand">🚀 Govt Exam Free Test Series</div>
@@ -1365,6 +1380,19 @@
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
+  function setProgress(percent) {
+    const bar = document.getElementById('topProgressBar');
+    if(!bar) return;
+    bar.style.opacity = '1';
+    bar.style.width = percent + '%';
+    if(percent >= 100) {
+      setTimeout(() => {
+        bar.style.opacity = '0';
+        setTimeout(() => { bar.style.width = '0%'; }, 300);
+      }, 400);
+    }
+  }
+
   function toggleQTypeFields(type, prefix) {
     const arField = document.getElementById(`${prefix}-ar-fields`);
     const matchField = document.getElementById(`${prefix}-match-fields`);
@@ -1471,14 +1499,19 @@
   ];
 
   async function init() {
+    setProgress(20);
     if (currentUser) {
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('portal-screen').style.display = 'block';
     }
     
-    await fetchQuestionsFromCloud();
-    await fetchUsersFromCloud();
+    setProgress(40);
+    // Non-blocking parallel background fetch for speed optimization
+    fetchQuestionsFromCloud();
+    fetchUsersFromCloud();
+    
     syncDynamicSubjects();
+    setProgress(70);
     
     if(currentUser) {
       showPortal();
@@ -1500,6 +1533,7 @@
       addStatementInputField();
     }
     updateLivePreview();
+    setProgress(100);
 
     setInterval(async () => {
       if (currentUser && document.visibilityState === "visible") {
