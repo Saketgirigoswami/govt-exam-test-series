@@ -63,10 +63,9 @@
     .nav-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: var(--glow-blue); }
     
     /* Neon Glow Floating Bottom Navigation with horizontal swipe support */
-    .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 94%; max-width: 550px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; display: flex; justify-content: flex-start; align-items: center; padding: 8px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow-x: auto; scrollbar-width: none; gap: 4px; }
+    .floating-bottom-nav { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: 94%; max-width: 500px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; display: flex; justify-content: space-around; align-items: center; padding: 8px 6px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
     @media(min-width: 768px) { .floating-bottom-nav { display: none; } }
-    .floating-bottom-nav::-webkit-scrollbar { display: none; }
-    .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 0 0 70px; }
+    .f-nav-item { background: transparent; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: 0.2s; flex: 1; }
     .f-nav-icon-badge { width: 36px; height: 36px; background: rgba(30, 41, 59, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid var(--border); transition: 0.2s; }
     .f-nav-item:hover .f-nav-icon-badge, .f-nav-item.active .f-nav-icon-badge { background: rgba(59, 130, 246, 0.2); border-color: var(--primary); box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); color: #38bdf8; }
     .f-nav-item.active { color: #60a5fa; }
@@ -75,7 +74,7 @@
     @media(min-width: 768px) { .card { padding: 32px; } }
 
     /* Carousel / Side-by-side action wrapper for mobile & desktop */
-    .dashboard-action-wrapper {
+    .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
       display: flex;
       gap: 15px;
       overflow-x: auto;
@@ -84,19 +83,19 @@
       margin-bottom: 20px;
       scrollbar-width: none;
     }
-    .dashboard-action-wrapper::-webkit-scrollbar { display: none; }
-    .dashboard-action-item {
+    .dashboard-action-wrapper::-webkit-scrollbar, .test-action-wrapper::-webkit-scrollbar, .prac-action-wrapper::-webkit-scrollbar { display: none; }
+    .dashboard-action-item, .test-action-item, .prac-action-item {
       flex: 0 0 100%;
       scroll-snap-align: start;
     }
     @media(min-width: 768px) {
-      .dashboard-action-wrapper {
+      .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         overflow-x: visible;
         scroll-snap-type: none;
       }
-      .dashboard-action-item {
+      .dashboard-action-item, .test-action-item, .prac-action-item {
         flex: unset;
       }
     }
@@ -274,9 +273,7 @@
     <div class="nav-bar">
       <button class="nav-btn active" onclick="navigate('tab-home')">🏠 Dashboard</button>
       <button class="nav-btn" onclick="navigate('tab-test')">📝 Topic-Wise Test</button>
-      <button class="nav-btn" onclick="navigate('tab-ncert-test')">📚 NCERT PYQ Test</button>
       <button class="nav-btn" onclick="navigate('tab-practice')">⚡ Quiz / Practice</button>
-      <button class="nav-btn" onclick="navigate('tab-ncert-practice')">📖 NCERT PYQ Quiz</button>
       <button class="nav-btn" onclick="navigate('tab-pyq-filter')">🎯 PYQ Filter</button>
       <button class="nav-btn" onclick="navigate('tab-flt')">📑 FLT Builder</button>
       <button class="nav-btn" onclick="navigate('tab-revision')" style="border-color: rgba(239, 68, 68, 0.4);">🔄 Revision Needed</button>
@@ -292,14 +289,8 @@
       <button class="f-nav-item" id="fNavTest" onclick="navigate('tab-test')">
         <div class="f-nav-icon-badge">📝</div>Tests
       </button>
-      <button class="f-nav-item" id="fNavNcertTest" onclick="navigate('tab-ncert-test')">
-        <div class="f-nav-icon-badge">📚</div>NCERT Test
-      </button>
       <button class="f-nav-item" id="fNavPrac" onclick="navigate('tab-practice')">
         <div class="f-nav-icon-badge">⚡</div>Quiz
-      </button>
-      <button class="f-nav-item" id="fNavNcertPrac" onclick="navigate('tab-ncert-practice')">
-        <div class="f-nav-icon-badge">📖</div>NCERT Quiz
       </button>
       <button class="f-nav-item" id="fNavRev" onclick="navigate('tab-revision')">
         <div class="f-nav-icon-badge">🔄</div>Revise
@@ -446,25 +437,72 @@
       </div>
     </div>
 
-    <!-- 1. TOPIC WISE TEST -->
+    <!-- 1. TOPIC WISE TEST & NCERT TEST SECTION -->
     <div id="tab-test" class="tab-view" style="display:none;">
-      <div class="card" id="test-config-box">
-        <h3>Topic-Wise Mock Test (3-Level Filter)</h3>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
-          <div>
-            <label>1. Subject</label>
-            <select id="testSub" onchange="cascadeTopics('testSub', 'testTop', 'testSubtop')"></select>
-          </div>
-          <div>
-            <label>2. Topic / Chapter</label>
-            <select id="testTop" onchange="cascadeSubtopics('testSub', 'testTop', 'testSubtop')"></select>
-          </div>
-          <div>
-            <label>3. Sub-Topic</label>
-            <select id="testSubtop"><option value="ALL">All Sub-Topics</option></select>
+      <div class="test-action-wrapper" id="testConfigWrapper">
+        
+        <!-- Card 1: Topic-Wise Test -->
+        <div class="test-action-item">
+          <div class="card" style="margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <h3>Topic-Wise Mock Test (3-Level Filter)</h3>
+              <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Practice questions using 3-level cascading filters.</p>
+              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
+                <div>
+                  <label>1. Subject</label>
+                  <select id="testSub" onchange="cascadeTopics('testSub', 'testTop', 'testSubtop')"></select>
+                </div>
+                <div>
+                  <label>2. Topic / Chapter</label>
+                  <select id="testTop" onchange="cascadeSubtopics('testSub', 'testTop', 'testSubtop')"></select>
+                </div>
+                <div>
+                  <label>3. Sub-Topic</label>
+                  <select id="testSubtop"><option value="ALL">All Sub-Topics</option></select>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn" style="width:100%; justify-content:center;" onclick="startEngine('test')">Start Timed Test</button>
+            </div>
           </div>
         </div>
-        <button class="btn" style="margin-top: 14px;" onclick="startEngine('test')">Start Timed Test</button>
+
+        <!-- Card 2: NCERT Based PYQ Test -->
+        <div class="test-action-item">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(59,130,246,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <h3>NCERT Based PYQ</h3>
+              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+              
+              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
+                <div>
+                  <label>1. Book Name</label>
+                  <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')">
+                    <option value="NCERT">NCERT</option>
+                    <option value="CG SCERT">CG SCERT</option>
+                  </select>
+                </div>
+                <div>
+                  <label>2. Class</label>
+                  <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub')"></select>
+                </div>
+                <div>
+                  <label>3. Subject</label>
+                  <select id="ncertTestSub" onchange="cascadeNcertChapters('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap')"></select>
+                </div>
+                <div>
+                  <label>4. Chapter Name</label>
+                  <select id="ncertTestChap"><option value="ALL">All Chapters</option></select>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div id="test-player" style="display: none;">
@@ -500,48 +538,63 @@
       </div>
     </div>
 
-    <!-- 1.1 NCERT BASED PYQ TEST -->
-    <div id="tab-ncert-test" class="tab-view" style="display:none;">
-      <div class="card" id="ncert-test-config-box">
-        <h3>NCERT Based PYQ</h3>
-        <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
-        
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
-          <div>
-            <label>1. Book Name</label>
-            <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')">
-              <option value="NCERT">NCERT</option>
-              <option value="CG SCERT">CG SCERT</option>
-            </select>
-          </div>
-          <div>
-            <label>2. Class</label>
-            <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub')"></select>
-          </div>
-          <div>
-            <label>3. Subject</label>
-            <select id="ncertTestSub" onchange="cascadeNcertChapters('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap')"></select>
-          </div>
-          <div>
-            <label>4. Chapter Name</label>
-            <select id="ncertTestChap"><option value="ALL">All Chapters</option></select>
-          </div>
-        </div>
-        <button class="btn btn-success" style="margin-top: 14px;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
-      </div>
-    </div>
-
-    <!-- 2. QUIZ / PRACTICE MODE -->
+    <!-- 2. QUIZ / PRACTICE MODE & NCERT QUIZ SECTION -->
     <div id="tab-practice" class="tab-view" style="display:none;">
-      <div class="card" id="prac-config-box">
-        <h3>Instant Practice & Quiz Mode</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">Immediate right/wrong feedback with Google-style AI multi-option meaning & analysis.</p>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
-          <div><label>Subject</label><select id="pracSub" onchange="cascadeTopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
-          <div><label>Topic / Chapter</label><select id="pracTop" onchange="cascadeSubtopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
-          <div><label>Sub-Topic</label><select id="pracSubtop"><option value="ALL">All Sub-Topics</option></select></div>
+      <div class="prac-action-wrapper" id="pracConfigWrapper">
+        
+        <!-- Card 1: Instant Practice & Quiz Mode -->
+        <div class="prac-action-item">
+          <div class="card" style="margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <h3>Instant Practice & Quiz Mode</h3>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 14px;">Immediate right/wrong feedback with Google-style AI analysis.</p>
+              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
+                <div><label>Subject</label><select id="pracSub" onchange="cascadeTopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
+                <div><label>Topic / Chapter</label><select id="pracTop" onchange="cascadeSubtopics('pracSub', 'pracTop', 'pracSubtop')"></select></div>
+                <div><label>Sub-Topic</label><select id="pracSubtop"><option value="ALL">All Sub-Topics</option></select></div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startEngine('practice')">Start Practice</button>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-success" style="margin-top: 14px;" onclick="startEngine('practice')">Start Practice</button>
+
+        <!-- Card 2: NCERT Based PYQ Quiz -->
+        <div class="prac-action-item">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(30,27,75,0.9)); border: 1px solid rgba(16,185,129,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <h3>NCERT Based PYQ Quiz</h3>
+              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+              
+              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
+                <div>
+                  <label>1. Book Name</label>
+                  <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')">
+                    <option value="NCERT">NCERT</option>
+                    <option value="CG SCERT">CG SCERT</option>
+                  </select>
+                </div>
+                <div>
+                  <label>2. Class</label>
+                  <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub')"></select>
+                </div>
+                <div>
+                  <label>3. Subject</label>
+                  <select id="ncertPracSub" onchange="cascadeNcertChapters('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap')"></select>
+                </div>
+                <div>
+                  <label>4. Chapter Name</label>
+                  <select id="ncertPracChap"><option value="ALL">All Chapters</option></select>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startNcertEngine('practice')">Start NCERT Practice Quiz</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div id="prac-player" style="display:none;">
@@ -566,37 +619,6 @@
             <button class="btn" onclick="movePracQ(1)">Next</button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- 2.1 NCERT BASED PYQ QUIZ -->
-    <div id="tab-ncert-practice" class="tab-view" style="display:none;">
-      <div class="card" id="ncert-prac-config-box">
-        <h3>NCERT Based PYQ Quiz</h3>
-        <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
-        
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
-          <div>
-            <label>1. Book Name</label>
-            <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')">
-              <option value="NCERT">NCERT</option>
-              <option value="CG SCERT">CG SCERT</option>
-            </select>
-          </div>
-          <div>
-            <label>2. Class</label>
-            <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub')"></select>
-          </div>
-          <div>
-            <label>3. Subject</label>
-            <select id="ncertPracSub" onchange="cascadeNcertChapters('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap')"></select>
-          </div>
-          <div>
-            <label>4. Chapter Name</label>
-            <select id="ncertPracChap"><option value="ALL">All Chapters</option></select>
-          </div>
-        </div>
-        <button class="btn btn-success" style="margin-top: 14px;" onclick="startNcertEngine('practice')">Start NCERT Practice Quiz</button>
       </div>
     </div>
 
@@ -824,9 +846,9 @@
               Choose NCERT or SCERT Tag (Optional)
             </label>
             
-            <div id="feedNcertContainer" style="display: none; margin-top: 12px; display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <div id="feedNcertContainer" style="display: none; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
               <div>
-                <label>Book Type</label>
+                <label>Book Name</label>
                 <select id="feedNcertBook" onchange="updateNcertClasses('feed')">
                   <option value="NCERT">NCERT</option>
                   <option value="CG SCERT">CG SCERT</option>
@@ -834,13 +856,11 @@
               </div>
               <div>
                 <label>Class</label>
-                <select id="feedNcertClass">
-                  <!-- Dynamically populated via JS -->
-                </select>
+                <select id="feedNcertClass"></select>
               </div>
               <div>
-                <label>Subject Part / Stream</label>
-                <input type="text" id="feedNcertPart" placeholder="e.g. History / Geography / Civics" style="margin-bottom:0;">
+                <label>Subject</label>
+                <input type="text" id="feedNcertPart" placeholder="e.g. History / Geography" style="margin-bottom:0;">
               </div>
               <div>
                 <label>Chapter Name</label>
@@ -961,7 +981,7 @@
         
         <div id="editNcertContainer" style="display: none; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
           <div>
-            <label>Book Type</label>
+            <label>Book Name</label>
             <select id="editNcertBook" onchange="updateNcertClasses('edit')">
               <option value="NCERT">NCERT</option>
               <option value="CG SCERT">CG SCERT</option>
@@ -972,7 +992,7 @@
             <select id="editNcertClass"></select>
           </div>
           <div>
-            <label>Subject Part / Stream</label>
+            <label>Subject</label>
             <input type="text" id="editNcertPart" placeholder="e.g. History / Geography" style="margin-bottom:0;">
           </div>
           <div>
@@ -1299,12 +1319,12 @@
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     if(mode === 'test') {
       document.getElementById('tab-test').style.display = 'block';
-      document.getElementById('test-config-box').style.display = 'none';
+      document.getElementById('testConfigWrapper').style.display = 'none';
       document.getElementById('test-player').style.display = 'block';
       renderTestView();
     } else {
       document.getElementById('tab-practice').style.display = 'block';
-      document.getElementById('prac-config-box').style.display = 'none';
+      document.getElementById('pracConfigWrapper').style.display = 'none';
       document.getElementById('prac-player').style.display = 'block';
       renderPracticeView();
     }
@@ -1593,9 +1613,7 @@
 
     if(tabId === 'tab-home') document.getElementById('fNavHome').classList.add('active');
     if(tabId === 'tab-test') document.getElementById('fNavTest').classList.add('active');
-    if(tabId === 'tab-ncert-test') document.getElementById('fNavNcertTest').classList.add('active');
     if(tabId === 'tab-practice') document.getElementById('fNavPrac').classList.add('active');
-    if(tabId === 'tab-ncert-practice') document.getElementById('fNavNcertPrac').classList.add('active');
     if(tabId === 'tab-revision') document.getElementById('fNavRev').classList.add('active');
     if(tabId === 'tab-results') document.getElementById('fNavRes').classList.add('active');
     if(tabId === 'tab-admin') {
@@ -1610,17 +1628,13 @@
       updateAchievementBadgesUI();
     }
     if(tabId === 'tab-test') {
-      document.getElementById('test-config-box').style.display = 'block';
+      document.getElementById('testConfigWrapper').style.display = 'flex';
       document.getElementById('test-player').style.display = 'none';
-    }
-    if(tabId === 'tab-ncert-test') {
       initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
     }
     if(tabId === 'tab-practice') {
-      document.getElementById('prac-config-box').style.display = 'block';
+      document.getElementById('pracConfigWrapper').style.display = 'flex';
       document.getElementById('prac-player').style.display = 'none';
-    }
-    if(tabId === 'tab-ncert-practice') {
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
     }
     if(tabId === 'tab-pyq-filter') populatePyqFilterOptions();
@@ -1800,12 +1814,12 @@
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     if(isOfficialTimed) {
       document.getElementById('tab-test').style.display = 'block';
-      document.getElementById('test-config-box').style.display = 'none';
+      document.getElementById('testConfigWrapper').style.display = 'none';
       document.getElementById('test-player').style.display = 'block';
       renderTestView();
     } else {
       document.getElementById('tab-practice').style.display = 'block';
-      document.getElementById('prac-config-box').style.display = 'none';
+      document.getElementById('pracConfigWrapper').style.display = 'none';
       document.getElementById('prac-player').style.display = 'block';
       renderPracticeView();
     }
@@ -1885,7 +1899,7 @@
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.getElementById('tab-test').style.display = 'block';
-    document.getElementById('test-config-box').style.display = 'none';
+    document.getElementById('testConfigWrapper').style.display = 'none';
     document.getElementById('test-player').style.display = 'block';
     renderTestView();
   }
@@ -1901,7 +1915,7 @@
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.getElementById('tab-test').style.display = 'block';
-    document.getElementById('test-config-box').style.display = 'none';
+    document.getElementById('testConfigWrapper').style.display = 'none';
     document.getElementById('test-player').style.display = 'block';
     renderTestView();
   }
@@ -2176,11 +2190,11 @@
     currentQIdx = 0;
 
     if(mode === 'practice') {
-      document.getElementById('prac-config-box').style.display = 'none';
+      document.getElementById('pracConfigWrapper').style.display = 'none';
       document.getElementById('prac-player').style.display = 'block';
       renderPracticeView();
     } else {
-      document.getElementById('test-config-box').style.display = 'none';
+      document.getElementById('testConfigWrapper').style.display = 'none';
       document.getElementById('test-player').style.display = 'block';
       renderTestView();
     }
