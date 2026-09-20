@@ -55,8 +55,8 @@
     .tb-lang-option:last-child { border-bottom: none; }
     .tb-lang-option:hover { background: rgba(59, 130, 246, 0.25); color: #fff; }
 
-    /* Hidden Google element container for API processing */
-    #google_translate_element { display: none !important; }
+    /* Completely Hidden Google element container for API processing */
+    #google_translate_element { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
     .goog-te-banner-frame { display: none !important; }
     body { top: 0 !important; }
 
@@ -236,7 +236,7 @@
     <div class="tb-translate-container">
       <button class="tb-translate-btn" onclick="toggleTbTranslateMenu(event)">
         <span style="display:inline-flex; align-items:center; gap:2px; font-weight:bold; font-size:0.75rem;">अ<span style="font-size:0.6rem; color:#38bdf8;">E</span></span>
-        <span>▼</span>
+        <span style="font-size:0.6rem;">▼</span>
       </button>
       <div class="tb-translate-dropdown" id="tbTranslateDropdown">
         <div class="tb-lang-option" onclick="triggerGoogleTranslate('en')">
@@ -1148,8 +1148,6 @@
   </div>
 </div>
 
-<div id="google_translate_element" style="display:none;"></div>
-
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'hi,en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
@@ -1168,10 +1166,24 @@
   });
 
   function triggerGoogleTranslate(langCode) {
-    const selectEl = document.querySelector('.goog-te-combo');
-    if (selectEl) {
-      selectEl.value = langCode;
-      selectEl.dispatchEvent(new Event('change'));
+    const tryTranslating = () => {
+      const selectEl = document.querySelector('.goog-te-combo');
+      if (selectEl) {
+        selectEl.value = langCode;
+        selectEl.dispatchEvent(new Event('change'));
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryTranslating()) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (tryTranslating() || attempts > 10) {
+          clearInterval(interval);
+        }
+      }, 300);
     }
     document.getElementById('tbTranslateDropdown').classList.remove('show');
   }
