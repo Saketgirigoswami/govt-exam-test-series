@@ -177,7 +177,7 @@
     .palette-box.answered { background: rgba(16, 185, 129, 0.25); border-color: var(--success); color: var(--success); }
     .palette-box.current { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); color: #fff; }
 
-    /* Professional Hanging Indent Option Style */
+    /* Professional Hanging Indent Option & Statement Style */
     .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
     .test-opt input[type="radio"] { width: 16px !important; height: 16px !important; min-width: 16px; margin-top: 3px !important; cursor: pointer; accent-color: var(--primary); }
     .test-opt-label { font-size: 0.95rem; color: var(--text); line-height: 1.55; flex: 1; text-align: left; display: flex; gap: 6px; }
@@ -187,8 +187,14 @@
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-    /* Ultra-Compact Statement List Item Hanging Indent Style */
-    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 2px !important; margin-top: 2px !important; line-height: 1.45; }
+    /* Assertion & Reasoning Hanging Indent Layout */
+    .ar-block { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .ar-item { display: flex; align-items: flex-start; gap: 8px; line-height: 1.6; }
+    .ar-label { font-weight: 700; color: #38bdf8; min-width: 115px; flex-shrink: 0; }
+    .ar-text { flex: 1; word-break: break-word; }
+
+    /* Compact Statement List Item Hanging Indent Style */
+    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 4px; margin-top: 4px; line-height: 1.5; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
@@ -929,7 +935,10 @@
               </div>
 
               <div id="feed-ar-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:12px; margin-bottom:10px;">
-                <label>Assertion (A):</label><textarea id="feedAssert" rows="2" placeholder="Write assertion statement..." oninput="updateLivePreview()"></textarea>
+                <label>Question Body (Direction / Intro):</label>
+                <textarea id="feedArText" rows="2" placeholder="e.g. Direction - For the below Assertion and Reason, choose correct alternative-" oninput="updateLivePreview()" style="margin-bottom:12px;"></textarea>
+                
+                <label>Assertion (A):</label><textarea id="feedAssert" rows="2" placeholder="Write assertion statement..." oninput="updateLivePreview()" style="margin-bottom:10px;"></textarea>
                 <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..." oninput="updateLivePreview()"></textarea>
               </div>
 
@@ -962,7 +971,7 @@
                 
                 <div style="margin-bottom:12px;">
                   <label>Numbering / Bullet Style</label>
-                  <select id="feedStStyle" onchange="updateLivePreview()">
+                  <select id="feedStStyle" onchange="reindexStatements(); updateLivePreview()">
                     <option value="num">1, 2, 3, 4 (Numeric)</option>
                     <option value="roman">i, ii, iii, iv (Roman)</option>
                     <option value="alpha">a, b, c, d (Alphabet)</option>
@@ -1368,16 +1377,30 @@
     matchWrap.innerHTML = '';
 
     if(type === 'ar') {
-      const assertion = document.getElementById('feedAssert').value || 'Assertion statement...';
-      const reason = document.getElementById('feedReason').value || 'Reason statement...';
-      bodyHtml = `<strong>Assertion (A):</strong>\n${assertion}\n\n<strong>Reason (R):</strong>\n${reason}`;
+      const arText = document.getElementById('feedArText').value || 'Direction - For the below Assertion and Reason, choose correct alternative-';
+      const assertion = document.getElementById('feedAssert').value || 'Assertion text...';
+      const reason = document.getElementById('feedReason').value || 'Reason text...';
+      
+      bodyHtml = `
+        <div style="margin-bottom:10px;">${arText}</div>
+        <div class="ar-block">
+          <div class="ar-item">
+            <span class="ar-label">Assertion (A):</span>
+            <span class="ar-text">${assertion}</span>
+          </div>
+          <div class="ar-item">
+            <span class="ar-label">Reason (R):</span>
+            <span class="ar-text">${reason}</span>
+          </div>
+        </div>
+      `;
     } else if(type === 'statement') {
       const intro = document.getElementById('feedStIntro').value || 'Consider the following statements:';
       const conclusion = document.getElementById('feedStConclusion').value || 'Which of the statements given above are correct?';
       const styleType = document.getElementById('feedStStyle').value;
       
       let stmtInputs = document.querySelectorAll('.statement-item-input');
-      let stHtml = `<div style="margin-bottom:2px;">${intro}</div>`;
+      let stHtml = `<div style="margin-bottom:4px;">${intro}</div>`;
       stmtInputs.forEach((inp, idx) => {
         let stText = inp.value || `Statement ${idx+1} text...`;
         let lbl = getFormattedLabel(idx, styleType);
@@ -1388,14 +1411,14 @@
           </div>
         `;
       });
-      stHtml += `<div style="margin-top:2px;">${conclusion}</div>`;
+      stHtml += `<div style="margin-top:4px;">${conclusion}</div>`;
       bodyHtml = stHtml;
     } else {
       bodyHtml = document.getElementById('feedText').value || 'Your question description will appear here...';
     }
 
     let bodyContainer = document.getElementById('prevBodyText');
-    if(type === 'statement') {
+    if(type === 'statement' || type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2255,6 +2278,7 @@
     };
 
     if(type === 'ar') {
+      newQ.arText = document.getElementById('feedArText').value.trim();
       newQ.assertion = document.getElementById('feedAssert').value.trim();
       newQ.reason = document.getElementById('feedReason').value.trim();
       newQ.text = "";
@@ -2535,7 +2559,19 @@
     matchWrap.innerHTML = '';
 
     if(q.type === 'ar') {
-      bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
+      bodyHtml = `
+        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div class="ar-block">
+          <div class="ar-item">
+            <span class="ar-label">Assertion (A):</span>
+            <span class="ar-text">${q.assertion}</span>
+          </div>
+          <div class="ar-item">
+            <span class="ar-label">Reason (R):</span>
+            <span class="ar-text">${q.reason}</span>
+          </div>
+        </div>
+      `;
     } else if(q.type === 'statement') {
       let stArr = q.statements;
       if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
@@ -2572,7 +2608,7 @@
     }
 
     let bodyContainer = document.getElementById('t-body');
-    if(q.type === 'statement') {
+    if(q.type === 'statement' || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2633,7 +2669,19 @@
     matchWrap.innerHTML = '';
 
     if(q.type === 'ar') {
-      bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
+      bodyHtml = `
+        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div class="ar-block">
+          <div class="ar-item">
+            <span class="ar-label">Assertion (A):</span>
+            <span class="ar-text">${q.assertion}</span>
+          </div>
+          <div class="ar-item">
+            <span class="ar-label">Reason (R):</span>
+            <span class="ar-text">${q.reason}</span>
+          </div>
+        </div>
+      `;
     } else if(q.type === 'statement') {
       let stArr = q.statements;
       if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
@@ -2670,7 +2718,7 @@
     }
 
     let bodyContainer = document.getElementById('p-body');
-    if(q.type === 'statement') {
+    if(q.type === 'statement' || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
