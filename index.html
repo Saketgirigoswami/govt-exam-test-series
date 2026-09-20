@@ -2609,7 +2609,7 @@
     
     document.getElementById(tabId).style.display = 'block';
 
-    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick'].includes(tabId));
+    const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
     if(btn) btn.classList.add('active');
 
     if(tabId === 'tab-home') document.getElementById('fNavHome').classList.add('active');
@@ -3209,7 +3209,7 @@
       const isChecked = userResponses[currentQIdx] === k ? 'checked' : '';
       optContainer.innerHTML += `
         <label class="test-opt">
-          <input type="radio" name="testOpt" value="${k}" ${isChecked} onchange="userResponses[${currentQIdx}]='${k}'; renderExamPalette();">
+          <input type="radio" name="testOpt" value="${k}" ${isChecked} onchange="userResponses[currentQIdx] = '${k}'; renderExamPalette();">
           <div class="test-opt-label">
             <span class="opt-letter">(${k})</span>
             <span class="opt-text">${(opts && opts[k]) ? opts[k] : ''}</span>
