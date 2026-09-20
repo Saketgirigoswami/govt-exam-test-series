@@ -91,7 +91,7 @@
     @media(min-width: 768px) {
       .dashboard-action-wrapper, .test-action-wrapper, .prac-action-wrapper {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         overflow-x: visible;
         scroll-snap-type: none;
       }
@@ -272,7 +272,7 @@
     <!-- Desktop Navigation Bar -->
     <div class="nav-bar">
       <button class="nav-btn active" onclick="navigate('tab-home')">🏠 Dashboard</button>
-      <button class="nav-btn" onclick="navigate('tab-test')">📝 Topic-Wise Test</button>
+      <button class="nav-btn" onclick="navigate('tab-test')">📝 Topic-Wise & Exam Test</button>
       <button class="nav-btn" onclick="navigate('tab-practice')">⚡ Quiz / Practice</button>
       <button class="nav-btn" onclick="navigate('tab-pyq-filter')">🎯 PYQ Filter</button>
       <button class="nav-btn" onclick="navigate('tab-flt')">📑 FLT Builder</button>
@@ -437,7 +437,7 @@
       </div>
     </div>
 
-    <!-- 1. TOPIC WISE TEST & NCERT TEST SECTION -->
+    <!-- 1. TESTS SECTION (Topic-Wise, NCERT, and Exam Based) -->
     <div id="tab-test" class="tab-view" style="display:none;">
       <div class="test-action-wrapper" id="testConfigWrapper">
         
@@ -503,6 +503,40 @@
           </div>
         </div>
 
+        <!-- Card 3: Exam Based Mock Test -->
+        <div class="test-action-item">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <h3>Exam Based Mock Test</h3>
+              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
+              
+              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
+                <div>
+                  <label>1. Exam Name</label>
+                  <select id="examTestName" onchange="cascadeExamYears('examTestName', 'examTestYear', 'examTestSub')">
+                    <option value="ALL">All Exams</option>
+                  </select>
+                </div>
+                <div>
+                  <label>2. Year</label>
+                  <select id="examTestYear" onchange="cascadeExamSubjects('examTestName', 'examTestYear', 'examTestSub')">
+                    <option value="ALL">All Years</option>
+                  </select>
+                </div>
+                <div>
+                  <label>3. Subjects</label>
+                  <select id="examTestSub">
+                    <option value="ALL">All Subjects</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn btn-warning" style="width:100%; justify-content:center; background:#facc15; color:#000;" onclick="startExamEngine('test')">Start Exam Mock Test</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div id="test-player" style="display: none;">
@@ -538,7 +572,7 @@
       </div>
     </div>
 
-    <!-- 2. QUIZ / PRACTICE MODE & NCERT QUIZ SECTION -->
+    <!-- 2. QUIZ SECTION (Practice, NCERT Quiz, and Exam Quiz) -->
     <div id="tab-practice" class="tab-view" style="display:none;">
       <div class="prac-action-wrapper" id="pracConfigWrapper">
         
@@ -591,6 +625,40 @@
             </div>
             <div style="margin-top: 16px;">
               <button class="btn btn-success" style="width:100%; justify-content:center;" onclick="startNcertEngine('practice')">Start NCERT Practice Quiz</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Exam Based Mock Quiz -->
+        <div class="prac-action-item">
+          <div class="card" style="background: linear-gradient(135deg, rgba(17,24,39,0.95), rgba(45,27,75,0.9)); border: 1px solid rgba(250,204,21,0.3); margin-bottom:0; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <h3>Exam Based Mock Quiz</h3>
+              <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 14px;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
+              
+              <div style="display:grid; grid-template-columns: 1fr; gap: 10px;">
+                <div>
+                  <label>1. Exam Name</label>
+                  <select id="examPracName" onchange="cascadeExamYears('examPracName', 'examPracYear', 'examPracSub')">
+                    <option value="ALL">All Exams</option>
+                  </select>
+                </div>
+                <div>
+                  <label>2. Year</label>
+                  <select id="examPracYear" onchange="cascadeExamSubjects('examPracName', 'examPracYear', 'examPracSub')">
+                    <option value="ALL">All Years</option>
+                  </select>
+                </div>
+                <div>
+                  <label>3. Subjects</label>
+                  <select id="examPracSub">
+                    <option value="ALL">All Subjects</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 16px;">
+              <button class="btn btn-warning" style="width:100%; justify-content:center; background:#facc15; color:#000;" onclick="startExamEngine('practice')">Start Exam Practice Quiz</button>
             </div>
           </div>
         </div>
@@ -1157,6 +1225,8 @@
     initNcertClassesDropdowns();
     initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
     initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
+    initExamCascades('examTestName', 'examTestYear', 'examTestSub');
+    initExamCascades('examPracName', 'examPracYear', 'examPracSub');
 
     setInterval(async () => {
       if (currentUser && document.visibilityState === "visible") {
@@ -1330,6 +1400,105 @@
     }
   }
 
+  // Exam Based Cascades & Engine
+  function initExamCascades(nameId, yearId, subId) {
+    let examsSet = new Set();
+    questions.forEach(q => {
+      if(q.exam && q.exam.trim()) {
+        let cleanEx = extractCleanExamName(q.exam);
+        if(cleanEx) examsSet.add(cleanEx);
+      }
+    });
+    let exams = Array.from(examsSet).sort();
+    let nameEl = document.getElementById(nameId);
+    if(nameEl) {
+      nameEl.innerHTML = '<option value="ALL">All Exams</option>' + exams.map(e => `<option value="${e}">${e}</option>`).join('');
+    }
+    cascadeExamYears(nameId, yearId, subId);
+  }
+
+  function cascadeExamYears(nameId, yearId, subId) {
+    const examVal = document.getElementById(nameId).value;
+    let yearsSet = new Set();
+    questions.forEach(q => {
+      if(q.exam && q.exam.trim()) {
+        let cleanEx = extractCleanExamName(q.exam);
+        let yr = extractExamYear(q.exam);
+        if(examVal === 'ALL' || cleanEx.toLowerCase() === examVal.toLowerCase() || cleanEx.toLowerCase().includes(examVal.toLowerCase())) {
+          if(yr) yearsSet.add(yr);
+        }
+      }
+    });
+    let years = Array.from(yearsSet).sort((a,b) => b - a);
+    let yearEl = document.getElementById(yearId);
+    if(yearEl) {
+      yearEl.innerHTML = '<option value="ALL">All Years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+    }
+    cascadeExamSubjects(nameId, yearId, subId);
+  }
+
+  function cascadeExamSubjects(nameId, yearId, subId) {
+    const examVal = document.getElementById(nameId).value;
+    const yearVal = document.getElementById(yearId).value;
+    let subsSet = new Set();
+
+    questions.forEach(q => {
+      if(!q.exam || !q.exam.trim()) return;
+      let cleanEx = extractCleanExamName(q.exam);
+      let yr = extractExamYear(q.exam);
+
+      if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return;
+      if(yearVal !== 'ALL' && yr !== yearVal && !q.exam.includes(yearVal)) return;
+
+      if(q.subject) subsSet.add(q.subject);
+    });
+
+    let subs = Array.from(subsSet).sort();
+    let subEl = document.getElementById(subId);
+    if(subEl) {
+      subEl.innerHTML = '<option value="ALL">All Subjects</option>' + subs.map(s => `<option value="${s}">${s}</option>`).join('');
+    }
+  }
+
+  function startExamEngine(mode) {
+    const prefix = mode === 'test' ? 'examTest' : 'examPrac';
+    const examVal = document.getElementById(`${prefix}Name`).value;
+    const yearVal = document.getElementById(`${prefix}Year`).value;
+    const subVal = document.getElementById(`${prefix}Sub`).value;
+
+    let pool = questions.filter(q => {
+      if(!q.exam || !q.exam.trim()) return false;
+      let cleanEx = extractCleanExamName(q.exam);
+      let yr = extractExamYear(q.exam);
+
+      if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return false;
+      if(yearVal !== 'ALL' && yr !== yearVal && !q.exam.includes(yearVal)) return false;
+      if(subVal !== 'ALL' && q.subject !== subVal) return false;
+
+      return true;
+    });
+
+    if(pool.length === 0) return alert('No questions found matching this Exam Based selection.');
+
+    activeEngineMode = mode === 'test' ? 'test' : 'practice';
+    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
+    userResponses = {};
+    currentQIdx = 0;
+
+    document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
+    if(mode === 'test') {
+      document.getElementById('tab-test').style.display = 'block';
+      document.getElementById('testConfigWrapper').style.display = 'none';
+      document.getElementById('test-player').style.display = 'block';
+      renderTestView();
+    } else {
+      document.getElementById('tab-practice').style.display = 'block';
+      document.getElementById('pracConfigWrapper').style.display = 'none';
+      document.getElementById('prac-player').style.display = 'block';
+      renderPracticeView();
+    }
+  }
+
   async function fetchQuestionsFromCloud() {
     try {
       let res = await fetch(QUESTIONS_API_URL + "?action=getQuestions");
@@ -1353,6 +1522,8 @@
       buildFltSubjectInputs();
       initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
+      initExamCascades('examTestName', 'examTestYear', 'examTestSub');
+      initExamCascades('examPracName', 'examPracYear', 'examPracSub');
     } catch(err) {
       console.error("Error fetching questions:", err);
       questions = [];
@@ -1631,11 +1802,13 @@
       document.getElementById('testConfigWrapper').style.display = 'flex';
       document.getElementById('test-player').style.display = 'none';
       initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
+      initExamCascades('examTestName', 'examTestYear', 'examTestSub');
     }
     if(tabId === 'tab-practice') {
       document.getElementById('pracConfigWrapper').style.display = 'flex';
       document.getElementById('prac-player').style.display = 'none';
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
+      initExamCascades('examPracName', 'examPracYear', 'examPracSub');
     }
     if(tabId === 'tab-pyq-filter') populatePyqFilterOptions();
     if(tabId === 'tab-flt') buildFltSubjectInputs();
