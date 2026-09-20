@@ -187,8 +187,8 @@
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-    /* Compact Statement List Item Hanging Indent Style */
-    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 4px; line-height: 1.45; }
+    /* Ultra-Compact Statement List Item Hanging Indent Style */
+    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 2px !important; margin-top: 2px !important; line-height: 1.45; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
@@ -1217,12 +1217,15 @@
 
   function addStatementInputField(val = '') {
     const listContainer = document.getElementById('statementInputsList');
-    const idx = listContainer.children.length + 1;
+    const idx = listContainer.children.length;
+    const styleType = document.getElementById('feedStStyle').value;
+    const lbl = getFormattedLabel(idx, styleType);
+
     const div = document.createElement('div');
     div.className = 'statement-input-row';
     div.style.cssText = 'display: flex; gap: 8px; align-items: center;';
     div.innerHTML = `
-      <span style="font-weight:bold; color:#38bdf8; min-width:24px;">${idx}.</span>
+      <span class="st-row-num" style="font-weight:bold; color:#38bdf8; min-width:24px;">${lbl}</span>
       <input type="text" class="statement-item-input" value="${val}" placeholder="Enter statement text..." style="margin-bottom:0; flex:1;" oninput="updateLivePreview()">
       <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); reindexStatements(); updateLivePreview();" style="padding: 10px 12px;">✕</button>
     `;
@@ -1231,8 +1234,9 @@
 
   function reindexStatements() {
     const rows = document.querySelectorAll('.statement-input-row');
+    const styleType = document.getElementById('feedStStyle').value;
     rows.forEach((row, i) => {
-      row.querySelector('span').innerText = `${i + 1}.`;
+      row.querySelector('.st-row-num').innerText = getFormattedLabel(i, styleType);
     });
   }
 
@@ -1373,7 +1377,7 @@
       const styleType = document.getElementById('feedStStyle').value;
       
       let stmtInputs = document.querySelectorAll('.statement-item-input');
-      let stHtml = `<div style="margin-bottom:4px;">${intro}</div>`;
+      let stHtml = `<div style="margin-bottom:2px;">${intro}</div>`;
       stmtInputs.forEach((inp, idx) => {
         let stText = inp.value || `Statement ${idx+1} text...`;
         let lbl = getFormattedLabel(idx, styleType);
@@ -1384,7 +1388,7 @@
           </div>
         `;
       });
-      stHtml += `<div style="margin-top:4px;">${conclusion}</div>`;
+      stHtml += `<div style="margin-top:2px;">${conclusion}</div>`;
       bodyHtml = stHtml;
     } else {
       bodyHtml = document.getElementById('feedText').value || 'Your question description will appear here...';
