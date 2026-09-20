@@ -274,7 +274,9 @@
     <div class="nav-bar">
       <button class="nav-btn active" onclick="navigate('tab-home')">🏠 Dashboard</button>
       <button class="nav-btn" onclick="navigate('tab-test')">📝 Topic-Wise Test</button>
+      <button class="nav-btn" onclick="navigate('tab-ncert-test')">📚 NCERT PYQ Test</button>
       <button class="nav-btn" onclick="navigate('tab-practice')">⚡ Quiz / Practice</button>
+      <button class="nav-btn" onclick="navigate('tab-ncert-practice')">📖 NCERT PYQ Quiz</button>
       <button class="nav-btn" onclick="navigate('tab-pyq-filter')">🎯 PYQ Filter</button>
       <button class="nav-btn" onclick="navigate('tab-flt')">📑 FLT Builder</button>
       <button class="nav-btn" onclick="navigate('tab-revision')" style="border-color: rgba(239, 68, 68, 0.4);">🔄 Revision Needed</button>
@@ -282,7 +284,7 @@
       <button class="nav-btn" id="navAdminBtn" onclick="navigate('tab-admin')" style="display:none;">🛠️ Admin Studio</button>
     </div>
 
-    <!-- Neon Glow Floating Bottom Navigation Bar for Mobile (With swipeable Admin Studio for Admin) -->
+    <!-- Neon Glow Floating Bottom Navigation Bar for Mobile -->
     <div class="floating-bottom-nav" id="mobileFloatingNav">
       <button class="f-nav-item active" id="fNavHome" onclick="navigate('tab-home')">
         <div class="f-nav-icon-badge">🏠</div>Home
@@ -290,8 +292,14 @@
       <button class="f-nav-item" id="fNavTest" onclick="navigate('tab-test')">
         <div class="f-nav-icon-badge">📝</div>Tests
       </button>
+      <button class="f-nav-item" id="fNavNcertTest" onclick="navigate('tab-ncert-test')">
+        <div class="f-nav-icon-badge">📚</div>NCERT Test
+      </button>
       <button class="f-nav-item" id="fNavPrac" onclick="navigate('tab-practice')">
         <div class="f-nav-icon-badge">⚡</div>Quiz
+      </button>
+      <button class="f-nav-item" id="fNavNcertPrac" onclick="navigate('tab-ncert-practice')">
+        <div class="f-nav-icon-badge">📖</div>NCERT Quiz
       </button>
       <button class="f-nav-item" id="fNavRev" onclick="navigate('tab-revision')">
         <div class="f-nav-icon-badge">🔄</div>Revise
@@ -492,6 +500,37 @@
       </div>
     </div>
 
+    <!-- 1.1 NCERT BASED PYQ TEST -->
+    <div id="tab-ncert-test" class="tab-view" style="display:none;">
+      <div class="card" id="ncert-test-config-box">
+        <h3>NCERT Based PYQ</h3>
+        <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+        
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+          <div>
+            <label>1. Book Name</label>
+            <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')">
+              <option value="NCERT">NCERT</option>
+              <option value="CG SCERT">CG SCERT</option>
+            </select>
+          </div>
+          <div>
+            <label>2. Class</label>
+            <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub')"></select>
+          </div>
+          <div>
+            <label>3. Subject</label>
+            <select id="ncertTestSub" onchange="cascadeNcertChapters('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap')"></select>
+          </div>
+          <div>
+            <label>4. Chapter Name</label>
+            <select id="ncertTestChap"><option value="ALL">All Chapters</option></select>
+          </div>
+        </div>
+        <button class="btn btn-success" style="margin-top: 14px;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
+      </div>
+    </div>
+
     <!-- 2. QUIZ / PRACTICE MODE -->
     <div id="tab-practice" class="tab-view" style="display:none;">
       <div class="card" id="prac-config-box">
@@ -527,6 +566,37 @@
             <button class="btn" onclick="movePracQ(1)">Next</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 2.1 NCERT BASED PYQ QUIZ -->
+    <div id="tab-ncert-practice" class="tab-view" style="display:none;">
+      <div class="card" id="ncert-prac-config-box">
+        <h3>NCERT Based PYQ Quiz</h3>
+        <p style="color: var(--muted); font-size: 0.82rem; margin-bottom: 14px;">Here you will get NCERT Based PYQ directly asked in Various Government Exams So Read NCERT Book & Practice here</p>
+        
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+          <div>
+            <label>1. Book Name</label>
+            <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')">
+              <option value="NCERT">NCERT</option>
+              <option value="CG SCERT">CG SCERT</option>
+            </select>
+          </div>
+          <div>
+            <label>2. Class</label>
+            <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub')"></select>
+          </div>
+          <div>
+            <label>3. Subject</label>
+            <select id="ncertPracSub" onchange="cascadeNcertChapters('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap')"></select>
+          </div>
+          <div>
+            <label>4. Chapter Name</label>
+            <select id="ncertPracChap"><option value="ALL">All Chapters</option></select>
+          </div>
+        </div>
+        <button class="btn btn-success" style="margin-top: 14px;" onclick="startNcertEngine('practice')">Start NCERT Practice Quiz</button>
       </div>
     </div>
 
@@ -1065,6 +1135,8 @@
     buildFltSubjectInputs();
     syncOnlineLeaderboard();
     initNcertClassesDropdowns();
+    initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
+    initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
 
     setInterval(async () => {
       if (currentUser && document.visibilityState === "visible") {
@@ -1119,6 +1191,125 @@
     classSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
   }
 
+  function initNcertCascades(bookId, classId, subId, chapId) {
+    cascadeNcertClasses(bookId, classId);
+  }
+
+  function cascadeNcertClasses(bookId, classId) {
+    const bookVal = document.getElementById(bookId).value;
+    const classEl = document.getElementById(classId);
+    let classes = bookVal === 'NCERT' ? ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th', 'Class 11th', 'Class 12th'] : ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th'];
+    classEl.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
+    
+    let correspondingSubId = bookId === 'ncertTestBook' ? 'ncertTestSub' : 'ncertPracSub';
+    cascadeNcertSubjects(bookId, classId, correspondingSubId);
+  }
+
+  function cascadeNcertSubjects(bookId, classId, subId) {
+    const bookVal = document.getElementById(bookId).value;
+    const classVal = document.getElementById(classId).value;
+    const subEl = document.getElementById(subId);
+
+    let matchedPool = questions.filter(q => {
+      let isNcertTag = q.ncert_tag === "true" || q.ncert_tag === true;
+      if(!isNcertTag) return false;
+      if(q.ncert_book !== bookVal) return false;
+      if(q.ncert_class !== classVal) return false;
+      return true;
+    });
+
+    let subjectsSet = new Set();
+    matchedPool.forEach(q => {
+      let chParts = (q.ncert_chapter || '').split('-');
+      let subPart = chParts[0] ? chParts[0].trim() : 'General';
+      subjectsSet.add(subPart);
+    });
+
+    let subs = Array.from(subjectsSet);
+    if(subs.length === 0) subs = ['History', 'Geography', 'Civics', 'Economics'];
+
+    subEl.innerHTML = '<option value="ALL">All Subjects</option>' + subs.map(s => `<option value="${s}">${s}</option>`).join('');
+    
+    let correspondingChapId = bookId === 'ncertTestBook' ? 'ncertTestChap' : 'ncertPracChap';
+    cascadeNcertChapters(bookId, classId, subId, correspondingChapId);
+  }
+
+  function cascadeNcertChapters(bookId, classId, subId, chapId) {
+    const bookVal = document.getElementById(bookId).value;
+    const classVal = document.getElementById(classId).value;
+    const subVal = document.getElementById(subId).value;
+    const chapEl = document.getElementById(chapId);
+
+    let matchedPool = questions.filter(q => {
+      let isNcertTag = q.ncert_tag === "true" || q.ncert_tag === true;
+      if(!isNcertTag) return false;
+      if(q.ncert_book !== bookVal) return false;
+      if(q.ncert_class !== classVal) return false;
+      if(subVal && subVal !== 'ALL') {
+        let chParts = (q.ncert_chapter || '').split('-');
+        let subPart = chParts[0] ? chParts[0].trim() : '';
+        if(subPart !== subVal) return false;
+      }
+      return true;
+    });
+
+    let chaptersSet = new Set();
+    matchedPool.forEach(q => {
+      let chParts = (q.ncert_chapter || '').split('-');
+      let chapName = chParts[1] ? chParts[1].trim() : (q.ncert_chapter || 'General Chapter');
+      chaptersSet.add(chapName);
+    });
+
+    let chaps = Array.from(chaptersSet);
+    chapEl.innerHTML = '<option value="ALL">All Chapters</option>' + chaps.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+
+  function startNcertEngine(mode) {
+    const prefix = mode === 'test' ? 'ncertTest' : 'ncertPrac';
+    const bookVal = document.getElementById(`${prefix}Book`).value;
+    const classVal = document.getElementById(`${prefix}Class`).value;
+    const subVal = document.getElementById(`${prefix}Sub`).value;
+    const chapVal = document.getElementById(`${prefix}Chap`).value;
+
+    let pool = questions.filter(q => {
+      let isNcertTag = q.ncert_tag === "true" || q.ncert_tag === true;
+      if(!isNcertTag) return false;
+      if(q.ncert_book !== bookVal) return false;
+      if(q.ncert_class !== classVal) return false;
+      if(subVal && subVal !== 'ALL') {
+        let chParts = (q.ncert_chapter || '').split('-');
+        let subPart = chParts[0] ? chParts[0].trim() : '';
+        if(subPart !== subVal) return false;
+      }
+      if(chapVal && chapVal !== 'ALL') {
+        let chParts = (q.ncert_chapter || '').split('-');
+        let chapName = chParts[1] ? chParts[1].trim() : (q.ncert_chapter || '');
+        if(chapName !== chapVal) return false;
+      }
+      return true;
+    });
+
+    if(pool.length === 0) return alert('No questions found matching this NCERT/SCERT selection.');
+
+    activeEngineMode = mode === 'test' ? 'test' : 'practice';
+    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
+    userResponses = {};
+    currentQIdx = 0;
+
+    document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
+    if(mode === 'test') {
+      document.getElementById('tab-test').style.display = 'block';
+      document.getElementById('test-config-box').style.display = 'none';
+      document.getElementById('test-player').style.display = 'block';
+      renderTestView();
+    } else {
+      document.getElementById('tab-practice').style.display = 'block';
+      document.getElementById('prac-config-box').style.display = 'none';
+      document.getElementById('prac-player').style.display = 'block';
+      renderPracticeView();
+    }
+  }
+
   async function fetchQuestionsFromCloud() {
     try {
       let res = await fetch(QUESTIONS_API_URL + "?action=getQuestions");
@@ -1140,6 +1331,8 @@
         questions = [];
       }
       buildFltSubjectInputs();
+      initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
+      initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
     } catch(err) {
       console.error("Error fetching questions:", err);
       questions = [];
@@ -1400,7 +1593,9 @@
 
     if(tabId === 'tab-home') document.getElementById('fNavHome').classList.add('active');
     if(tabId === 'tab-test') document.getElementById('fNavTest').classList.add('active');
+    if(tabId === 'tab-ncert-test') document.getElementById('fNavNcertTest').classList.add('active');
     if(tabId === 'tab-practice') document.getElementById('fNavPrac').classList.add('active');
+    if(tabId === 'tab-ncert-practice') document.getElementById('fNavNcertPrac').classList.add('active');
     if(tabId === 'tab-revision') document.getElementById('fNavRev').classList.add('active');
     if(tabId === 'tab-results') document.getElementById('fNavRes').classList.add('active');
     if(tabId === 'tab-admin') {
@@ -1418,9 +1613,15 @@
       document.getElementById('test-config-box').style.display = 'block';
       document.getElementById('test-player').style.display = 'none';
     }
+    if(tabId === 'tab-ncert-test') {
+      initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
+    }
     if(tabId === 'tab-practice') {
       document.getElementById('prac-config-box').style.display = 'block';
       document.getElementById('prac-player').style.display = 'none';
+    }
+    if(tabId === 'tab-ncert-practice') {
+      initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
     }
     if(tabId === 'tab-pyq-filter') populatePyqFilterOptions();
     if(tabId === 'tab-flt') buildFltSubjectInputs();
