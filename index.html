@@ -862,7 +862,7 @@
     <!-- 8. ADMIN STUDIO -->
     <div id="tab-admin" class="tab-view" style="display:none;">
       
-      <!-- Futuristic Selector Cards for Admin Sub-Navigation -->
+      <!-- 3 Futuristic Selector Cards for Admin Sub-Navigation -->
       <div class="selector-grid" style="margin-bottom: 20px;">
         <div class="selector-card active" id="selAdminFeed" onclick="switchAdminSubTab('feed')">
           <h4 style="color:#60a5fa; margin-bottom:6px;">📝 Feed Questions</h4>
@@ -872,9 +872,13 @@
           <h4 style="color:#38bdf8; margin-bottom:6px;">⚙️ Subject Manager</h4>
           <p style="color:var(--muted); font-size:0.8rem; margin:0;">Add new subjects and manage exam categories.</p>
         </div>
+        <div class="selector-card" id="selAdminPowers" onclick="switchAdminSubTab('powers')">
+          <h4 style="color:#facc15; margin-bottom:6px;">🛡️ Register & Admin Powers</h4>
+          <p style="color:var(--muted); font-size:0.8rem; margin:0;">Register admins, edit info & manage admin rights.</p>
+        </div>
       </div>
 
-      <!-- TAB 1: QUESTION FEED FORM WITH STATEMENT BUILDER & LIVE PREVIEW -->
+      <!-- SUB-TAB 1: QUESTION FEED FORM WITH STATEMENT BUILDER & LIVE PREVIEW -->
       <div id="admin-sub-feed" class="admin-sub-view">
         <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
           
@@ -1046,7 +1050,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: SUBJECT MANAGER -->
+      <!-- SUB-TAB 2: SUBJECT MANAGER -->
       <div id="admin-sub-manage" class="admin-sub-view" style="display:none;">
         <div class="card">
           <h3 style="color:#a78bfa; margin-bottom:12px;">📚 Add New Subject to Portal</h3>
@@ -1055,6 +1059,76 @@
             <button class="btn btn-success" onclick="addNewSubjectFromAdmin()">Add Subject</button>
           </div>
         </div>
+      </div>
+
+      <!-- SUB-TAB 3: REGISTER & ADMIN POWERS (NEW MODULE) -->
+      <div id="admin-sub-powers" class="admin-sub-view" style="display:none;">
+        
+        <!-- 1. Register Admin Form Card -->
+        <div class="card" style="border: 1px solid rgba(250, 204, 21, 0.3);">
+          <h3 style="color:#facc15; margin-bottom:12px;">🛡️ Register New Admin</h3>
+          <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Register a new administrator so they can log in, feed questions, and store test score records on Google Sheet.</p>
+          
+          <form id="adminRegForm" onsubmit="handleNewAdminRegister(event)">
+            <label>Full Name</label>
+            <input type="text" id="admRegName" placeholder="Enter Admin Real Name" required>
+            
+            <label>Username (Admin ID)</label>
+            <input type="text" id="admRegUser" placeholder="e.g. new_admin" required>
+            
+            <label>Date Of Birth (DOB)</label>
+            <input type="date" id="admRegDob" required>
+
+            <label>Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="admRegPass" placeholder="••••••••" required>
+              <span class="toggle-password" onclick="togglePasswordVisibility('admRegPass', this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </span>
+            </div>
+
+            <button type="submit" class="btn btn-warning" style="background:#facc15; color:#000; width:100%; justify-content:center; margin-top:6px;">Register Admin Account</button>
+          </form>
+        </div>
+
+        <!-- 2. Edit Admin Info Card -->
+        <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
+          <h3 style="color:#60a5fa; margin-bottom:12px;">✏️ Edit & Manage Existing Admins</h3>
+          <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">List of all registered administrators. Click the pencil icon to edit credentials or remove admin access.</p>
+          <div id="adminListContainer" style="display:flex; flex-direction:column; gap:10px;">
+            <p style="color:var(--muted); text-align:center; padding:10px;">Loading admins...</p>
+          </div>
+        </div>
+
+        <!-- 3. Admin Rights & Powers Card -->
+        <div class="card" style="border: 1px solid rgba(139, 92, 246, 0.4);">
+          <h3 style="color:#a78bfa; margin-bottom:14px;">⚡ Admin Rights & Powers Control</h3>
+          
+          <!-- A. Admin Power Auto-Generated List -->
+          <div style="background:var(--card-inner); padding:14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
+            <h4 style="color:#38bdf8; margin-bottom:6px;">A. Auto-Generated Available Powers List</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">System dynamically lists all active administrative permissions.</p>
+            <div id="systemPowersListContainer" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+          </div>
+
+          <!-- B. Manage Admins Power -->
+          <div style="background:var(--card-inner); padding:14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
+            <h4 style="color:#a78bfa; margin-bottom:6px;">B. Manage Admins Power Allocation</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">Assign or revoke specific administrative powers for each admin.</p>
+            <div id="manageAdminsPowerContainer"></div>
+          </div>
+
+          <!-- C. Create New Power of Admin -->
+          <div style="background:var(--card-inner); padding:14px; border-radius:12px; border:1px solid var(--border);">
+            <h4 style="color:#4ade80; margin-bottom:6px;">C. Create New Power of Admin</h4>
+            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">Add a brand new permission key that can be assigned to admins.</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <input type="text" id="newPowerNameInput" placeholder="Enter Power Name (e.g. Can_Delete_Users)" style="flex:1; min-width:220px; margin-bottom:0;">
+              <button class="btn btn-success" onclick="createNewAdminPower()">Create Power</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1193,6 +1267,32 @@
   </div>
 </div>
 
+<!-- Edit Admin Modal -->
+<div class="modal-backdrop" id="editAdminModal">
+  <div class="modal-content" style="max-width:450px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="color:#60a5fa; margin:0;">✏️ Edit Admin Info</h3>
+      <button class="btn btn-secondary" onclick="closeEditAdminModal()">✕ Close</button>
+    </div>
+    <form id="editAdminForm" onsubmit="handleEditAdminSubmit(event)">
+      <input type="hidden" id="editAdminOldUser">
+      <label>Full Name</label>
+      <input type="text" id="editAdminName" required>
+      <label>Username (Admin ID)</label>
+      <input type="text" id="editAdminUser" required>
+      <label>Date Of Birth</label>
+      <input type="date" id="editAdminDob" required>
+      <label>Password</label>
+      <input type="text" id="editAdminPass" required>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:15px;">
+        <button type="button" class="btn btn-danger" onclick="deleteAdminAccount()">🗑️ Delete Admin</button>
+        <button type="submit" class="btn btn-success">💾 Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Forgot Password Modal -->
 <div class="modal-backdrop" id="forgotPasswordModal">
   <div class="modal-content" style="max-width:400px;">
@@ -1273,6 +1373,13 @@
   let attemptedQIds = JSON.parse(localStorage.getItem('cg_attempted_qids')) || [];
   let currentUser = JSON.parse(localStorage.getItem('cg_auth_user')) || null;
 
+  let adminPowersList = JSON.parse(localStorage.getItem('cg_admin_powers')) || [
+    "Feed_Questions", "Edit_Questions", "Delete_Questions", "Manage_Subjects", "Register_Admins", "Manage_Admin_Powers"
+  ];
+  let adminAllottedPowers = JSON.parse(localStorage.getItem('cg_admin_allotted')) || {
+    "adminsaket": ["Feed_Questions", "Edit_Questions", "Delete_Questions", "Manage_Subjects", "Register_Admins", "Manage_Admin_Powers"]
+  };
+
   function getUserKey(key) {
     if (!currentUser) return `cg_guest_${key}`;
     return `cg_${currentUser.username}_${key}`;
@@ -1319,6 +1426,7 @@
     initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
     initExamCascades('examTestName', 'examTestYear', 'examTestSub');
     initExamCascades('examPracName', 'examPracYear', 'examPracSub');
+    renderAdminManagementUI();
     
     if(document.getElementById('statementInputsList').children.length === 0) {
       addStatementInputField();
@@ -1352,6 +1460,192 @@
       }
     }
   });
+
+  function switchAdminSubTab(subTab) {
+    document.getElementById('selAdminFeed').classList.toggle('active', subTab === 'feed');
+    document.getElementById('selAdminManage').classList.toggle('active', subTab === 'manage');
+    document.getElementById('selAdminPowers').classList.toggle('active', subTab === 'powers');
+
+    document.getElementById('admin-sub-feed').style.display = subTab === 'feed' ? 'block' : 'none';
+    document.getElementById('admin-sub-manage').style.display = subTab === 'manage' ? 'block' : 'none';
+    document.getElementById('admin-sub-powers').style.display = subTab === 'powers' ? 'block' : 'none';
+
+    let targetId = subTab === 'feed' ? 'selAdminFeed' : (subTab === 'manage' ? 'selAdminManage' : 'selAdminPowers');
+    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    if(subTab === 'powers') {
+      renderAdminManagementUI();
+    }
+  }
+
+  function renderAdminManagementUI() {
+    renderAdminListForEdit();
+    renderSystemPowersList();
+    renderManageAdminsPower();
+  }
+
+  function renderAdminListForEdit() {
+    const container = document.getElementById('adminListContainer');
+    if(!container) return;
+
+    let adminMembers = members.filter(m => m.role === 'admin' || m.username === 'adminsaket' || (adminAllottedPowers[m.username]));
+    if(adminMembers.length === 0) {
+      adminMembers = [{ username: 'adminsaket', name: 'Saket Giri Goswami', dob: '1997-04-05', pass: 'Qwertypad@1' }];
+    }
+
+    container.innerHTML = adminMembers.map(adm => `
+      <div style="background:var(--card-inner); border:1px solid var(--border); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong style="color:#60a5fa; font-size:0.95rem;">@${adm.username}</strong>
+          <div style="font-size:0.8rem; color:var(--muted);">${adm.name || 'Admin'} | DOB: ${adm.dob || 'N/A'}</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="openEditAdminModal('${adm.username}', '${adm.name || ''}', '${adm.dob || ''}', '${adm.pass || ''}')" title="Edit Admin">✏️ Edit</button>
+      </div>
+    `).join('');
+  }
+
+  function openEditAdminModal(username, name, dob, pass) {
+    document.getElementById('editAdminOldUser').value = username;
+    document.getElementById('editAdminUser').value = username;
+    document.getElementById('editAdminName').value = name;
+    document.getElementById('editAdminDob').value = dob;
+    document.getElementById('editAdminPass').value = pass;
+    document.getElementById('editAdminModal').style.display = 'block';
+  }
+
+  function closeEditAdminModal() {
+    document.getElementById('editAdminModal').style.display = 'none';
+  }
+
+  async function handleEditAdminSubmit(e) {
+    e.preventDefault();
+    const oldUser = document.getElementById('editAdminOldUser').value;
+    const newUser = document.getElementById('editAdminUser').value.trim().toLowerCase();
+    const name = document.getElementById('editAdminName').value.trim();
+    const dob = document.getElementById('editAdminDob').value;
+    const pass = document.getElementById('editAdminPass').value.trim();
+
+    let mIdx = members.findIndex(m => m.username.toLowerCase() === oldUser.toLowerCase());
+    if(mIdx !== -1) {
+      members[mIdx].username = newUser;
+      members[mIdx].name = name;
+      members[mIdx].dob = dob;
+      members[mIdx].pass = pass;
+      members[mIdx].role = 'admin';
+    } else {
+      members.push({ username: newUser, name, dob, pass, role: 'admin' });
+    }
+
+    closeEditAdminModal();
+    alert('Admin Info Updated Successfully!');
+    renderAdminManagementUI();
+
+    try {
+      await fetch(USERS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "registerUser", username: newUser, name, dob, pass, role: 'admin' })
+      });
+    } catch(err) {
+      console.error("Cloud admin update error:", err);
+    }
+  }
+
+  async function deleteAdminAccount() {
+    const userToDel = document.getElementById('editAdminUser').value;
+    if(userToDel === 'adminsaket') return alert('Cannot delete the master admin @adminsaket!');
+    if(!confirm(`Are you sure you want to delete admin @${userToDel}?`)) return;
+
+    members = members.filter(m => m.username.toLowerCase() !== userToDel.toLowerCase());
+    closeEditAdminModal();
+    alert('Admin Deleted Successfully!');
+    renderAdminManagementUI();
+  }
+
+  function renderSystemPowersList() {
+    const container = document.getElementById('systemPowersListContainer');
+    if(!container) return;
+    container.innerHTML = adminPowersList.map(pow => `
+      <span style="background:rgba(59,130,246,0.2); border:1px solid var(--primary); color:#38bdf8; padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600;">${pow}</span>
+    `).join('');
+  }
+
+  function renderManageAdminsPower() {
+    const container = document.getElementById('manageAdminsPowerContainer');
+    if(!container) return;
+
+    let adminMembers = members.filter(m => m.role === 'admin' || m.username === 'adminsaket' || adminAllottedPowers[m.username]);
+    if(adminMembers.length === 0) adminMembers = [{ username: 'adminsaket', name: 'Saket Giri Goswami' }];
+
+    container.innerHTML = adminMembers.map(adm => {
+      let currentPowers = adminAllottedPowers[adm.username] || [];
+      return `
+        <div style="background:var(--card); padding:10px 14px; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+          <div style="font-weight:600; color:#93c5fd; margin-bottom:6px;">@${adm.username}</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            ${adminPowersList.map(pow => {
+              let hasPow = currentPowers.includes(pow);
+              return `<button class="btn btn-sm ${hasPow ? 'btn-success' : 'btn-secondary'}" onclick="toggleAdminPower('${adm.username}', '${pow}')">${pow} ${hasPow ? '✓' : '+'}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleAdminPower(username, pow) {
+    if(!adminAllottedPowers[username]) adminAllottedPowers[username] = [];
+    let idx = adminAllottedPowers[username].indexOf(pow);
+    if(idx !== -1) {
+      adminAllottedPowers[username].splice(idx, 1);
+    } else {
+      adminAllottedPowers[username].push(pow);
+    }
+    localStorage.setItem('cg_admin_allotted', JSON.stringify(adminAllottedPowers));
+    renderManageAdminsPower();
+  }
+
+  function createNewAdminPower() {
+    const input = document.getElementById('newPowerNameInput');
+    const val = input.value.trim().replace(/\s+/g, '_');
+    if(!val) return alert('Please enter a valid power name!');
+    if(adminPowersList.includes(val)) return alert('Power already exists!');
+
+    adminPowersList.push(val);
+    localStorage.setItem('cg_admin_powers', JSON.stringify(adminPowersList));
+    input.value = '';
+    renderAdminManagementUI();
+    alert(`New Admin Power "${val}" created successfully!`);
+  }
+
+  async function handleNewAdminRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('admRegName').value.trim();
+    const username = document.getElementById('admRegUser').value.trim().toLowerCase();
+    const dob = document.getElementById('admRegDob').value;
+    const pass = document.getElementById('admRegPass').value.trim();
+
+    if(!name || !username || !dob || !pass) return alert('Please fill all fields!');
+    if(/\s/.test(username)) return alert('Username cannot contain spaces!');
+
+    let payload = { action: "registerUser", username: username, name: name, dob: dob, pass: pass, role: 'admin' };
+    try {
+      await fetch(USERS_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      members.push({ username, name, dob, pass, role: 'admin', subject_progress: {} });
+      adminAllottedPowers[username] = ["Feed_Questions", "Edit_Questions"];
+      localStorage.setItem('cg_admin_allotted', JSON.stringify(adminAllottedPowers));
+
+      alert(`Admin @${username} registered successfully and synced to Google Sheet!`);
+      document.getElementById('adminRegForm').reset();
+      renderAdminManagementUI();
+    } catch(err) {
+      alert("Error connecting to Google Sheet server.");
+    }
+  }
 
   function getFormattedLabel(idx, styleType) {
     const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
@@ -1999,7 +2293,7 @@
       currentUser = { 
         name: found.name, 
         username: found.username, 
-        role: 'member', 
+        role: found.role || 'member', 
         subject_progress: typeof found.subject_progress === 'string' ? JSON.parse(found.subject_progress) : (found.subject_progress || {}) 
       };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
@@ -2012,13 +2306,23 @@
   function adminLogin() {
     const user = document.getElementById('adminUser').value.trim().toLowerCase();
     const pass = document.getElementById('adminPass').value.trim();
-    if(user === "adminsaket" && pass === "Qwertypad@1") {
-      currentUser = { name: "Saket Giri Goswami", username: "adminsaket", role: 'admin', subject_progress: {} };
+    
+    let foundAdmin = members.find(m => m.username && m.username.toLowerCase() === user && m.pass === pass && (m.role === 'admin' || m.username === 'adminsaket'));
+
+    if((user === "adminsaket" && pass === "Qwertypad@1") || foundAdmin) {
+      currentUser = { 
+        name: foundAdmin ? foundAdmin.name : "Saket Giri Goswami", 
+        username: user, 
+        role: 'admin', 
+        subject_progress: foundAdmin ? (typeof foundAdmin.subject_progress === 'string' ? JSON.parse(foundAdmin.subject_progress) : (foundAdmin.subject_progress || {})) : {} 
+      };
       isPreviewMode = false;
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
       navigate('tab-admin');
-    } else alert('Invalid Admin Credentials!');
+    } else {
+      alert('Invalid Admin Credentials or not registered as admin!');
+    }
   }
 
   function logout() {
