@@ -79,18 +79,20 @@
     .card { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; padding: 22px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); position: relative; }
     @media(min-width: 768px) { .card { padding: 32px; } }
 
+    /* Horizontal Swipeable Cards for Mobile with Indicator */
     .selector-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: 15px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 12px;
       margin-bottom: 20px;
+      scrollbar-width: none;
     }
-    @media(max-width: 768px) {
-      .selector-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    .selector-grid::-webkit-scrollbar { display: none; }
     .selector-card {
+      flex: 0 0 82%;
+      scroll-snap-align: start;
       background: var(--card-inner);
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -98,6 +100,17 @@
       cursor: pointer;
       transition: 0.25s;
       text-align: left;
+    }
+    @media(min-width: 768px) {
+      .selector-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        overflow-x: visible;
+        scroll-snap-type: none;
+      }
+      .selector-card {
+        flex: unset;
+      }
     }
     .selector-card:hover {
       border-color: var(--primary);
@@ -109,6 +122,12 @@
       background: rgba(59, 130, 246, 0.12);
       box-shadow: var(--glow-blue);
     }
+
+    /* Swipe Indicator Line */
+    .swipe-indicator-bar { display: flex; justify-content: center; gap: 6px; margin-top: -10px; margin-bottom: 16px; }
+    @media(min-width: 768px) { .swipe-indicator-bar { display: none; } }
+    .swipe-dot { width: 24px; height: 3px; background: rgba(255,255,255,0.2); border-radius: 2px; transition: 0.3s; }
+    .swipe-dot.active { background: var(--primary); width: 36px; box-shadow: var(--glow-blue); }
 
     .dashboard-action-wrapper {
       display: flex;
@@ -491,7 +510,7 @@
     <div id="tab-test" class="tab-view" style="display:none;">
       <div id="testConfigWrapper">
         <!-- Top 3 Selector Cards -->
-        <div class="selector-grid">
+        <div class="selector-grid" id="testSelectorGrid" onscroll="updateSwipeIndicator('testSelectorGrid', 'testSwipeDots')">
           <div class="selector-card active" id="selTestTopic" onclick="switchTestMode('topic')">
             <h4 style="color:#60a5fa; margin-bottom:6px;">Topic-Wise Mock Test</h4>
             <p style="color:var(--muted); font-size:0.8rem; margin:0;">Practice questions using 3-level cascading filters.</p>
@@ -504,6 +523,11 @@
             <h4 style="color:#facc15; margin-bottom:6px;">Exam Based Mock Test</h4>
             <p style="color:var(--muted); font-size:0.8rem; margin:0;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
           </div>
+        </div>
+        <div class="swipe-indicator-bar" id="testSwipeDots">
+          <div class="swipe-dot active" onclick="scrollToCard('testSelectorGrid', 0)"></div>
+          <div class="swipe-dot" onclick="scrollToCard('testSelectorGrid', 1)"></div>
+          <div class="swipe-dot" onclick="scrollToCard('testSelectorGrid', 2)"></div>
         </div>
 
         <div class="card" id="panelTestTopic" style="margin-top:20px;">
@@ -619,7 +643,7 @@
     <div id="tab-practice" class="tab-view" style="display:none;">
       <div id="pracConfigWrapper">
         <!-- Top 3 Selector Cards for Quiz -->
-        <div class="selector-grid">
+        <div class="selector-grid" id="pracSelectorGrid" onscroll="updateSwipeIndicator('pracSelectorGrid', 'pracSwipeDots')">
           <div class="selector-card active" id="selPracTopic" onclick="switchPracMode('topic')">
             <h4 style="color:#10b981; margin-bottom:6px;">Instant Practice & Quiz</h4>
             <p style="color:var(--muted); font-size:0.8rem; margin:0;">Immediate right/wrong feedback with AI analysis.</p>
@@ -632,6 +656,11 @@
             <h4 style="color:#facc15; margin-bottom:6px;">Exam Based Mock Quiz</h4>
             <p style="color:var(--muted); font-size:0.8rem; margin:0;">Test yourself according to Exam Based PYQ with Year Filter feature Now you can see the Changing Patterns of Questions in Various Government Exams</p>
           </div>
+        </div>
+        <div class="swipe-indicator-bar" id="pracSwipeDots">
+          <div class="swipe-dot active" onclick="scrollToCard('pracSelectorGrid', 0)"></div>
+          <div class="swipe-dot" onclick="scrollToCard('pracSelectorGrid', 1)"></div>
+          <div class="swipe-dot" onclick="scrollToCard('pracSelectorGrid', 2)"></div>
         </div>
 
         <div class="card" id="panelPracTopic" style="margin-top:20px;">
@@ -862,8 +891,8 @@
     <!-- 8. ADMIN STUDIO -->
     <div id="tab-admin" class="tab-view" style="display:none;">
       
-      <!-- 3 Futuristic Selector Cards for Admin Sub-Navigation -->
-      <div class="selector-grid" style="margin-bottom: 20px;">
+      <!-- 3 Futuristic Selector Cards for Admin Sub-Navigation with Swipe Indicator -->
+      <div class="selector-grid" id="adminSelectorGrid" onscroll="updateSwipeIndicator('adminSelectorGrid', 'adminSwipeDots')">
         <div class="selector-card active" id="selAdminFeed" onclick="switchAdminSubTab('feed')">
           <h4 style="color:#60a5fa; margin-bottom:6px;">📝 Feed Questions</h4>
           <p style="color:var(--muted); font-size:0.8rem; margin:0;">Add and manage exam questions with live preview.</p>
@@ -876,6 +905,11 @@
           <h4 style="color:#facc15; margin-bottom:6px;">🛡️ Register & Admin Powers</h4>
           <p style="color:var(--muted); font-size:0.8rem; margin:0;">Register admins, edit info & manage admin rights.</p>
         </div>
+      </div>
+      <div class="swipe-indicator-bar" id="adminSwipeDots">
+        <div class="swipe-dot active" onclick="scrollToCard('adminSelectorGrid', 0)"></div>
+        <div class="swipe-dot" onclick="scrollToCard('adminSelectorGrid', 1)"></div>
+        <div class="swipe-dot" onclick="scrollToCard('adminSelectorGrid', 2)"></div>
       </div>
 
       <!-- SUB-TAB 1: QUESTION FEED FORM WITH STATEMENT BUILDER & LIVE PREVIEW -->
@@ -1061,70 +1095,83 @@
         </div>
       </div>
 
-      <!-- SUB-TAB 3: REGISTER & ADMIN POWERS (NEW MODULE) -->
+      <!-- SUB-TAB 3: REGISTER & ADMIN POWERS (WITH SUB-TABS) -->
       <div id="admin-sub-powers" class="admin-sub-view" style="display:none;">
         
-        <!-- 1. Register Admin Form Card -->
-        <div class="card" style="border: 1px solid rgba(250, 204, 21, 0.3);">
-          <h3 style="color:#facc15; margin-bottom:12px;">🛡️ Register New Admin</h3>
-          <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Register a new administrator so they can log in, feed questions, and store test score records on Google Sheet.</p>
-          
-          <form id="adminRegForm" onsubmit="handleNewAdminRegister(event)">
-            <label>Full Name</label>
-            <input type="text" id="admRegName" placeholder="Enter Admin Real Name" required>
-            
-            <label>Username (Admin ID)</label>
-            <input type="text" id="admRegUser" placeholder="e.g. new_admin" required>
-            
-            <label>Date Of Birth (DOB)</label>
-            <input type="date" id="admRegDob" required>
+        <!-- Sub-Navigation for Admin Powers Module -->
+        <div class="review-tabs" style="margin-bottom: 20px;">
+          <button class="review-tab-btn active" id="btnAdminSubReg" onclick="switchAdminPowerSubTab('register')">🛡️ Register Admin</button>
+          <button class="review-tab-btn" id="btnAdminSubEdit" onclick="switchAdminPowerSubTab('edit')">✏️ Edit Admin Info</button>
+          <button class="review-tab-btn" id="btnAdminSubRights" onclick="switchAdminPowerSubTab('rights')">⚡ Admin Rights</button>
+        </div>
 
-            <label>Password</label>
-            <div class="password-wrapper">
-              <input type="password" id="admRegPass" placeholder="••••••••" required>
-              <span class="toggle-password" onclick="togglePasswordVisibility('admRegPass', this)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-              </span>
+        <!-- 1. Register Admin Sub-View -->
+        <div id="admin-power-sub-register" class="admin-power-sub-view">
+          <div class="card" style="border: 1px solid rgba(250, 204, 21, 0.3);">
+            <h3 style="color:#facc15; margin-bottom:12px;">🛡️ Register New Admin</h3>
+            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">Register a new administrator so they can log in, feed questions, and store test score records on Google Sheet.</p>
+            
+            <form id="adminRegForm" onsubmit="handleNewAdminRegister(event)">
+              <label>Full Name</label>
+              <input type="text" id="admRegName" placeholder="Enter Admin Real Name" required>
+              
+              <label>Username (Admin ID)</label>
+              <input type="text" id="admRegUser" placeholder="e.g. new_admin" required>
+              
+              <label>Date Of Birth (DOB)</label>
+              <input type="date" id="admRegDob" required>
+
+              <label>Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="admRegPass" placeholder="••••••••" required>
+                <span class="toggle-password" onclick="togglePasswordVisibility('admRegPass', this)">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+              </div>
+
+              <button type="submit" class="btn btn-warning" style="background:#facc15; color:#000; width:100%; justify-content:center; margin-top:6px;">Register Admin Account</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- 2. Edit Admin Info Sub-View -->
+        <div id="admin-power-sub-edit" class="admin-power-sub-view" style="display:none;">
+          <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
+            <h3 style="color:#60a5fa; margin-bottom:12px;">✏️ Edit & Manage Existing Admins</h3>
+            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">List of all registered administrators. Click the pencil icon to edit credentials or remove admin access.</p>
+            <div id="adminListContainer" style="display:flex; flex-direction:column; gap:10px;">
+              <p style="color:var(--muted); text-align:center; padding:10px;">Loading admins...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Admin Rights Sub-View -->
+        <div id="admin-power-sub-rights" class="admin-power-sub-view" style="display:none;">
+          <div class="card" style="border: 1px solid rgba(139, 92, 246, 0.4);">
+            <h3 style="color:#a78bfa; margin-bottom:14px;">⚡ Admin Rights & Powers Control</h3>
+            
+            <!-- A. Admin Power Auto-Generated List -->
+            <div style="background:var(--card-inner); padding:14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
+              <h4 style="color:#38bdf8; margin-bottom:6px;">A. Auto-Generated Available Powers List</h4>
+              <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">System dynamically lists all active administrative permissions.</p>
+              <div id="systemPowersListContainer" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
             </div>
 
-            <button type="submit" class="btn btn-warning" style="background:#facc15; color:#000; width:100%; justify-content:center; margin-top:6px;">Register Admin Account</button>
-          </form>
-        </div>
+            <!-- B. Manage Admins Power -->
+            <div style="background:var(--card-inner); padding:14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
+              <h4 style="color:#a78bfa; margin-bottom:6px;">B. Manage Admins Power Allocation</h4>
+              <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">Assign or revoke specific administrative powers for each admin.</p>
+              <div id="manageAdminsPowerContainer"></div>
+            </div>
 
-        <!-- 2. Edit Admin Info Card -->
-        <div class="card" style="border: 1px solid rgba(59, 130, 246, 0.3);">
-          <h3 style="color:#60a5fa; margin-bottom:12px;">✏️ Edit & Manage Existing Admins</h3>
-          <p style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;">List of all registered administrators. Click the pencil icon to edit credentials or remove admin access.</p>
-          <div id="adminListContainer" style="display:flex; flex-direction:column; gap:10px;">
-            <p style="color:var(--muted); text-align:center; padding:10px;">Loading admins...</p>
-          </div>
-        </div>
-
-        <!-- 3. Admin Rights & Powers Card -->
-        <div class="card" style="border: 1px solid rgba(139, 92, 246, 0.4);">
-          <h3 style="color:#a78bfa; margin-bottom:14px;">⚡ Admin Rights & Powers Control</h3>
-          
-          <!-- A. Admin Power Auto-Generated List -->
-          <div style="background:var(--card-inner); padding:14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
-            <h4 style="color:#38bdf8; margin-bottom:6px;">A. Auto-Generated Available Powers List</h4>
-            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">System dynamically lists all active administrative permissions.</p>
-            <div id="systemPowersListContainer" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
-          </div>
-
-          <!-- B. Manage Admins Power -->
-          <div style="background:var(--card-inner); padding:14px; border-radius:12px; margin-bottom:14px; border:1px solid var(--border);">
-            <h4 style="color:#a78bfa; margin-bottom:6px;">B. Manage Admins Power Allocation</h4>
-            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">Assign or revoke specific administrative powers for each admin.</p>
-            <div id="manageAdminsPowerContainer"></div>
-          </div>
-
-          <!-- C. Create New Power of Admin -->
-          <div style="background:var(--card-inner); padding:14px; border-radius:12px; border:1px solid var(--border);">
-            <h4 style="color:#4ade80; margin-bottom:6px;">C. Create New Power of Admin</h4>
-            <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">Add a brand new permission key that can be assigned to admins.</p>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-              <input type="text" id="newPowerNameInput" placeholder="Enter Power Name (e.g. Can_Delete_Users)" style="flex:1; min-width:220px; margin-bottom:0;">
-              <button class="btn btn-success" onclick="createNewAdminPower()">Create Power</button>
+            <!-- C. Create New Power of Admin -->
+            <div style="background:var(--card-inner); padding:14px; border-radius:12px; border:1px solid var(--border);">
+              <h4 style="color:#4ade80; margin-bottom:6px;">C. Create New Power of Admin</h4>
+              <p style="color:var(--muted); font-size:0.8rem; margin-bottom:10px;">Add a brand new permission key that can be assigned to admins.</p>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input type="text" id="newPowerNameInput" placeholder="Enter Power Name (e.g. Can_Delete_Users)" style="flex:1; min-width:220px; margin-bottom:0;">
+                <button class="btn btn-success" onclick="createNewAdminPower()">Create Power</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1355,6 +1402,26 @@
     });
   }
 
+  function updateSwipeIndicator(gridId, dotsBarId) {
+    const grid = document.getElementById(gridId);
+    if(!grid) return;
+    const scrollLeft = grid.scrollLeft;
+    const cardWidth = grid.querySelector('.selector-card').offsetWidth + 15;
+    const activeIdx = Math.round(scrollLeft / cardWidth);
+    
+    const dots = document.querySelectorAll(`#${dotsBarId} .swipe-dot`);
+    dots.forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === activeIdx);
+    });
+  }
+
+  function scrollToCard(gridId, idx) {
+    const grid = document.getElementById(gridId);
+    if(!grid) return;
+    const cardWidth = grid.querySelector('.selector-card').offsetWidth + 15;
+    grid.scrollTo({ left: cardWidth * idx, behavior: 'smooth' });
+  }
+
   const QUESTIONS_API_URL = "https://script.google.com/macros/s/AKfycbx7QhvQi1_Am1I6nRT9mH9dPdU1q3pTN9-nvM0Cg9flFxQrtFHOd4OCI9gcjNenKI8C/exec";
   const USERS_API_URL = "https://script.google.com/macros/s/AKfycbzuPQnDdlaeutLZvuQpqMMQDOjY-u_xH0e9CtOmmQKE-dV7IAuhqG0dDgXryO-VpdK_/exec";
 
@@ -1476,6 +1543,16 @@
     if(subTab === 'powers') {
       renderAdminManagementUI();
     }
+  }
+
+  function switchAdminPowerSubTab(subType) {
+    document.getElementById('btnAdminSubReg').classList.toggle('active', subType === 'register');
+    document.getElementById('btnAdminSubEdit').classList.toggle('active', subType === 'edit');
+    document.getElementById('btnAdminSubRights').classList.toggle('active', subType === 'rights');
+
+    document.getElementById('admin-power-sub-register').style.display = subType === 'register' ? 'block' : 'none';
+    document.getElementById('admin-power-sub-edit').style.display = subType === 'edit' ? 'block' : 'none';
+    document.getElementById('admin-power-sub-rights').style.display = subType === 'rights' ? 'block' : 'none';
   }
 
   function renderAdminManagementUI() {
