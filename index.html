@@ -177,7 +177,7 @@
     .palette-box.answered { background: rgba(16, 185, 129, 0.25); border-color: var(--success); color: var(--success); }
     .palette-box.current { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); color: #fff; }
 
-    /* Professional Hanging Indent Option Style */
+    /* Professional Hanging Indent Option & Statement Style */
     .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
     .test-opt input[type="radio"] { width: 16px !important; height: 16px !important; min-width: 16px; margin-top: 3px !important; cursor: pointer; accent-color: var(--primary); }
     .test-opt-label { font-size: 0.95rem; color: var(--text); line-height: 1.55; flex: 1; text-align: left; display: flex; gap: 6px; }
@@ -186,6 +186,11 @@
     .test-opt:hover { border-color: var(--primary); background: rgba(37, 99, 235, 0.08); }
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
+
+    /* Statement List Item Hanging Indent Style */
+    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 8px; line-height: 1.55; }
+    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
+    .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
     .match-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
     .match-table th, .match-table td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; }
@@ -857,7 +862,7 @@
         <button class="nav-btn" id="adminSubTabManage" onclick="switchAdminSubTab('manage')">⚙️ Subject Manager</button>
       </div>
 
-      <!-- TAB 1: QUESTION FEED FORM WITH LIVE PREVIEW & AUTO NUMBERING -->
+      <!-- TAB 1: QUESTION FEED FORM WITH STATEMENT BUILDER & LIVE PREVIEW -->
       <div id="admin-sub-feed" class="admin-sub-view">
         <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
           
@@ -919,12 +924,13 @@
                   <option value="standard">Standard MCQ</option>
                   <option value="ar">Type 1: Assertion & Reasoning</option>
                   <option value="match">Type 2: Match the Following (Table)</option>
+                  <option value="statement">Type 3: Statement Questions (Multi-Statement)</option>
                 </select>
               </div>
 
               <div id="feed-ar-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:12px; margin-bottom:10px;">
-                <label>Assertion (A):</label><textarea id="feedAssert" rows="2" placeholder="Write assertion statement..." oninput="handleAutoListKey(event, this); updateLivePreview()"></textarea>
-                <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..." oninput="handleAutoListKey(event, this); updateLivePreview()"></textarea>
+                <label>Assertion (A):</label><textarea id="feedAssert" rows="2" placeholder="Write assertion statement..." oninput="updateLivePreview()"></textarea>
+                <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..." oninput="updateLivePreview()"></textarea>
               </div>
 
               <div id="feed-match-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:12px; margin-bottom:10px;">
@@ -950,16 +956,31 @@
                 <textarea id="feedMatchPairs" rows="3" placeholder="Item A | Item 1&#10;Item B | Item 2" oninput="updateLivePreview()"></textarea>
               </div>
 
-              <div>
-                <label>Question Body (Auto-numbering enabled with Enter key):</label>
-                <textarea id="feedText" rows="3" placeholder="Enter question description..." onkeydown="handleAutoListKey(event, this)" oninput="updateLivePreview()"></textarea>
+              <!-- TYPE 3: STATEMENT QUESTIONS BUILDER -->
+              <div id="feed-statement-fields" style="display:none; background:var(--card-inner); padding:16px; border-radius:14px; margin-bottom:14px; border:1px solid var(--border);">
+                <h4 style="color:#38bdf8; margin-bottom:10px;">📝 Multi-Statement Question Builder</h4>
+                
+                <label>1. Intro / Heading Text (e.g., Consider the following statements:)</label>
+                <textarea id="feedStIntro" rows="2" placeholder="Enter introductory sentence..." oninput="updateLivePreview()"></textarea>
+
+                <label style="margin-top:10px;">2. Statement List (Auto-numbered with Hanging Indent):</label>
+                <div id="statementInputsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:12px;"></div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addStatementInputField()">+ Add Statement</button>
+
+                <label style="margin-top:14px;">3. Conclusion / Closing Text (e.g., Which of the above statements are correct?):</label>
+                <textarea id="feedStConclusion" rows="2" placeholder="Enter closing sentence..." oninput="updateLivePreview()"></textarea>
+              </div>
+
+              <div id="feed-standard-body-wrap">
+                <label>Question Body:</label>
+                <textarea id="feedText" rows="3" placeholder="Enter question description..." oninput="updateLivePreview()"></textarea>
               </div>
 
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
-                <div><label>Option (A)</label><input type="text" id="feedA" required onkeydown="handleAutoListKey(event, this)" oninput="updateLivePreview()"></div>
-                <div><label>Option (B)</label><input type="text" id="feedB" required onkeydown="handleAutoListKey(event, this)" oninput="updateLivePreview()"></div>
-                <div><label>Option (C)</label><input type="text" id="feedC" required onkeydown="handleAutoListKey(event, this)" oninput="updateLivePreview()"></div>
-                <div><label>Option (D)</label><input type="text" id="feedD" required onkeydown="handleAutoListKey(event, this)" oninput="updateLivePreview()"></div>
+                <div><label>Option (A)</label><input type="text" id="feedA" required oninput="updateLivePreview()"></div>
+                <div><label>Option (B)</label><input type="text" id="feedB" required oninput="updateLivePreview()"></div>
+                <div><label>Option (C)</label><input type="text" id="feedC" required oninput="updateLivePreview()"></div>
+                <div><label>Option (D)</label><input type="text" id="feedD" required oninput="updateLivePreview()"></div>
               </div>
 
               <div style="display:grid; grid-template-columns: 150px 1fr; gap:10px; margin-top:10px;">
@@ -971,7 +992,7 @@
                 </div>
                 <div>
                   <label>Explanation / Analysis:</label>
-                  <textarea id="feedExpl" rows="2" placeholder="Write complete detailed explanation..." onkeydown="handleAutoListKey(event, this)" oninput="updateLivePreview()"></textarea>
+                  <textarea id="feedExpl" rows="2" placeholder="Write complete detailed explanation..." oninput="updateLivePreview()"></textarea>
                 </div>
               </div>
 
@@ -1086,6 +1107,7 @@
           <option value="standard">Standard MCQ</option>
           <option value="ar">Type 1: Assertion & Reasoning</option>
           <option value="match">Type 2: Match the Following (Table)</option>
+          <option value="statement">Type 3: Statement Questions</option>
         </select>
       </div>
 
@@ -1172,45 +1194,37 @@
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
-  // Smart Auto-Numbering / Alphabetical List Helper for Admin Input Textareas
-  function handleAutoListKey(event, el) {
-    if (event.key === 'Enter') {
-      const val = el.value;
-      const cursorPos = el.selectionStart;
-      const textBeforeCursor = val.substring(0, cursorPos);
-      const lines = textBeforeCursor.split('\n');
-      const currentLine = lines[lines.length - 1].trim();
+  function toggleQTypeFields(type, prefix) {
+    const arField = document.getElementById(`${prefix}-ar-fields`);
+    const matchField = document.getElementById(`${prefix}-match-fields`);
+    const stmtField = document.getElementById(`${prefix}-statement-fields`);
+    const stdBodyWrap = document.getElementById(`${prefix}-standard-body-wrap`);
 
-      // Check for patterns like "A.", "1.", "a.", "i."
-      const alphaMatch = currentLine.match(/^([A-Da-d])\.\s*$/);
-      const numMatch = currentLine.match(/^(\d+)\.\s*$/);
-
-      if (alphaMatch) {
-        event.preventDefault();
-        const nextChar = String.fromCharCode(alphaMatch[1].charCodeAt(0) + 1);
-        if (nextChar <= 'D' || nextChar <= 'd') {
-          insertAtCursor(el, `\n${nextChar}. `);
-        } else {
-          insertAtCursor(el, `\n`);
-        }
-      } else if (numMatch) {
-        event.preventDefault();
-        const nextNum = parseInt(numMatch[1], 10) + 1;
-        insertAtCursor(el, `\n${nextNum}. `);
-      }
-    }
+    if(arField) arField.style.display = type === 'ar' ? 'block' : 'none';
+    if(matchField) matchField.style.display = type === 'match' ? 'block' : 'none';
+    if(stmtField) stmtField.style.display = type === 'statement' ? 'block' : 'none';
+    if(stdBodyWrap) stdBodyWrap.style.display = type === 'statement' ? 'none' : 'block';
   }
 
-  function insertAtCursor(myField, myValue) {
-    if (myField.selectionStart || myField.selectionStart === '0') {
-      var startPos = myField.selectionStart;
-      var endPos = myField.selectionEnd;
-      myField.value = myField.value.substring(0, startPos) + myValue + myField.value.substring(endPos, myField.value.length);
-      myField.selectionStart = startPos + myValue.length;
-      myField.selectionEnd = startPos + myValue.length;
-    } else {
-      myField.value += myValue;
-    }
+  function addStatementInputField(val = '') {
+    const listContainer = document.getElementById('statementInputsList');
+    const idx = listContainer.children.length + 1;
+    const div = document.createElement('div');
+    div.className = 'statement-input-row';
+    div.style.cssText = 'display: flex; gap: 8px; align-items: center;';
+    div.innerHTML = `
+      <span style="font-weight:bold; color:#38bdf8; min-width:24px;">${idx}.</span>
+      <input type="text" class="statement-item-input" value="${val}" placeholder="Enter statement text..." style="margin-bottom:0; flex:1;" oninput="updateLivePreview()">
+      <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove(); reindexStatements(); updateLivePreview();" style="padding: 10px 12px;">✕</button>
+    `;
+    listContainer.appendChild(div);
+  }
+
+  function reindexStatements() {
+    const rows = document.querySelectorAll('.statement-input-row');
+    rows.forEach((row, i) => {
+      row.querySelector('span').innerText = `${i + 1}.`;
+    });
   }
 
   const QUESTIONS_API_URL = "https://script.google.com/macros/s/AKfycbx7QhvQi1_Am1I6nRT9mH9dPdU1q3pTN9-nvM0Cg9flFxQrtFHOd4OCI9gcjNenKI8C/exec";
@@ -1277,6 +1291,11 @@
     initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
     initExamCascades('examTestName', 'examTestYear', 'examTestSub');
     initExamCascades('examPracName', 'examPracYear', 'examPracSub');
+    
+    if(document.getElementById('statementInputsList').children.length === 0) {
+      addStatementInputField();
+      addStatementInputField();
+    }
     updateLivePreview();
 
     setInterval(async () => {
@@ -1319,48 +1338,45 @@
     const subtop = document.getElementById('feedSubtop').value || 'Sub-topic';
     const exam = document.getElementById('feedExam').value || 'PYQ';
     const type = document.getElementById('feedType').value;
-    const text = document.getElementById('feedText').value || 'Your question description will appear here...';
     
     document.getElementById('prevHierBadge').innerText = `${sub} > ${top} > ${subtop}`;
     document.getElementById('prevExamBadge').innerText = exam;
 
-    let bodyHtml = text;
+    let bodyHtml = '';
+    const matchWrap = document.getElementById('prevMatchWrap');
+    matchWrap.innerHTML = '';
+
     if(type === 'ar') {
       const assertion = document.getElementById('feedAssert').value || 'Assertion statement...';
       const reason = document.getElementById('feedReason').value || 'Reason statement...';
       bodyHtml = `<strong>Assertion (A):</strong>\n${assertion}\n\n<strong>Reason (R):</strong>\n${reason}`;
-    }
-    document.getElementById('prevBodyText').innerText = bodyHtml;
-
-    const matchWrap = document.getElementById('prevMatchWrap');
-    matchWrap.innerHTML = '';
-    if(type === 'match') {
-      const rawPairs = document.getElementById('feedMatchPairs').value.trim().split('\n');
-      const head1 = document.getElementById('feedMatchHead1').value || 'List I';
-      const head2 = document.getElementById('feedMatchHead2').value || 'List II';
-      const seq1 = document.getElementById('feedMatchSeq1').value;
-      const seq2 = document.getElementById('feedMatchSeq2').value;
-      const romans = ['I','II','III','IV','V','VI'];
-      const alphabetsL = ['a','b','c','d','e','f'];
-
-      let rows = rawPairs.map((line, idx) => {
-        let parts = line.split('|');
-        return {
-          c1: seq1 === 'roman' ? romans[idx] : (idx+1).toString(),
-          c2: parts[0] ? parts[0].trim() : 'Item',
-          c3: seq2 === 'alphaUpper' ? alphabetsL[idx].toUpperCase() : alphabetsL[idx],
-          c4: parts[1] ? parts[1].trim() : 'Match'
-        };
+    } else if(type === 'statement') {
+      const intro = document.getElementById('feedStIntro').value || 'Consider the following statements:';
+      const conclusion = document.getElementById('feedStConclusion').value || 'Which of the statements given above are correct?';
+      
+      let stmtInputs = document.querySelectorAll('.statement-item-input');
+      let stHtml = `<div style="margin-bottom:8px;">${intro}</div>`;
+      stmtInputs.forEach((inp, idx) => {
+        let stText = inp.value || `Statement ${idx+1} text...`;
+        stHtml += `
+          <div class="statement-preview-item">
+            <span class="st-num">${idx + 1}.</span>
+            <span class="st-text">${stText}</span>
+          </div>
+        `;
       });
+      stHtml += `<div style="margin-top:8px;">${conclusion}</div>`;
+      bodyHtml = stHtml;
+    } else {
+      bodyHtml = document.getElementById('feedText').value || 'Your question description will appear here...';
+    }
 
-      matchWrap.innerHTML = `
-        <table class="match-table">
-          <thead><tr><th>#</th><th>${head1}</th><th>Seq</th><th>${head2}</th></tr></thead>
-          <tbody>
-            ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
-          </tbody>
-        </table>
-      `;
+    document.getElementById('prevBodyTestWrap' )?.remove();
+    let bodyContainer = document.getElementById('prevBodyText');
+    if(type === 'statement') {
+      bodyContainer.innerHTML = bodyHtml;
+    } else {
+      bodyContainer.innerText = bodyHtml;
     }
 
     let opts = {
@@ -1681,6 +1697,9 @@
           }
           if(typeof q.matchRows === 'string') {
             try { q.matchRows = JSON.parse(q.matchRows); } catch(e){}
+          }
+          if(typeof q.statements === 'string') {
+            try { q.statements = JSON.parse(q.statements); } catch(e){}
           }
           return q;
         });
@@ -2095,13 +2114,6 @@
     return examStr.replace(/\b(19\d{2}|20\d{2})\b/g, '').replace(/\s+/g, ' ').trim();
   }
 
-  function toggleQTypeFields(type, prefix) {
-    const arField = document.getElementById(`${prefix}-ar-fields`);
-    const matchField = document.getElementById(`${prefix}-match-fields`);
-    if(arField) arField.style.display = type === 'ar' ? 'block' : 'none';
-    if(matchField) matchField.style.display = type === 'match' ? 'block' : 'none';
-  }
-
   function buildFltSubjectInputs() {
     syncDynamicSubjects();
     const grid = document.getElementById('fltSubjectBuilderGrid');
@@ -2246,6 +2258,14 @@
         };
       });
       newQ.matchRows = rows;
+    } else if(type === 'statement') {
+      let stmtInputs = document.querySelectorAll('.statement-item-input');
+      let stList = [];
+      stmtInputs.forEach(inp => { if(inp.value.trim()) stList.push(inp.value.trim()); });
+      newQ.statements = stList;
+      newQ.stIntro = document.getElementById('feedStIntro').value.trim();
+      newQ.stConclusion = document.getElementById('feedStConclusion').value.trim();
+      newQ.text = "";
     } else {
       newQ.text = document.getElementById('feedText').value;
     }
@@ -2257,13 +2277,18 @@
       optionC: optionsObj.C,
       optionD: optionsObj.D,
       options: JSON.stringify(optionsObj), 
-      matchRows: newQ.matchRows ? JSON.stringify(newQ.matchRows) : "" 
+      matchRows: newQ.matchRows ? JSON.stringify(newQ.matchRows) : "",
+      statements: newQ.statements ? JSON.stringify(newQ.statements) : ""
     };
 
     questions.unshift(newQ);
     alert('Question Saved Successfully! (Syncing with cloud...)');
     document.getElementById('unifiedQForm').reset();
     document.getElementById('feedNcertContainer').style.display = 'none';
+    document.getElementById('statementInputsList').innerHTML = '';
+    addStatementInputField();
+    addStatementInputField();
+    toggleQTypeFields('standard', 'feed');
     populateAllSubjectDropdowns();
     buildFltSubjectInputs();
 
@@ -2482,25 +2507,51 @@
       editBtnContainer.innerHTML = '';
     }
 
-    let bodyHtml = q.text || '';
-    if(q.type === 'ar') {
-      bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
-    }
-    document.getElementById('t-body').innerText = bodyHtml;
-
+    let bodyHtml = '';
     const matchWrap = document.getElementById('t-match-wrap');
     matchWrap.innerHTML = '';
-    let rows = q.matchRows;
-    if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
-    if(q.type === 'match' && rows) {
-      matchWrap.innerHTML = `
-        <table class="match-table">
-          <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
-          <tbody>
-            ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
-          </tbody>
-        </table>
-      `;
+
+    if(q.type === 'ar') {
+      bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
+    } else if(q.type === 'statement') {
+      let stArr = q.statements;
+      if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
+      
+      bodyHtml = `<div style="margin-bottom:8px;">${q.stIntro || 'Consider the following statements:'}</div>`;
+      if(Array.isArray(stArr)) {
+        stArr.forEach((st, idx) => {
+          bodyHtml += `
+            <div class="statement-preview-item">
+              <span class="st-num">${idx + 1}.</span>
+              <span class="st-text">${st}</span>
+            </div>
+          `;
+        });
+      }
+      bodyHtml += `<div style="margin-top:8px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+    } else if(q.type === 'match') {
+      bodyHtml = q.text || 'Match List-I with List-II:';
+      let rows = q.matchRows;
+      if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
+      if(rows) {
+        matchWrap.innerHTML = `
+          <table class="match-table">
+            <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
+            <tbody>
+              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    } else {
+      bodyHtml = q.text || '';
+    }
+
+    let bodyContainer = document.getElementById('t-body');
+    if(q.type === 'statement') {
+      bodyContainer.innerHTML = bodyHtml;
+    } else {
+      bodyContainer.innerText = bodyHtml;
     }
 
     let opts = q.options;
@@ -2553,23 +2604,51 @@
       editBtnContainer.innerHTML = '';
     }
 
-    let bodyHtml = q.text || '';
-    if(q.type === 'ar') bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
-    document.getElementById('p-body').innerText = bodyHtml;
-
+    let bodyHtml = '';
     const matchWrap = document.getElementById('p-match-wrap');
     matchWrap.innerHTML = '';
-    let rows = q.matchRows;
-    if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
-    if(q.type === 'match' && rows) {
-      matchWrap.innerHTML = `
-        <table class="match-table">
-          <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
-          <tbody>
-            ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
-          </tbody>
-        </table>
-      `;
+
+    if(q.type === 'ar') {
+      bodyHtml = `<strong>Assertion (A):</strong>\n${q.assertion}\n\n<strong>Reason (R):</strong>\n${q.reason}`;
+    } else if(q.type === 'statement') {
+      let stArr = q.statements;
+      if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
+      
+      bodyHtml = `<div style="margin-bottom:8px;">${q.stIntro || 'Consider the following statements:'}</div>`;
+      if(Array.isArray(stArr)) {
+        stArr.forEach((st, idx) => {
+          bodyHtml += `
+            <div class="statement-preview-item">
+              <span class="st-num">${idx + 1}.</span>
+              <span class="st-text">${st}</span>
+            </div>
+          `;
+        });
+      }
+      bodyHtml += `<div style="margin-top:8px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+    } else if(q.type === 'match') {
+      bodyHtml = q.text || 'Match List-I with List-II:';
+      let rows = q.matchRows;
+      if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
+      if(rows) {
+        matchWrap.innerHTML = `
+          <table class="match-table">
+            <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
+            <tbody>
+              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    } else {
+      bodyHtml = q.text || '';
+    }
+
+    let bodyContainer = document.getElementById('p-body');
+    if(q.type === 'statement') {
+      bodyContainer.innerHTML = bodyHtml;
+    } else {
+      bodyContainer.innerText = bodyHtml;
     }
 
     let opts = q.options;
