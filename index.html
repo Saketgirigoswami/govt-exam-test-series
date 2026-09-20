@@ -159,9 +159,9 @@
     .btn-purple { background: var(--purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.25); }
     .btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; }
     
-    .formatted-text { white-space: pre-wrap; word-wrap: break-word; line-height: 1.7; font-size: 1.02rem; color: #f1f5f9; }
+    .formatted-text { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; font-size: 1.02rem; color: #f1f5f9; margin-bottom: 8px !important; }
     
-    .q-header-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .q-header-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     .q-header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .q-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .badge-exam-tag { background: rgba(131, 24, 67, 0.6); border: 1px solid rgba(244, 114, 182, 0.3); color: #fbcfe8; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; }
@@ -178,7 +178,7 @@
     .palette-box.current { border-color: var(--primary); box-shadow: 0 0 10px var(--primary); color: #fff; }
 
     /* Professional Hanging Indent Option Style */
-    .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
+    .test-opt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; background: rgba(13, 20, 36, 0.7); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; cursor: pointer; text-align: left; width: 100%; transition: 0.2s; backdrop-filter: blur(10px); }
     .test-opt input[type="radio"] { width: 16px !important; height: 16px !important; min-width: 16px; margin-top: 3px !important; cursor: pointer; accent-color: var(--primary); }
     .test-opt-label { font-size: 0.95rem; color: var(--text); line-height: 1.55; flex: 1; text-align: left; display: flex; gap: 6px; }
     .test-opt-label .opt-letter { font-weight: 700; color: #60a5fa; min-width: 24px; flex-shrink: 0; }
@@ -187,10 +187,10 @@
     .test-opt.opt-correct { background: rgba(16, 185, 129, 0.2); border-color: var(--success); }
     .test-opt.opt-wrong { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); }
 
-    /* Compact & Tight Assertion & Reasoning Layout */
-    .ar-block { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; margin-bottom: 6px; }
-    .ar-item { display: flex; align-items: flex-start; gap: 8px; line-height: 1.45; margin: 0; padding: 0; }
-    .ar-label { font-weight: 700; color: #38bdf8; min-width: 110px; flex-shrink: 0; }
+    /* Ultra-Tight & Compact Assertion & Reasoning Layout */
+    .ar-block { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; margin-bottom: 8px; }
+    .ar-item { display: flex; align-items: flex-start; gap: 6px; line-height: 1.45; margin: 0; padding: 0; }
+    .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
     /* Ultra-Compact Statement List Item Hanging Indent Style */
@@ -198,11 +198,11 @@
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
-    .match-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
-    .match-table th, .match-table td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; }
+    .match-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
+    .match-table th, .match-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
     .match-table th { background: rgba(17, 26, 46, 0.9); color: #93c5fd; font-weight: 600; }
     
-    .expl-box { background: rgba(37, 99, 235, 0.15); border-left: 4px solid var(--primary); padding: 16px; margin-top: 15px; border-radius: 10px; font-size: 0.95rem; line-height: 1.6; backdrop-filter: blur(10px); }
+    .expl-box { background: rgba(37, 99, 235, 0.15); border-left: 4px solid var(--primary); padding: 14px; margin-top: 12px; border-radius: 10px; font-size: 0.95rem; line-height: 1.55; backdrop-filter: blur(10px); }
     
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 15px 0; }
     .stat-card { background: rgba(15, 23, 42, 0.75); padding: 16px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.2); text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
@@ -596,7 +596,7 @@
               </div>
             </div>
             
-            <div class="formatted-text" id="t-body" style="margin-bottom: 18px;"></div>
+            <div class="formatted-text" id="t-body" style="margin-bottom: 8px;"></div>
             <div id="t-match-wrap"></div>
             <div id="t-opts"></div>
             <div style="display: flex; justify-content: space-between; margin-top: 22px; flex-wrap:wrap; gap:10px;">
@@ -714,7 +714,7 @@
             </div>
           </div>
           
-          <div class="formatted-text" id="p-body" style="margin-bottom: 18px;"></div>
+          <div class="formatted-text" id="p-body" style="margin-bottom: 8px;"></div>
           <div id="p-match-wrap"></div>
           <div id="p-opts"></div>
           <div id="p-expl" style="display:none;" class="expl-box"></div>
@@ -1031,7 +1031,7 @@
                   <span class="badge-exam-tag" id="prevExamBadge">PYQ</span>
                 </div>
               </div>
-              <div class="formatted-text" id="prevBodyText" style="margin-bottom: 14px; font-size:0.95rem;">Your question description will appear here...</div>
+              <div class="formatted-text" id="prevBodyText" style="margin-bottom: 8px; font-size:0.95rem;">Your question description will appear here...</div>
               <div id="prevMatchWrap"></div>
               <div id="prevOptsList"></div>
               <div id="prevExplBox" class="expl-box" style="margin-top:12px; display:none;"></div>
@@ -2560,7 +2560,7 @@
 
     if(q.type === 'ar') {
       bodyHtml = `
-        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2670,7 +2670,7 @@
 
     if(q.type === 'ar') {
       bodyHtml = `
-        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
