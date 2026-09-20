@@ -747,6 +747,38 @@
             </div>
           </div>
 
+          <!-- NCERT / CG SCERT Tagging Optional Section -->
+          <div style="margin: 15px 0; background: var(--card-inner); padding: 14px; border-radius: 12px; border: 1px solid var(--border);">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #38bdf8; font-weight: bold;">
+              <input type="checkbox" id="feedNcertCheck" onchange="toggleNcertContainer('feed')" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+              Choose NCERT or SCERT Tag (Optional)
+            </label>
+            
+            <div id="feedNcertContainer" style="display: none; margin-top: 12px; display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+              <div>
+                <label>Book Type</label>
+                <select id="feedNcertBook" onchange="updateNcertClasses('feed')">
+                  <option value="NCERT">NCERT</option>
+                  <option value="CG SCERT">CG SCERT</option>
+                </select>
+              </div>
+              <div>
+                <label>Class</label>
+                <select id="feedNcertClass">
+                  <!-- Dynamically populated via JS -->
+                </select>
+              </div>
+              <div>
+                <label>Subject Part / Stream</label>
+                <input type="text" id="feedNcertPart" placeholder="e.g. History / Geography / Civics" style="margin-bottom:0;">
+              </div>
+              <div>
+                <label>Chapter Name</label>
+                <input type="text" id="feedNcertChapter" placeholder="e.g. Our Environment" style="margin-bottom:0;">
+              </div>
+            </div>
+          </div>
+
           <div style="margin: 10px 0;">
             <label>Question Type</label>
             <select id="feedType" onchange="toggleQTypeFields(this.value, 'feed')">
@@ -847,6 +879,36 @@
         <div>
           <label>PYQ Exam Tag</label>
           <input type="text" id="editExam">
+        </div>
+      </div>
+
+      <!-- NCERT / CG SCERT Tagging Optional Section for Edit -->
+      <div style="margin: 15px 0; background: var(--card-inner); padding: 14px; border-radius: 12px; border: 1px solid var(--border);">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #38bdf8; font-weight: bold;">
+          <input type="checkbox" id="editNcertCheck" onchange="toggleNcertContainer('edit')" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+          Choose NCERT or SCERT Tag (Optional)
+        </label>
+        
+        <div id="editNcertContainer" style="display: none; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+          <div>
+            <label>Book Type</label>
+            <select id="editNcertBook" onchange="updateNcertClasses('edit')">
+              <option value="NCERT">NCERT</option>
+              <option value="CG SCERT">CG SCERT</option>
+            </select>
+          </div>
+          <div>
+            <label>Class</label>
+            <select id="editNcertClass"></select>
+          </div>
+          <div>
+            <label>Subject Part / Stream</label>
+            <input type="text" id="editNcertPart" placeholder="e.g. History / Geography" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label>Chapter Name</label>
+            <input type="text" id="editNcertChapter" placeholder="e.g. Our Environment" style="margin-bottom:0;">
+          </div>
         </div>
       </div>
       
@@ -1002,6 +1064,7 @@
     populatePyqFilterOptions();
     buildFltSubjectInputs();
     syncOnlineLeaderboard();
+    initNcertClassesDropdowns();
 
     setInterval(async () => {
       if (currentUser && document.visibilityState === "visible") {
@@ -1029,6 +1092,32 @@
       }
     }
   });
+
+  function toggleNcertContainer(prefix) {
+    const isChecked = document.getElementById(`${prefix}NcertCheck`).checked;
+    const container = document.getElementById(`${prefix}NcertContainer`);
+    container.style.display = isChecked ? 'grid' : 'none';
+  }
+
+  function initNcertClassesDropdowns() {
+    updateNcertClasses('feed');
+    updateNcertClasses('edit');
+  }
+
+  function updateNcertClasses(prefix) {
+    const book = document.getElementById(`${prefix}NcertBook`).value;
+    const classSelect = document.getElementById(`${prefix}NcertClass`);
+    classSelect.innerHTML = '';
+    
+    let classes = [];
+    if (book === 'NCERT') {
+      classes = ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th', 'Class 11th', 'Class 12th'];
+    } else {
+      classes = ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th'];
+    }
+    
+    classSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
 
   async function fetchQuestionsFromCloud() {
     try {
@@ -1628,6 +1717,8 @@
       D: document.getElementById('feedD').value.trim()
     };
 
+    let ncertChecked = document.getElementById('feedNcertCheck').checked;
+
     let newQ = {
       id: Date.now(),
       subject: document.getElementById('feedSub').value,
@@ -1637,7 +1728,11 @@
       type: type,
       expl: document.getElementById('feedExpl').value.trim(),
       options: optionsObj,
-      ans: document.getElementById('feedAns').value
+      ans: document.getElementById('feedAns').value,
+      ncert_tag: ncertChecked ? "true" : "false",
+      ncert_book: ncertChecked ? document.getElementById('feedNcertBook').value : "",
+      ncert_class: ncertChecked ? document.getElementById('feedNcertClass').value : "",
+      ncert_chapter: ncertChecked ? `${document.getElementById('feedNcertPart').value.trim()} - ${document.getElementById('feedNcertChapter').value.trim()}` : ""
     };
 
     if(type === 'ar') {
@@ -1683,6 +1778,7 @@
     questions.unshift(newQ);
     alert('Question Saved Successfully! (Syncing with cloud...)');
     document.getElementById('unifiedQForm').reset();
+    document.getElementById('feedNcertContainer').style.display = 'none';
     populateAllSubjectDropdowns();
     buildFltSubjectInputs();
 
@@ -1707,6 +1803,19 @@
     document.getElementById('editTop').value = q.topic || '';
     document.getElementById('editSubtop').value = q.subtopic || '';
     document.getElementById('editExam').value = q.exam || '';
+
+    // NCERT Edit Population
+    const isNcert = q.ncert_tag === "true" || q.ncert_tag === true;
+    document.getElementById('editNcertCheck').checked = isNcert;
+    document.getElementById('editNcertContainer').style.display = isNcert ? 'grid' : 'none';
+    if(isNcert) {
+      document.getElementById('editNcertBook').value = q.ncert_book || 'NCERT';
+      updateNcertClasses('edit');
+      document.getElementById('editNcertClass').value = q.ncert_class || 'Class 6th';
+      let chParts = (q.ncert_chapter || '').split('-');
+      document.getElementById('editNcertPart').value = chParts[0] ? chParts[0].trim() : '';
+      document.getElementById('editNcertChapter').value = chParts[1] ? chParts[1].trim() : '';
+    }
     
     const qType = q.type || 'standard';
     document.getElementById('editType').value = qType;
@@ -1752,6 +1861,8 @@
       D: document.getElementById('editD').value.trim()
     };
 
+    let ncertChecked = document.getElementById('editNcertCheck').checked;
+
     let updatedFields = {
       id: qId,
       subject: document.getElementById('editSub').value,
@@ -1768,7 +1879,11 @@
       optionC: optionsObj.C,
       optionD: optionsObj.D,
       ans: document.getElementById('editAns').value,
-      expl: document.getElementById('editExpl').value.trim()
+      expl: document.getElementById('editExpl').value.trim(),
+      ncert_tag: ncertChecked ? "true" : "false",
+      ncert_book: ncertChecked ? document.getElementById('editNcertBook').value : "",
+      ncert_class: ncertChecked ? document.getElementById('editNcertClass').value : "",
+      ncert_chapter: ncertChecked ? `${document.getElementById('editNcertPart').value.trim()} - ${document.getElementById('editNcertChapter').value.trim()}` : ""
     };
 
     let idx = questions.findIndex(q => q.id.toString() === qId.toString());
