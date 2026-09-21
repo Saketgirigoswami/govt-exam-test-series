@@ -3194,16 +3194,18 @@
     matchWrap.innerHTML = '';
 
     if(q.type === 'ar') {
+      let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
+      let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       bodyHtml = `
         <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
-            <span class="ar-text">${q.assertion}</span>
+            <span class="ar-text">${assertText}</span>
           </div>
           <div class="ar-item">
             <span class="ar-label">Reason (R):</span>
-            <span class="ar-text">${q.reason}</span>
+            <span class="ar-text">${reasonText}</span>
           </div>
         </div>
       `;
@@ -3311,16 +3313,18 @@
     matchWrap.innerHTML = '';
 
     if(q.type === 'ar') {
+      let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
+      let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       bodyHtml = `
         <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
-            <span class="ar-text">${q.assertion}</span>
+            <span class="ar-text">${assertText}</span>
           </div>
           <div class="ar-item">
             <span class="ar-label">Reason (R):</span>
-            <span class="ar-text">${q.reason}</span>
+            <span class="ar-text">${reasonText}</span>
           </div>
         </div>
       `;
@@ -3802,7 +3806,7 @@
         usersData.sort((a, b) => {
           let scoreA = parseFloat(a.combined_score || 0);
           let scoreB = parseFloat(b.combined_score || 0);
-          return scoreB - scoreA;
+          return scoreB - scoreB;
         });
 
         let top10 = usersData.slice(0, 10);
@@ -3841,7 +3845,6 @@
             }
           }
         }
-        tbody.id = 'topTenLeaderboardBody';
         tbody.innerHTML = htmlRows;
       } else {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--muted);">No users found on leaderboard.</td></tr>`;
