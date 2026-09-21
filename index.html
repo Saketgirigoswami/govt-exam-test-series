@@ -560,10 +560,7 @@
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
             <div>
               <label>1. Book Name</label>
-              <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')">
-                <option value="NCERT">NCERT</option>
-                <option value="CG SCERT">CG SCERT</option>
-              </select>
+              <select id="ncertTestBook" onchange="cascadeNcertClasses('ncertTestBook', 'ncertTestClass')"></select>
             </div>
             <div>
               <label>2. Class</label>
@@ -685,10 +682,7 @@
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
             <div>
               <label>1. Book Name</label>
-              <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')">
-                <option value="NCERT">NCERT</option>
-                <option value="CG SCERT">CG SCERT</option>
-              </select>
+              <select id="ncertPracBook" onchange="cascadeNcertClasses('ncertPracBook', 'ncertPracClass')"></select>
             </div>
             <div>
               <label>2. Class</label>
@@ -1057,23 +1051,22 @@
                 <div id="feedNcertContainer" style="display: none; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                   <div>
                     <label>Book Name</label>
-                    <select id="feedNcertBook" onchange="updateNcertClasses('feed')">
-                      <option value="NCERT">NCERT</option>
-                      <option value="CG SCERT">CG SCERT</option>
-                    </select>
+                    <input type="text" id="feedNcertBook" list="datalistNcertBooks" placeholder="Select book..." style="margin-bottom:0;" oninput="updateNcertClasses('feed')">
+                    <datalist id="datalistNcertBooks"></datalist>
                   </div>
                   <div>
                     <label>Class</label>
-                    <select id="feedNcertClass" onchange="updateNcertClasses('feed')"></select>
+                    <input type="text" id="feedNcertClass" list="datalistNcertClasses" placeholder="Select class..." style="margin-bottom:0;">
+                    <datalist id="datalistNcertClasses"></datalist>
                   </div>
                   <div>
                     <label>Subject</label>
-                    <input type="text" id="feedNcertPart" list="datalistNcertParts" placeholder="Select or type subject..." style="margin-bottom:0;" oninput="updateLivePreview()">
+                    <input type="text" id="feedNcertPart" list="datalistNcertParts" placeholder="Select subject..." style="margin-bottom:0;">
                     <datalist id="datalistNcertParts"></datalist>
                   </div>
                   <div>
                     <label>Chapter Name</label>
-                    <input type="text" id="feedNcertChapter" list="datalistNcertChapters" placeholder="Select or type chapter..." style="margin-bottom:0;" oninput="updateLivePreview()">
+                    <input type="text" id="feedNcertChapter" list="datalistNcertChapters" placeholder="Select chapter..." style="margin-bottom:0;">
                     <datalist id="datalistNcertChapters"></datalist>
                   </div>
                 </div>
@@ -1467,13 +1460,6 @@
     <div id="fpResult" style="margin-top:15px; font-weight:600; text-align:center;"></div>
   </div>
 </div>
-
-<!-- Hidden Datalists for Admin Form Autocomplete Suggestions with Question Counts -->
-<datalist id="datalistTopics"></datalist>
-<datalist id="datalistSubtopics"></datalist>
-<datalist id="datalistExams"></datalist>
-<datalist id="datalistNcertParts"></datalist>
-<datalist id="datalistNcertChapters"></datalist>
 
 <script type="text/javascript">
   function googleTranslateElementInit() {
@@ -2107,12 +2093,13 @@
   }
 
   function updateNcertClasses(prefix) {
-    const book = document.getElementById(`${prefix}NcertBook`).value;
+    const bookInput = document.getElementById(`${prefix}NcertBook`);
     const classSelect = document.getElementById(`${prefix}NcertClass`);
-    classSelect.innerHTML = '';
+    if(!bookInput || !classSelect) return;
+    const bookVal = bookInput.value;
     
     let classes = [];
-    if (book === 'NCERT') {
+    if (bookVal === 'NCERT') {
       classes = ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th', 'Class 11th', 'Class 12th'];
     } else {
       classes = ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th'];
@@ -2122,17 +2109,54 @@
   }
 
   function initNcertCascades(bookId, classId, subId, chapId) {
-    cascadeNcertClasses(bookId, classId);
+    cascadeNcertBooks(bookId, classId, subId, chapId);
+  }
+
+  function cascadeNcertBooks(bookId, classId, subId, chapId) {
+    let booksSet = new Set(['NCERT', 'CG SCERT']);
+    questions.forEach(q => { if(q.ncert_book) booksSet.add(q.ncert_book); });
+    let books = Array.from(booksSet);
+
+    const bookEl = document.getElementById(bookId);
+    if(bookEl) {
+      bookEl.innerHTML = books.map(b => {
+        let count = questions.filter(q => (q.ncert_tag === "true" || q.ncert_tag === true) && q.ncert_book === b).length;
+        return `<option value="${b}">${b} (${count} Qs)</option>`;
+      }).join('');
+    }
+    cascadeNcertClassesForPortal(bookId, classId, subId, chapId);
+  }
+
+  function cascadeNcertClassesForPortal(bookId, classId, subId, chapId) {
+    const bookVal = document.getElementById(bookId).value;
+    let classesSet = new Set();
+    questions.forEach(q => {
+      let isNcert = q.ncert_tag === "true" || q.ncert_tag === true;
+      if(isNcert && q.ncert_book === bookVal && q.ncert_class) {
+        classesSet.add(q.ncert_class);
+      }
+    });
+    let classes = Array.from(classesSet).sort();
+    if(classes.length === 0) classes = ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th'];
+
+    const classEl = document.getElementById(classId);
+    if(classEl) {
+      classEl.innerHTML = classes.map(c => {
+        let count = questions.filter(q => (q.ncert_tag === "true" || q.ncert_tag === true) && q.ncert_book === bookVal && q.ncert_class === c).length;
+        return `<option value="${c}">${c} (${count} Qs)</option>`;
+      }).join('');
+    }
+    cascadeNcertSubjects(bookId, classId, subId);
   }
 
   function cascadeNcertClasses(bookId, classId) {
-    const bookVal = document.getElementById(bookId).value;
+    // For Admin Feed Form legacy select/inputs
+    const bookInput = document.getElementById(bookId);
     const classEl = document.getElementById(classId);
+    if(!bookInput || !classEl) return;
+    let bookVal = bookInput.value;
     let classes = bookVal === 'NCERT' ? ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th', 'Class 11th', 'Class 12th'] : ['Class 6th', 'Class 7th', 'Class 8th', 'Class 9th', 'Class 10th'];
     classEl.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
-    
-    let correspondingSubId = bookId === 'ncertTestBook' ? 'ncertTestSub' : 'ncertPracSub';
-    cascadeNcertSubjects(bookId, classId, correspondingSubId);
   }
 
   function cascadeNcertSubjects(bookId, classId, subId) {
@@ -2158,7 +2182,16 @@
     let subs = Array.from(subjectsSet);
     if(subs.length === 0) subs = ['History', 'Geography', 'Civics', 'Economics'];
 
-    subEl.innerHTML = '<option value="ALL">All Subjects</option>' + subs.map(s => `<option value="${s}">${s}</option>`).join('');
+    if(subEl) {
+      subEl.innerHTML = '<option value="ALL">All Subjects</option>' + subs.map(s => {
+        let count = matchedPool.filter(q => {
+          let chParts = (q.ncert_chapter || '').split('-');
+          let subPart = chParts[0] ? chParts[0].trim() : 'General';
+          return subPart === s;
+        }).length;
+        return `<option value="${s}">${s} (${count} Qs)</option>`;
+      }).join('');
+    }
     
     let correspondingChapId = bookId === 'ncertTestBook' ? 'ncertTestChap' : 'ncertPracChap';
     cascadeNcertChapters(bookId, classId, subId, correspondingChapId);
@@ -2191,7 +2224,16 @@
     });
 
     let chaps = Array.from(chaptersSet);
-    chapEl.innerHTML = '<option value="ALL">All Chapters</option>' + chaps.map(c => `<option value="${c}">${c}</option>`).join('');
+    if(chapEl) {
+      chapEl.innerHTML = '<option value="ALL">All Chapters</option>' + chaps.map(c => {
+        let count = matchedPool.filter(q => {
+          let chParts = (q.ncert_chapter || '').split('-');
+          let chapName = chParts[1] ? chParts[1].trim() : (q.ncert_chapter || '');
+          return chapName === c;
+        }).length;
+        return `<option value="${c}">${c} (${count} Qs)</option>`;
+      }).join('');
+    }
   }
 
   function startNcertEngine(mode) {
@@ -2397,6 +2439,8 @@
     let topicCounts = {};
     let subtopicCounts = {};
     let examCounts = {};
+    let bookCounts = {};
+    let classCounts = {};
     let partCounts = {};
     let chapterCounts = {};
 
@@ -2404,6 +2448,8 @@
       if(q.topic) topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
       if(q.subtopic) subtopicCounts[q.subtopic] = (subtopicCounts[q.subtopic] || 0) + 1;
       if(q.exam) examCounts[q.exam] = (examCounts[q.exam] || 0) + 1;
+      if(q.ncert_book) bookCounts[q.ncert_book] = (bookCounts[q.ncert_book] || 0) + 1;
+      if(q.ncert_class) classCounts[q.ncert_class] = (classCounts[q.ncert_class] || 0) + 1;
       if(q.ncert_chapter) {
         let parts = q.ncert_chapter.split('-');
         let p = parts[0] ? parts[0].trim() : '';
@@ -2426,9 +2472,13 @@
     questions.forEach(q => { if(q.exam) allExamCounts[q.exam] = (allExamCounts[q.exam] || 0) + 1; });
     fillDatalist('datalistExams', allExamCounts);
 
+    fillDatalist('datalistNcertBooks', bookCounts);
+    fillDatalist('datalistNcertClasses', classCounts);
     fillDatalist('datalistNcertParts', partCounts);
     fillDatalist('datalistNcertChapters', chapterCounts);
 
+    document.getElementById('feedNcertBook').setAttribute('list', 'datalistNcertBooks');
+    document.getElementById('feedNcertClass').setAttribute('list', 'datalistNcertClasses');
     document.getElementById('feedNcertPart').setAttribute('list', 'datalistNcertParts');
     document.getElementById('feedNcertChapter').setAttribute('list', 'datalistNcertChapters');
   }
@@ -3398,7 +3448,7 @@
     const q = activeQuestions[currentQIdx];
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
-    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
+    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
     let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
