@@ -50,19 +50,20 @@
       box-shadow: 0 0 10px #38bdf8;
     }
 
-    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 6px; }
+    header { background: rgba(3, 7, 18, 0.9); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 4px; }
     
-    /* Brand Header with Custom Logo */
-    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; max-width: 75%; overflow: hidden; }
-    .brand-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary); flex-shrink: 0; box-shadow: 0 0 10px rgba(59,130,246,0.5); }
-    .brand-title { font-size: 0.78rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 15px rgba(96,165,250,0.4); }
-    @media(min-width: 480px) { .brand-title { font-size: 0.98rem; } }
-    @media(min-width: 768px) { .brand-title { font-size: 1.1rem; } }
+    /* Perfect Fit Brand Header */
+    .brand { display: flex; align-items: center; gap: 6px; cursor: pointer; text-decoration: none; flex: 1; min-width: 0; overflow: hidden; }
+    .brand-logo-badge { width: 30px; height: 30px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #60a5fa; flex-shrink: 0; box-shadow: 0 0 10px rgba(59,130,246,0.5); font-size: 0.9rem; }
+    .brand-title { font-size: 0.72rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 15px rgba(96,165,250,0.4); }
+    @media(min-width: 380px) { .brand-title { font-size: 0.82rem; } }
+    @media(min-width: 480px) { .brand-title { font-size: 0.96rem; } }
+    @media(min-width: 768px) { .brand-title { font-size: 1.08rem; } }
 
-    .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .header-right { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
     
-    #google_translate_element { transform: scale(0.75); transform-origin: right center; display: inline-block; }
-    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 4px 6px !important; border-radius: 6px !important; font-size: 0.75rem !important; outline: none !important; cursor: pointer; }
+    #google_translate_element { transform: scale(0.7); transform-origin: right center; display: inline-block; }
+    .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 2px 4px !important; border-radius: 6px !important; font-size: 0.7rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
     .goog-te-banner-frame { display: none !important; }
     body { top: 0 !important; }
@@ -273,7 +274,7 @@
 
 <header>
   <a class="brand" onclick="navigate('tab-home')">
-    <img src="https://i.ibb.co/3ykf16Xp/1000101681.png" alt="Logo" class="brand-logo">
+    <div class="brand-logo-badge">🛡️</div>
     <span class="brand-title">Government Exam Free Test Series</span>
   </a>
   <div class="header-right">
