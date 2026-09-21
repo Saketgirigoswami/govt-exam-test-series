@@ -2207,10 +2207,14 @@
       return true;
     });
 
-    if(pool.length === 0) return alert('No questions found matching this NCERT/SCERT selection.');
+    let uniqueMap = new Map();
+    pool.forEach(q => { if(q.id) uniqueMap.set(q.id.toString(), q); });
+    let finalPool = Array.from(uniqueMap.values());
+
+    if(finalPool.length === 0) return alert('No questions found matching this NCERT/SCERT selection.');
 
     activeEngineMode = mode === 'test' ? 'test' : 'practice';
-    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
+    activeQuestions = [...finalPool].sort(() => Math.random() - 0.5);
     userResponses = {};
     currentQIdx = 0;
 
@@ -2306,10 +2310,14 @@
       return true;
     });
 
-    if(pool.length === 0) return alert('No questions found matching this Exam Based selection.');
+    let uniqueMap = new Map();
+    pool.forEach(q => { if(q.id) uniqueMap.set(q.id.toString(), q); });
+    let finalPool = Array.from(uniqueMap.values());
+
+    if(finalPool.length === 0) return alert('No questions found matching this Exam Based selection.');
 
     activeEngineMode = mode === 'test' ? 'test' : 'practice';
-    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
+    activeQuestions = [...finalPool].sort(() => Math.random() - 0.5);
     userResponses = {};
     currentQIdx = 0;
 
@@ -2847,15 +2855,21 @@
       const count = el ? parseInt(el.value || 0, 10) : 0;
       if(count > 0) {
         let subPool = questions.filter(q => q.subject === sub);
-        let shuffledSub = [...subPool].sort(() => Math.random() - 0.5);
+        let uniqueMap = new Map();
+        subPool.forEach(q => { if(q.id) uniqueMap.set(q.id.toString(), q); });
+        let shuffledSub = Array.from(uniqueMap.values()).sort(() => Math.random() - 0.5);
         selectedQuestions.push(...shuffledSub.slice(0, count));
       }
     });
 
-    if(selectedQuestions.length === 0) return alert('Please select at least 1 question.');
+    let uniqueFinalMap = new Map();
+    selectedQuestions.forEach(q => { if(q.id) uniqueFinalMap.set(q.id.toString(), q); });
+    let finalSelected = Array.from(uniqueFinalMap.values());
+
+    if(finalSelected.length === 0) return alert('Please select at least 1 question.');
 
     activeEngineMode = 'flt';
-    activeQuestions = selectedQuestions.sort(() => Math.random() - 0.5);
+    activeQuestions = finalSelected.sort(() => Math.random() - 0.5);
     userResponses = {};
     currentQIdx = 0;
 
@@ -2869,7 +2883,10 @@
   function startFullFreeMockTest() {
     if(questions.length === 0) return alert('No questions available in database yet.');
     
-    let shuffledPool = [...questions].sort(() => Math.random() - 0.5);
+    let uniqueMap = new Map();
+    questions.forEach(q => { if(q.id) uniqueMap.set(q.id.toString(), q); });
+    let shuffledPool = Array.from(uniqueMap.values()).sort(() => Math.random() - 0.5);
+
     activeQuestions = shuffledPool.slice(0, 100);
     activeEngineMode = 'full_mock';
     userResponses = {};
@@ -3158,9 +3175,13 @@
       if(subtop !== 'ALL') pool = pool.filter(q => q.subtopic === subtop);
     }
 
-    if(pool.length === 0) return alert('No questions available in this selection.');
+    let uniqueMap = new Map();
+    pool.forEach(q => { if(q.id) uniqueMap.set(q.id.toString(), q); });
+    let finalPool = Array.from(uniqueMap.values());
 
-    activeQuestions = [...pool].sort(() => Math.random() - 0.5);
+    if(finalPool.length === 0) return alert('No questions available in this selection.');
+
+    activeQuestions = [...finalPool].sort(() => Math.random() - 0.5);
 
     userResponses = {};
     currentQIdx = 0;
@@ -3437,7 +3458,10 @@
     let listKey = type === 'wrong' ? 'persistent_wrong' : (type === 'unattempted' ? 'persistent_unatt' : 'persistent_saved');
     let list = JSON.parse(localStorage.getItem(getUserKey(listKey))) || [];
     if(list.length === 0) return alert('No questions in this revision category!');
-    revQuizQuestions = [...list].sort(() => Math.random() - 0.5);
+    
+    let uniqueMap = new Map();
+    list.forEach(q => { if(q.id) uniqueMap.set(q.id.toString(), q); });
+    revQuizQuestions = Array.from(uniqueMap.values()).sort(() => Math.random() - 0.5);
     revQuizResponses = {};
     revQuizIdx = 0;
     
