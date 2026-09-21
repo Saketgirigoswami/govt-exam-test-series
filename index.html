@@ -52,7 +52,6 @@
 
     header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
     
-    /* Futuristic Neon Style Brand Logo */
     .brand { 
       font-size: 0.85rem; 
       font-weight: 700; 
@@ -770,7 +769,8 @@
             <h3>Create Your Custom Full Length Test</h3>
             <p style="color: var(--muted); font-size: 0.85rem; margin-top:4px;">customize Full Length Test With number of questions per subjects in your syllabus.</p>
           </div>
-          <div style="display:flex; gap:8px;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span id="fltTotalHeaderCountBadge" style="background:rgba(59,130,246,0.2); border:1px solid var(--primary); color:#38bdf8; padding:6px 12px; border-radius:10px; font-size:0.82rem; font-weight:bold;">Total Qs: 0</span>
             <button class="btn btn-secondary" onclick="resetFltInputs()">Reset All</button>
             <button class="btn btn-secondary" onclick="setEqualFltDistribution()">Equal Spread</button>
           </div>
@@ -1702,7 +1702,7 @@
     }
     
     setProgress(40);
-    fetchQuestionsFromCloud();
+    await fetchQuestionsFromCloud();
     fetchUsersFromCloud();
     
     syncDynamicSubjects();
@@ -2355,6 +2355,7 @@
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
       initExamCascades('examTestName', 'examTestYear', 'examTestSub');
       initExamCascades('examPracName', 'examPracYear', 'examPracSub');
+      populateAllSubjectDropdowns();
     } catch(err) {
       console.error("Error fetching questions:", err);
       questions = [];
@@ -2704,7 +2705,12 @@
     syncDynamicSubjects();
     const fill = (id) => {
       const el = document.getElementById(id);
-      if(el) el.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
+      if(el) {
+        el.innerHTML = subjects.map(s => {
+          let count = questions.filter(q => q.subject === s).length;
+          return `<option value="${s}">${s} (${count} Qs)</option>`;
+        }).join('');
+      }
     };
     ['testSub', 'pracSub', 'feedSub', 'editSub'].forEach(fill);
 
@@ -2716,9 +2722,13 @@
   function cascadeTopics(subId, topId, subtopId) {
     const sub = document.getElementById(subId).value;
     const topEl = document.getElementById(topId);
-    const relatedTopics = [...new Set(questions.filter(q => q.subject === sub).map(q => q.topic))];
+    let subPool = questions.filter(q => q.subject === sub);
+    const relatedTopics = [...new Set(subPool.map(q => q.topic))];
     if(topEl && topEl.tagName.toLowerCase() === 'select') {
-      topEl.innerHTML = '<option value="ALL">All Topics</option>' + relatedTopics.map(t => `<option value="${t}">${t}</option>`).join('');
+      topEl.innerHTML = '<option value="ALL">All Topics</option>' + relatedTopics.map(t => {
+        let tCount = subPool.filter(q => q.topic === t).length;
+        return `<option value="${t}">${t} (${tCount} Qs)</option>`;
+      }).join('');
       cascadeSubtopics(subId, topId, subtopId);
     }
   }
@@ -2731,7 +2741,10 @@
     if(top && top !== 'ALL') pool = pool.filter(q => q.topic === top);
     const relatedSubtopics = [...new Set(pool.map(q => q.subtopic))];
     if(subtopEl && subtopEl.tagName.toLowerCase() === 'select') {
-      subtopEl.innerHTML = '<option value="ALL">All Sub-Topics</option>' + relatedSubtopics.map(st => `<option value="${st}">${st}</option>`).join('');
+      subtopEl.innerHTML = '<option value="ALL">All Sub-Topics</option>' + relatedSubtopics.map(st => {
+        let stCount = pool.filter(q => q.subtopic === st).length;
+        return `<option value="${st}">${st} (${stCount} Qs)</option>`;
+      }).join('');
     }
   }
 
@@ -2764,6 +2777,11 @@
     syncDynamicSubjects();
     const grid = document.getElementById('fltSubjectBuilderGrid');
     if(!grid) return;
+    
+    let totalDbQ = questions.length;
+    let badgeEl = document.getElementById('fltTotalHeaderCountBadge');
+    if(badgeEl) badgeEl.innerText = `Total Qs in DB: ${totalDbQ}`;
+
     grid.innerHTML = subjects.map(sub => {
       const availCount = questions.filter(q => q.subject === sub).length;
       return `
