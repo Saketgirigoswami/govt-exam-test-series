@@ -1467,15 +1467,6 @@
   </div>
 </div>
 
-<!-- Hidden Datalists for Admin Form Autocomplete Suggestions with Question Counts -->
-<datalist id="datalistTopics"></datalist>
-<datalist id="datalistSubtopics"></datalist>
-<datalist id="datalistExams"></datalist>
-<datalist id="datalistNcertBooks"></datalist>
-<datalist id="datalistNcertClasses"></datalist>
-<datalist id="datalistNcertParts"></datalist>
-<datalist id="datalistNcertChapters"></datalist>
-
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'hi,en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
@@ -2389,58 +2380,6 @@
       console.error("Error fetching questions:", err);
       questions = [];
     }
-  }
-
-  function updateAdminDatalists() {
-    const selectedSub = document.getElementById('feedSub').value;
-    const subPool = questions.filter(q => q.subject === selectedSub);
-
-    let topicCounts = {};
-    let subtopicCounts = {};
-    let examCounts = {};
-    let bookCounts = {};
-    let classCounts = {};
-    let partCounts = {};
-    let chapterCounts = {};
-
-    subPool.forEach(q => {
-      if(q.topic) topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
-      if(q.subtopic) subtopicCounts[q.subtopic] = (subtopicCounts[q.subtopic] || 0) + 1;
-      if(q.exam) examCounts[q.exam] = (examCounts[q.exam] || 0) + 1;
-      if(q.ncert_book) bookCounts[q.ncert_book] = (bookCounts[q.ncert_book] || 0) + 1;
-      if(q.ncert_class) classCounts[q.ncert_class] = (classCounts[q.ncert_class] || 0) + 1;
-      if(q.ncert_chapter) {
-        let parts = q.ncert_chapter.split('-');
-        let p = parts[0] ? parts[0].trim() : '';
-        let c = parts[1] ? parts[1].trim() : '';
-        if(p) partCounts[p] = (partCounts[p] || 0) + 1;
-        if(c) chapterCounts[c] = (chapterCounts[c] || 0) + 1;
-      }
-    });
-
-    const fillDatalist = (listId, countsObj) => {
-      const dl = document.getElementById(listId);
-      if(!dl) return;
-      dl.innerHTML = Object.keys(countsObj).map(item => `<option value="${item}">(${countsObj[item]} Qs)</option>`).join('');
-    };
-
-    fillDatalist('datalistTopics', topicCounts);
-    fillDatalist('datalistSubtopics', subtopicCounts);
-    
-    let allExamCounts = {};
-    questions.forEach(q => { if(q.exam) allExamCounts[q.exam] = (allExamCounts[q.exam] || 0) + 1; });
-    fillDatalist('datalistExams', allExamCounts);
-
-    fillDatalist('datalistNcertBooks', bookCounts);
-    fillDatalist('datalistNcertClasses', classCounts);
-    fillDatalist('datalistNcertParts', partCounts);
-    fillDatalist('datalistNcertChapters', chapterCounts);
-
-    // Attach list attributes to NCERT inputs dynamically if not present
-    document.getElementById('feedNcertBook').setAttribute('list', 'datalistNcertBooks');
-    document.getElementById('feedNcertClass').setAttribute('list', 'datalistNcertClasses');
-    document.getElementById('feedNcertPart').setAttribute('list', 'datalistNcertParts');
-    document.getElementById('feedNcertChapter').setAttribute('list', 'datalistNcertChapters');
   }
 
   async function fetchUsersFromCloud(isSilent = false) {
