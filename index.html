@@ -2904,6 +2904,27 @@
     if(currentUser.role !== 'admin') return alert('Only admin can feed questions!');
 
     const type = document.getElementById('feedType').value;
+    let textToCheck = "";
+    if(type === 'ar') {
+      textToCheck = (document.getElementById('feedAssert').value || "").trim().toLowerCase();
+    } else if(type === 'statement') {
+      let stmtInputs = document.querySelectorAll('.statement-item-input');
+      textToCheck = Array.from(stmtInputs).map(i => i.value.trim().toLowerCase()).join(" ");
+    } else {
+      textToCheck = (document.getElementById('feedText').value || "").trim().toLowerCase();
+    }
+
+    // Check duplicate in existing questions database
+    let isDuplicate = questions.some(q => {
+      let qText = (q.text || q.assertion || "").trim().toLowerCase();
+      return qText === textToCheck && textToCheck !== "";
+    });
+
+    if(isDuplicate) {
+      alert("This question is already in database!");
+      return;
+    }
+
     let optionsObj = {
       A: document.getElementById('feedA').value.trim(),
       B: document.getElementById('feedB').value.trim(),
@@ -2981,7 +3002,7 @@
     };
 
     questions.unshift(newQ);
-    alert('Question Saved Successfully! (Syncing with cloud...)');
+    alert('Question Added in Google Sheet Database');
     document.getElementById('unifiedQForm').reset();
     document.getElementById('feedNcertContainer').style.display = 'none';
     document.getElementById('statementInputsList').innerHTML = '';
@@ -3104,7 +3125,7 @@
     }
 
     closeEditModal();
-    alert('Question Updated Successfully! (Syncing with cloud...)');
+    alert('Question Added in Google Sheet Database');
     
     if(activeEngineMode === 'test') renderTestView();
     else if(activeEngineMode === 'practice') renderPracticeView();
