@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Govt Exam Free Test Series</title>
+  <title>Government Exam Free Test Series</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
@@ -50,14 +50,18 @@
       box-shadow: 0 0 10px #38bdf8;
     }
 
-    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 8px; }
-    .brand { font-size: 0.82rem; font-weight: 700; color: #60a5fa; white-space: nowrap; text-shadow: 0 0 15px rgba(96,165,250,0.4); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; max-width: 62%; cursor: pointer; transition: 0.2s; }
-    .brand:hover { color: #93c5fd; }
-    @media(min-width: 480px) { .brand { font-size: 1.05rem; max-width: 72%; } }
+    header { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 6px; }
+    
+    /* Brand Header with Custom Logo */
+    .brand { display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; max-width: 75%; overflow: hidden; }
+    .brand-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary); flex-shrink: 0; box-shadow: 0 0 10px rgba(59,130,246,0.5); }
+    .brand-title { font-size: 0.78rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 15px rgba(96,165,250,0.4); }
+    @media(min-width: 480px) { .brand-title { font-size: 0.98rem; } }
+    @media(min-width: 768px) { .brand-title { font-size: 1.1rem; } }
 
     .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
     
-    #google_translate_element { transform: scale(0.8); transform-origin: right center; display: inline-block; }
+    #google_translate_element { transform: scale(0.75); transform-origin: right center; display: inline-block; }
     .goog-te-combo { background: #1e293b !important; color: #38bdf8 !important; border: 1px solid var(--border) !important; padding: 4px 6px !important; border-radius: 6px !important; font-size: 0.75rem !important; outline: none !important; cursor: pointer; }
     .goog-logo-link, .gsk-translate-gadget { display: none !important; }
     .goog-te-banner-frame { display: none !important; }
@@ -268,7 +272,10 @@
 <div id="topProgressBar"></div>
 
 <header>
-  <div class="brand" onclick="navigate('tab-home')">🚀 Govt Exam Free Test Series</div>
+  <a class="brand" onclick="navigate('tab-home')">
+    <img src="https://i.ibb.co/3ykf16Xp/1000101681.png" alt="Logo" class="brand-logo">
+    <span class="brand-title">Government Exam Free Test Series</span>
+  </a>
   <div class="header-right">
     <div id="google_translate_element"></div>
   </div>
