@@ -744,7 +744,7 @@
             </div>
             <div class="q-header-right">
               <span class="badge-exam-tag" id="p-exam-badge"></span>
-              <button class="btn btn-secondary btn-sm" id="p-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
+              <button class="btn btn-secondary btn-sm" id="t-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
               <div id="p-admin-edit-btn" style="display:inline-block;"></div>
             </div>
           </div>
@@ -1028,19 +1028,22 @@
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
                 <div>
                   <label>1. Subject</label>
-                  <select id="feedSub" onchange="cascadeTopics('feedSub', 'feedTop', 'feedSubtop'); updateLivePreview();"></select>
+                  <select id="feedSub" onchange="updateAdminDatalists(); cascadeTopics('feedSub', 'feedTop', 'feedSubtop'); updateLivePreview();"></select>
                 </div>
                 <div>
                   <label>2. Topic / Chapter</label>
-                  <input type="text" id="feedTop" placeholder="e.g. Mauryan Empire" required oninput="updateLivePreview()">
+                  <input type="text" id="feedTop" list="datalistTopics" placeholder="Select or type topic..." required oninput="updateLivePreview()">
+                  <datalist id="datalistTopics"></datalist>
                 </div>
                 <div>
                   <label>3. Sub-Topic</label>
-                  <input type="text" id="feedSubtop" placeholder="e.g. Administration" required oninput="updateLivePreview()">
+                  <input type="text" id="feedSubtop" list="datalistSubtopics" placeholder="Select or type sub-topic..." required oninput="updateLivePreview()">
+                  <datalist id="datalistSubtopics"></datalist>
                 </div>
                 <div>
                   <label>PYQ Exam Tag</label>
-                  <input type="text" id="feedExam" placeholder="e.g. CGPSC 2024" oninput="updateLivePreview()">
+                  <input type="text" id="feedExam" list="datalistExams" placeholder="Select or type exam..." oninput="updateLivePreview()">
+                  <datalist id="datalistExams"></datalist>
                 </div>
               </div>
 
@@ -1462,6 +1465,11 @@
     <div id="fpResult" style="margin-top:15px; font-weight:600; text-align:center;"></div>
   </div>
 </div>
+
+<!-- Hidden Datalists for Admin Form Autocomplete Suggestions with Question Counts -->
+<datalist id="datalistTopics"></datalist>
+<datalist id="datalistSubtopics"></datalist>
+<datalist id="datalistExams"></datalist>
 
 <script type="text/javascript">
   function googleTranslateElementInit() {
@@ -2371,10 +2379,39 @@
       initExamCascades('examTestName', 'examTestYear', 'examTestSub');
       initExamCascades('examPracName', 'examPracYear', 'examPracSub');
       populateAllSubjectDropdowns();
+      updateAdminDatalists();
     } catch(err) {
       console.error("Error fetching questions:", err);
       questions = [];
     }
+  }
+
+  function updateAdminDatalists() {
+    const selectedSub = document.getElementById('feedSub').value;
+    const subPool = questions.filter(q => q.subject === selectedSub);
+
+    let topicCounts = {};
+    let subtopicCounts = {};
+    let examCounts = {};
+
+    subPool.forEach(q => {
+      if(q.topic) topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
+      if(q.subtopic) subtopicCounts[q.subtopic] = (subtopicCounts[q.subtopic] || 0) + 1;
+      if(q.exam) examCounts[q.exam] = (examCounts[q.exam] || 0) + 1;
+    });
+
+    const fillDatalist = (listId, countsObj) => {
+      const dl = document.getElementById(listId);
+      if(!dl) return;
+      dl.innerHTML = Object.keys(countsObj).map(item => `<option value="${item}">(${countsObj[item]} Qs)</option>`).join('');
+    };
+
+    fillDatalist('datalistTopics', topicCounts);
+    fillDatalist('datalistSubtopics', subtopicCounts);
+    
+    let allExamCounts = {};
+    questions.forEach(q => { if(q.exam) allExamCounts[q.exam] = (allExamCounts[q.exam] || 0) + 1; });
+    fillDatalist('datalistExams', allExamCounts);
   }
 
   async function fetchUsersFromCloud(isSilent = false) {
@@ -2661,6 +2698,7 @@
     if(tabId === 'tab-admin') {
       let adminMobBtn = document.getElementById('fNavAdmin');
       if(adminMobBtn) adminMobBtn.classList.add('active');
+      updateAdminDatalists();
     }
 
     fetchUsersFromCloud();
@@ -3011,6 +3049,7 @@
     toggleQTypeFields('standard', 'feed');
     populateAllSubjectDropdowns();
     buildFltSubjectInputs();
+    updateAdminDatalists();
 
     try {
       await fetch(QUESTIONS_API_URL, {
@@ -3341,7 +3380,7 @@
     const q = activeQuestions[currentQIdx];
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
-    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
+    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
     let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
@@ -3889,7 +3928,7 @@
               htmlRows += `
                 <tr style="background:rgba(59,130,246,0.25); border-top:2px dashed var(--primary);">
                   <td style="padding:10px; border:1px solid var(--border); color:#facc15; font-weight:bold;">#${myIndex + 1}</td>
-                  <td style="padding:10px; border:1px solid var(--border); font-weight:bold; color:#38bdf8;">${myData.name || 'You'} [You]</td>
+                  <td style="padding:10px; border:1px solid var(--border); font-weight:bold; color:#38bdf8;">${myData.name || 'You'} [You]ד</td>
                   <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80; font-weight:bold;">${myData.current_percentage || 0}%</td>
                   <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#facc15; font-weight:bold;">${myData.revision_count || 0}</td>
                 </tr>
