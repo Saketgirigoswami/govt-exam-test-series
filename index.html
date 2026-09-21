@@ -3800,7 +3800,7 @@
         let htmlRows = top10.map((u, idx) => `
           <tr style="${currentUser && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
             <td style="padding:10px; border:1px solid var(--border);">#${idx + 1}</td>
-            <td style="padding:10px; border:1px solid var(--border); font-weight:600; color:#93c5fd;">@${u.username} (${u.name || 'User'})</td>
+            <td style="padding:10px; border:1px solid var(--border); font-weight:600; color:#93c5fd;">${u.name || 'User'}</td>
             <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80;">${u.current_percentage || 0}%</td>
             <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#facc15; font-weight:bold;">${u.revision_count || 0}</td>
           </tr>`).join('');
@@ -3824,7 +3824,7 @@
               htmlRows += `
                 <tr style="background:rgba(59,130,246,0.25); border-top:2px dashed var(--primary);">
                   <td style="padding:10px; border:1px solid var(--border); color:#facc15; font-weight:bold;">#${myIndex + 1}</td>
-                  <td style="padding:10px; border:1px solid var(--border); font-weight:bold; color:#38bdf8;">@${myData.username} (${myData.name || 'You'}) [You]</td>
+                  <td style="padding:10px; border:1px solid var(--border); font-weight:bold; color:#38bdf8;">${myData.name || 'You'} [You]</td>
                   <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80; font-weight:bold;">${myData.current_percentage || 0}%</td>
                   <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#facc15; font-weight:bold;">${myData.revision_count || 0}</td>
                 </tr>
