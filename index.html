@@ -2332,21 +2332,28 @@
       let res = await fetch(QUESTIONS_API_URL + "?action=getQuestions");
       let data = await res.json();
       if(Array.isArray(data) && data.length > 0) {
-        questions = data.map(q => {
-          if(typeof q.options === 'string') {
-            try { q.options = JSON.parse(q.options); } catch(e) {}
+        let uniqueMap = new Map();
+        data.forEach(q => {
+          if(q.id) {
+            let parsedOpts = q.options;
+            if(typeof parsedOpts === 'string') {
+              try { parsedOpts = JSON.parse(parsedOpts); } catch(e) {}
+            }
+            if(!parsedOpts || typeof parsedOpts !== 'object') {
+              parsedOpts = { A: q.optionA || "", B: q.optionB || "", C: q.optionC || "", D: q.optionD || "" };
+            }
+            q.options = parsedOpts;
+
+            if(typeof q.matchRows === 'string') {
+              try { q.matchRows = JSON.parse(q.matchRows); } catch(e){}
+            }
+            if(typeof q.statements === 'string') {
+              try { q.statements = JSON.parse(q.statements); } catch(e){}
+            }
+            uniqueMap.set(q.id.toString(), q);
           }
-          if(!q.options || typeof q.options !== 'object') {
-            q.options = { A: q.optionA || "", B: q.optionB || "", C: q.optionC || "", D: q.optionD || "" };
-          }
-          if(typeof q.matchRows === 'string') {
-            try { q.matchRows = JSON.parse(q.matchRows); } catch(e){}
-          }
-          if(typeof q.statements === 'string') {
-            try { q.statements = JSON.parse(q.statements); } catch(e){}
-          }
-          return q;
         });
+        questions = Array.from(uniqueMap.values());
       } else {
         questions = [];
       }
@@ -3006,8 +3013,8 @@
     toggleQTypeFields(qType, 'edit');
 
     if(qType === 'ar') {
-      document.getElementById('editAssert').value = q.assertion || '';
-      document.getElementById('editReason').value = q.reason || '';
+      document.getElementById('editAssert').value = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
+      document.getElementById('editReason').value = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       document.getElementById('editText').value = '';
     } else {
       document.getElementById('editText').value = q.text || '';
@@ -3806,7 +3813,7 @@
         usersData.sort((a, b) => {
           let scoreA = parseFloat(a.combined_score || 0);
           let scoreB = parseFloat(b.combined_score || 0);
-          return scoreB - scoreB;
+          return scoreB - scoreA;
         });
 
         let top10 = usersData.slice(0, 10);
