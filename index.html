@@ -52,12 +52,12 @@
 
     header { background: rgba(3, 7, 18, 0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; gap: 4px; }
     
-    /* Perfect Fit Brand Header with SVG Logo */
-    .brand { display: flex; align-items: center; gap: 7px; cursor: pointer; text-decoration: none; max-width: 76%; overflow: hidden; flex-shrink: 0; }
-    .brand-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #60a5fa; flex-shrink: 0; box-shadow: 0 0 10px rgba(96,165,250,0.6); background: #fff; }
-    .brand-title { font-size: 0.80rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 15px rgba(96,165,250,0.4); letter-spacing: 0.2px; }
-    @media(min-width: 380px) { .brand-title { font-size: 0.88rem; } }
-    @media(min-width: 480px) { .brand-title { font-size: 1.02rem; } }
+    /* Perfect Fit Brand Header with Embedded SVG Logo */
+    .brand { display: flex; align-items: center; gap: 6px; cursor: pointer; text-decoration: none; max-width: 76%; overflow: hidden; flex-shrink: 0; }
+    .brand-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #60a5fa; flex-shrink: 0; box-shadow: 0 0 10px rgba(96,165,250,0.6); background: #000; }
+    .brand-title { font-size: 0.78rem; font-weight: 700; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 15px rgba(96,165,250,0.4); letter-spacing: 0.2px; }
+    @media(min-width: 380px) { .brand-title { font-size: 0.86rem; } }
+    @media(min-width: 480px) { .brand-title { font-size: 1.0rem; } }
 
     .header-right { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
     
@@ -273,7 +273,7 @@
 
 <header>
   <a class="brand" onclick="navigate('tab-home')">
-    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><circle cx='250' cy='250' r='240' fill='%231e3a8a'/><circle cx='250' cy='250' r='210' fill='none' stroke='%23facc15' stroke-width='8'/><path d='M250 80 L380 200 L320 380 L180 380 L120 200 Z' fill='%233b82f6' stroke='%23facc15' stroke-width='6'/><text x='250' y='140' fill='%23ffffff' font-size='32' font-family='Arial' font-weight='bold' text-anchor='middle'>GOVERNMENT EXAM</text><text x='250' y='360' fill='%23ffffff' font-size='28' font-family='Arial' font-weight='bold' text-anchor='middle'>FREE TEST SERIES</text><text x='250' y='270' fill='%23facc15' font-size='64' font-family='Arial' text-anchor='middle'>🛡️</text></svg>" alt="Logo" class="brand-logo">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MDAgNTAwIj48Y2lyY2xlIGN4PSIyNTAiIGN5PSIyNTAiIHI9IjI0MCIgZmlsbD0iIzFlM2E4YSIvPjxjaXJjbGUgY3g9IjI1MCIgY3k9IjI1MCIgcj0iMjEwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmYWNjMTUiIHN0cm9rZS13aWR0aD0iOCIvPjxwYXRoIGQ9Ik0yNTAgODAgTDM4MCAyMDAgTDMyMCAzODAgTDE4MCAzODAgTDEyMCAyMDAgWiIgZmlsbD0iIzNiODJmNiIgc3Ryb2tlPSIjZmFjYzE1IiBzdHJva2Utd2lkdGg9IjYiLz48dGV4dCB4PSIyNTAiIHk9IjE0MCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIzMiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R09WRVJORU5UIEVYQU08L3RleHQ+PHRleHQgeD0iMjUwIiB5PSIzNjAiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkZSRUUgVEVTVCBTRVJJRVM8L3RleHQ+PHRleHQgeD0iMjUwIiB5PSIyNzAiIGZpbGw9IiNmYWNjMTUiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+UsDwvdGV4dD48L3N2Zz4=" alt="Logo" class="brand-logo">
     <span class="brand-title">Govt Exam Free Test Series</span>
   </a>
   <div class="header-right">
