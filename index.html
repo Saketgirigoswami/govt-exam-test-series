@@ -549,6 +549,16 @@
               <label>3. Sub-Topic</label>
               <select id="testSubtop"><option value="ALL">All Sub-Topics</option></select>
             </div>
+            <div>
+              <label>4. Test Duration (Timer)</label>
+              <select id="testDurationTopic">
+                <option value="0">No Time Limit (Practice Mode)</option>
+                <option value="10">10 Minutes</option>
+                <option value="30" selected>30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="90">90 Minutes</option>
+              </select>
+            </div>
           </div>
           <button class="btn" style="margin-top: 16px;" onclick="startEngine('test')">Start Timed Test</button>
         </div>
@@ -573,6 +583,16 @@
             <div>
               <label>4. Chapter Name</label>
               <select id="ncertTestChap"><option value="ALL">All Chapters</option></select>
+            </div>
+            <div>
+              <label>5. Test Duration (Timer)</label>
+              <select id="testDurationNcert">
+                <option value="0">No Time Limit (Practice Mode)</option>
+                <option value="10">10 Minutes</option>
+                <option value="30" selected>30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="90">90 Minutes</option>
+              </select>
             </div>
           </div>
           <button class="btn btn-success" style="margin-top: 16px;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
@@ -601,6 +621,16 @@
                 <option value="ALL">All Subjects</option>
               </select>
             </div>
+            <div>
+              <label>4. Test Duration (Timer)</label>
+              <select id="testDurationExam">
+                <option value="0">No Time Limit (Practice Mode)</option>
+                <option value="10">10 Minutes</option>
+                <option value="30" selected>30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="90">90 Minutes</option>
+              </select>
+            </div>
           </div>
           <button class="btn btn-warning" style="margin-top: 16px; background:#facc15; color:#000;" onclick="startExamEngine('test')">Start Exam Mock Test</button>
         </div>
@@ -616,6 +646,7 @@
                 <span class="badge badge-sub" id="t-hier-badge"></span>
               </div>
               <div class="q-header-right">
+                <span id="testTimerBadge" style="background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold;">⏱️ 00:00</span>
                 <span class="badge-exam-tag" id="t-exam-badge"></span>
                 <button class="btn btn-secondary btn-sm" id="t-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
                 <div id="t-admin-edit-btn" style="display:inline-block;"></div>
@@ -768,6 +799,18 @@
             <button class="btn btn-secondary" onclick="resetFltInputs()">Reset All</button>
             <button class="btn btn-secondary" onclick="setEqualFltDistribution()">Equal Spread</button>
           </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <label>Custom Test Name</label>
+          <input type="text" id="customFltNameInput" placeholder="e.g. My Special CGPSC Mega Test">
+          <label>Test Duration (Timer)</label>
+          <select id="testDurationFlt">
+            <option value="0">No Time Limit (Practice Mode)</option>
+            <option value="30">30 Minutes</option>
+            <option value="60" selected>60 Minutes</option>
+            <option value="120">120 Minutes</option>
+          </select>
         </div>
 
         <div class="flt-builder-grid" id="fltSubjectBuilderGrid"></div>
@@ -1478,6 +1521,9 @@
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <script>
+  let testTimerInterval = null;
+  let testTimeRemaining = 0;
+
   function setProgress(percent) {
     const bar = document.getElementById('topProgressBar');
     if(!bar) return;
@@ -2338,6 +2384,9 @@
     userResponses = {};
     currentQIdx = 0;
 
+    let durationMins = mode === 'test' ? parseInt(document.getElementById('testDurationNcert').value || 30, 10) : 0;
+    startTestTimer(durationMins);
+
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     if(mode === 'test') {
       document.getElementById('tab-test').style.display = 'block';
@@ -2463,6 +2512,9 @@
     userResponses = {};
     currentQIdx = 0;
 
+    let durationMins = mode === 'test' ? parseInt(document.getElementById('testDurationExam').value || 30, 10) : 0;
+    startTestTimer(durationMins);
+
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     if(mode === 'test') {
       document.getElementById('tab-test').style.display = 'block';
@@ -2475,6 +2527,33 @@
       document.getElementById('prac-player').style.display = 'block';
       renderPracticeView();
     }
+  }
+
+  function startTestTimer(minutes) {
+    if(testTimerInterval) clearInterval(testTimerInterval);
+    const timerBadge = document.getElementById('testTimerBadge');
+    if(!timerBadge) return;
+
+    if(minutes <= 0) {
+      timerBadge.style.display = 'none';
+      return;
+    }
+
+    timerBadge.style.display = 'inline-block';
+    testTimeRemaining = minutes * 60;
+
+    testTimerInterval = setInterval(() => {
+      if(testTimeRemaining <= 0) {
+        clearInterval(testTimerInterval);
+        alert('Time is up! Submitting your test automatically.');
+        submitTestEngine();
+        return;
+      }
+      testTimeRemaining--;
+      let m = Math.floor(testTimeRemaining / 60);
+      let s = testTimeRemaining % 60;
+      timerBadge.innerText = `⏱️ ${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }, 1000);
   }
 
   async function fetchQuestionsFromCloud() {
@@ -3063,10 +3142,17 @@
 
     if(finalSelected.length === 0) return alert('Please select at least 1 question.');
 
+    const customNameInput = document.getElementById('customFltNameInput').value.trim();
+    const testName = customNameInput ? customNameInput : 'Custom FLT';
+
     activeEngineMode = 'flt';
     activeQuestions = finalSelected.sort(() => Math.random() - 0.5);
     userResponses = {};
     currentQIdx = 0;
+    window.currentCustomTestLabel = testName;
+
+    let durationMins = parseInt(document.getElementById('testDurationFlt').value || 60, 10);
+    startTestTimer(durationMins);
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.getElementById('tab-test').style.display = 'block';
@@ -3086,6 +3172,8 @@
     activeEngineMode = 'full_mock';
     userResponses = {};
     currentQIdx = 0;
+
+    startTestTimer(90); // Default 90 mins for full mock
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.getElementById('tab-test').style.display = 'block';
@@ -3398,15 +3486,18 @@
     if(finalPool.length === 0) return alert('No questions available in this selection.');
 
     activeQuestions = [...finalPool].sort(() => Math.random() - 0.5);
-
     userResponses = {};
     currentQIdx = 0;
+
+    let durationMins = mode === 'test' ? parseInt(document.getElementById('testDurationTopic').value || 30, 10) : 0;
+    startTestTimer(durationMins);
 
     if(mode === 'practice') {
       document.getElementById('pracConfigWrapper').style.display = 'none';
       document.getElementById('prac-player').style.display = 'block';
       renderPracticeView();
     } else {
+      document.getElementById('tab-test').style.display = 'block';
       document.getElementById('testConfigWrapper').style.display = 'none';
       document.getElementById('test-player').style.display = 'block';
       renderTestView();
@@ -3536,7 +3627,7 @@
     const q = activeQuestions[currentQIdx];
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
-    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
+    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
     let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
@@ -3792,6 +3883,7 @@
   function moveRevisionQuizQ(step) { if(revQuizIdx + step >= 0 && revQuizIdx + step < revQuizQuestions.length) { revQuizIdx += step; renderRevisionQuizView(); } }
 
   function submitTestEngine() {
+    if(testTimerInterval) clearInterval(testTimerInterval);
     if(!confirm('Do you want to submit the test?')) return;
     let correct = 0, wrong = 0, unattempted = 0;
     let wrongQs = [], correctQs = [], unattemptedQs = [];
@@ -3837,7 +3929,19 @@
       let mockCount = userHistory.filter(h => h.subject.startsWith('Full Mock Test')).length + 1;
       testSubjectName = `Full Mock Test ${mockCount}`;
     } else if(activeEngineMode === 'flt') {
-      testSubjectName = 'Custom FLT';
+      testSubjectName = window.currentCustomTestLabel || 'Custom FLT';
+    } else if(activeEngineMode === 'test') {
+      // Check if it's NCERT or Exam or Topic
+      const activeTabMode = document.getElementById('selTestNcert').classList.contains('active') ? 'ncert' : (document.getElementById('selTestExam').classList.contains('active') ? 'exam' : 'topic');
+      if(activeTabMode === 'ncert') {
+        let bName = document.getElementById('ncertTestBook').value || 'NCERT';
+        testSubjectName = `${bName} Test (${document.getElementById('ncertTestClass').value})`;
+      } else if(activeTabMode === 'exam') {
+        let exName = document.getElementById('examTestName').value;
+        testSubjectName = exName !== 'ALL' ? exName : (activeQuestions[0].exam || 'Exam Mock Test');
+      } else {
+        testSubjectName = document.getElementById('testSub').value || (activeQuestions[0].subject || 'General Test');
+      }
     } else {
       testSubjectName = activeQuestions[0].subject || 'General Test';
     }
