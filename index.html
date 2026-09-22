@@ -1143,7 +1143,7 @@
                 <textarea id="feedArText" rows="2" placeholder="e.g. Direction - For the below Assertion and Reason, choose correct alternative-" oninput="updateLivePreview()" style="margin-bottom:12px;"></textarea>
                 
                 <label>Assertion (A):</label><textarea id="feedAssert" rows="2" placeholder="Write assertion statement..." oninput="updateLivePreview()" style="margin-bottom:10px;"></textarea>
-                <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..."></textarea>
+                <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..." oninput="updateLivePreview()"></textarea>
               </div>
 
               <div id="feed-match-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:12px; margin-bottom:10px;">
@@ -1627,7 +1627,7 @@
     currentUser.history_data.saved = savedList;
     localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(savedList));
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-    updateUserProgressToCloud(0, {}, currentUser.history_data.history);
+    updateUserProgressToCloud(0, {}, currentUser.history_data);
     renderRevisionNeededSection();
   }
 
@@ -2701,23 +2701,18 @@
         if(currentUser) {
           let updatedMe = members.find(m => m.username.toLowerCase() === currentUser.username.toLowerCase());
           if(updatedMe) {
+            let hData = typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || { history: [], wrong: [], unatt: [], saved: [] });
             currentUser = { 
               ...currentUser, 
               ...updatedMe,
               subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {}),
-              history_data: typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || { history: [], wrong: [], unatt: [], saved: [] })
+              history_data: hData
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-            
-            let hData = currentUser.history_data;
-            if(Array.isArray(hData)) {
-              localStorage.setItem(getUserKey('history'), JSON.stringify(hData));
-            } else {
-              localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
-              localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
-              localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
-              localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
-            }
+            localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+            localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+            localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+            localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
 
             if(!isSilent) {
               syncOnlineLeaderboard();
@@ -3454,7 +3449,7 @@
       ncert_tag: ncertChecked ? "true" : "false",
       ncert_book: ncertChecked ? document.getElementById('editNcertBook').value.trim() : "",
       ncert_class: ncertChecked ? document.getElementById('editNcertClass').value.trim() : "",
-      ncert_chapter: ncertChecked ? `${document.getElementById('feedNcertPart').value.trim()} - ${document.getElementById('feedNcertChapter').value.trim()}` : ""
+      ncert_chapter: ncertChecked ? `${document.getElementById('editNcertPart').value.trim()} - ${document.getElementById('editNcertChapter').value.trim()}` : ""
     };
 
     let idx = questions.findIndex(q => q.id.toString() === qId.toString());
@@ -3570,7 +3565,7 @@
     document.getElementById('t-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('t-star-btn');
-    let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
+    let savedList = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
     let isSaved = savedList.some(item => item.id.toString() === q.id.toString());
     starBtn.style.background = isSaved ? '#facc15' : '#334155';
     starBtn.style.color = isSaved ? '#000' : '#fff';
@@ -3689,7 +3684,7 @@
     document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
-    let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
+    let savedList = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
     let isSaved = savedList.some(item => item.id.toString() === q.id.toString());
     starBtn.style.background = isSaved ? '#facc15' : '#334155';
     starBtn.style.color = isSaved ? '#000' : '#fff';
@@ -3805,7 +3800,7 @@
 
     if(activeEngineMode === 'practice') {
       const q = activeQuestions[currentQIdx];
-      let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
+      let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
       if(k !== q.ans) {
         if(!pWrong.find(w => w.id === q.id)) {
           pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
@@ -3813,7 +3808,7 @@
           if(currentUser) {
             if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
             currentUser.history_data.wrong = pWrong;
-            updateUserProgressToCloud(0, {}, currentUser.history_data.history);
+            updateUserProgressToCloud(0, {}, currentUser.history_data);
           }
         }
       }
@@ -3827,7 +3822,8 @@
   function startRevisionQuizEngine(type) {
     activeRevisionCategory = type;
     let listKey = type === 'wrong' ? 'persistent_wrong' : (type === 'unattempted' ? 'persistent_unatt' : 'persistent_saved');
-    let list = JSON.parse(localStorage.getItem(getUserKey(listKey))) || [];
+    let list = currentUser && currentUser.history_data && currentUser.history_data[type === 'wrong' ? 'wrong' : (type === 'unattempted' ? 'unatt' : 'saved')] ? currentUser.history_data[type === 'wrong' ? 'wrong' : (type === 'unattempted' ? 'unatt' : 'saved')] : (JSON.parse(localStorage.getItem(getUserKey(listKey))) || []);
+    
     if(list.length === 0) return alert('No questions in this revision category!');
     
     let uniqueMap = new Map();
@@ -3881,7 +3877,7 @@
     if(revQuizQuestions.length === 0) return;
     let qToRemove = revQuizQuestions[revQuizIdx];
     let listKey = activeRevisionCategory === 'wrong' ? 'persistent_wrong' : (activeRevisionCategory === 'unattempted' ? 'persistent_unatt' : 'persistent_saved');
-    let list = JSON.parse(localStorage.getItem(getUserKey(listKey))) || [];
+    let list = currentUser && currentUser.history_data && currentUser.history_data[activeRevisionCategory === 'wrong' ? 'wrong' : (activeRevisionCategory === 'unattempted' ? 'unatt' : 'saved')] ? currentUser.history_data[activeRevisionCategory === 'wrong' ? 'wrong' : (activeRevisionCategory === 'unattempted' ? 'unatt' : 'saved')] : (JSON.parse(localStorage.getItem(getUserKey(listKey))) || []);
     
     list = list.filter(item => item.id.toString() !== qToRemove.id.toString());
     localStorage.setItem(getUserKey(listKey), JSON.stringify(list));
@@ -3891,7 +3887,7 @@
       if(activeRevisionCategory === 'wrong') currentUser.history_data.wrong = list;
       else if(activeRevisionCategory === 'unattempted') currentUser.history_data.unatt = list;
       else if(activeRevisionCategory === 'saved') currentUser.history_data.saved = list;
-      updateUserProgressToCloud(0, {}, currentUser.history_data.history);
+      updateUserProgressToCloud(0, {}, currentUser.history_data);
     }
 
     revQuizQuestions.splice(revQuizIdx, 1);
@@ -3962,8 +3958,8 @@
 
     let testSubMap = {};
 
-    let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
-    let pUnatt = JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || [];
+    let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+    let pUnatt = currentUser && currentUser.history_data && currentUser.history_data.unatt ? currentUser.history_data.unatt : (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
 
     activeQuestions.forEach((q, i) => {
       if(!attemptedQIds.includes(q.id)) attemptedQIds.push(q.id);
@@ -3975,13 +3971,13 @@
 
       if(!resp) {
         unattempted++; unattemptedQs.push(item);
-        if(!pUnatt.find(u => u.id === q.id)) pUnatt.push({ ...q, dateAdded: new Date().toLocaleDateString() });
+        if(!pUnatt.find(u => u.id.toString() === q.id.toString())) pUnatt.push({ ...q, dateAdded: new Date().toLocaleDateString() });
       } else if(resp === q.ans) {
         correct++; correctQs.push(item);
         testSubMap[sName].correct += 1;
       } else {
         wrong++; wrongQs.push(item);
-        if(!pWrong.find(w => w.id === q.id)) pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
+        if(!pWrong.find(w => w.id.toString() === q.id.toString())) pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
       }
     });
 
