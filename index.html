@@ -1051,7 +1051,7 @@
                 <div id="feedNcertContainer" style="display: none; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                   <div>
                     <label>Book Name</label>
-                    <input type="text" id="feedNcertBook" list="datalistNcertBooks" placeholder="Select book..." style="margin-bottom:0;" oninput="updateNcertClasses('feed')">
+                    <input type="text" id="feedNcertBook" list="datalistNcertBooks" placeholder="Select book..." style="margin-bottom:0;" oninput="updateNcertClassesForAdmin()">
                     <datalist id="datalistNcertBooks"></datalist>
                   </div>
                   <div>
@@ -2364,7 +2364,10 @@
     let exams = Array.from(examsSet).sort();
     let nameEl = document.getElementById(nameId);
     if(nameEl) {
-      nameEl.innerHTML = '<option value="ALL">All Exams</option>' + exams.map(e => `<option value="${e}">${e}</option>`).join('');
+      nameEl.innerHTML = '<option value="ALL">All Exams</option>' + exams.map(e => {
+        let count = questions.filter(q => q.exam && extractCleanExamName(q.exam).toLowerCase() === e.toLowerCase()).length;
+        return `<option value="${e}">${e} (${count} Qs)</option>`;
+      }).join('');
     }
     cascadeExamYears(nameId, yearId, subId);
   }
@@ -2384,7 +2387,16 @@
     let years = Array.from(yearsSet).sort((a,b) => b - a);
     let yearEl = document.getElementById(yearId);
     if(yearEl) {
-      yearEl.innerHTML = '<option value="ALL">All Years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+      yearEl.innerHTML = '<option value="ALL">All Years</option>' + years.map(y => {
+        let count = questions.filter(q => {
+          if(!q.exam) return false;
+          let cleanEx = extractCleanExamName(q.exam);
+          let yr = extractExamYear(q.exam);
+          if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return false;
+          return yr === y.toString() || q.exam.includes(y.toString());
+        }).length;
+        return `<option value="${y}">${y} (${count} Qs)</option>`;
+      }).join('');
     }
     cascadeExamSubjects(nameId, yearId, subId);
   }
@@ -2408,7 +2420,17 @@
     let subs = Array.from(subsSet).sort();
     let subEl = document.getElementById(subId);
     if(subEl) {
-      subEl.innerHTML = '<option value="ALL">All Subjects</option>' + subs.map(s => `<option value="${s}">${s}</option>`).join('');
+      subEl.innerHTML = '<option value="ALL">All Subjects</option>' + subs.map(s => {
+        let count = questions.filter(q => {
+          if(!q.exam || q.subject !== s) return false;
+          let cleanEx = extractCleanExamName(q.exam);
+          let yr = extractExamYear(q.exam);
+          if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return false;
+          if(yearVal !== 'ALL' && yr !== yearVal && !q.exam.includes(yearVal)) return false;
+          return true;
+        }).length;
+        return `<option value="${s}">${s} (${count} Qs)</option>`;
+      }).join('');
     }
   }
 
