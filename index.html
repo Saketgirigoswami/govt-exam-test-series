@@ -1759,7 +1759,6 @@
   let questions = [];
 
   let members = [];
-  let testHistory = [];
   let attemptedQIds = JSON.parse(localStorage.getItem('cg_attempted_qids')) || [];
   let currentUser = JSON.parse(localStorage.getItem('cg_auth_user')) || null;
 
@@ -3670,7 +3669,7 @@
     const q = activeQuestions[currentQIdx];
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
-    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
+    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
     let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
@@ -4008,8 +4007,14 @@
 
     if(!currentUser.subject_progress) currentUser.subject_progress = {};
     for(let sub in testSubMap) {
-      if(!currentUser.subject_progress[sub]) currentUser.subject_progress[sub] = { correct: 0 };
+      if(!currentUser.subject_progress[sub]) currentUser.subject_progress[sub] = { correct: 0, revisions: 0 };
       currentUser.subject_progress[sub].correct += testSubMap[sub].correct;
+      // Agar 100% ho gaya toh subject revision +1
+      let totalSubQ = questions.filter(q => q.subject === sub).length;
+      if(totalSubQ > 0 && currentUser.subject_progress[sub].correct >= totalSubQ) {
+        currentUser.subject_progress[sub].revisions = (currentUser.subject_progress[sub].revisions || 0) + 1;
+        currentUser.subject_progress[sub].correct = 0; // reset
+      }
     }
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
@@ -4154,7 +4159,7 @@
 
     radarBox.innerHTML = subjects.map(sub => {
       let totalDbSubQ = questions.filter(q => q.subject === sub).length;
-      let subData = userSubProgress[sub] || { correct: 0 };
+      let subData = userSubProgress[sub] || { correct: 0, revisions: 0 };
       let userCorrect = subData.correct || 0;
 
       let subPercent = 0;
@@ -4162,7 +4167,7 @@
         subPercent = Math.min(100, Math.round((userCorrect / totalDbSubQ) * 100));
       }
 
-      let subRevCount = subData.revisions !== undefined ? subData.revisions : (currentUser && currentUser.revision_count ? currentUser.revision_count : 0);
+      let subRevCount = subData.revisions || 0;
       let emojiTag = "";
       if (subPercent >= 80 && userCorrect > 0) {
         emojiTag = "🔥";
