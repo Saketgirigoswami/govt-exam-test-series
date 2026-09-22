@@ -3431,7 +3431,7 @@
       ncert_tag: ncertChecked ? "true" : "false",
       ncert_book: ncertChecked ? document.getElementById('editNcertBook').value.trim() : "",
       ncert_class: ncertChecked ? document.getElementById('editNcertClass').value.trim() : "",
-      ncert_chapter: ncertChecked ? `${document.getElementById('feedNcertPart').value.trim()} - ${document.getElementById('feedNcertChapter').value.trim()}` : ""
+      ncert_chapter: ncertChecked ? `${document.getElementById('editNcertPart').value.trim()} - ${document.getElementById('editNcertChapter').value.trim()}` : ""
     };
 
     let idx = questions.findIndex(q => q.id.toString() === qId.toString());
