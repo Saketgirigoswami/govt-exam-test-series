@@ -1143,7 +1143,7 @@
                 <textarea id="feedArText" rows="2" placeholder="e.g. Direction - For the below Assertion and Reason, choose correct alternative-" oninput="updateLivePreview()" style="margin-bottom:12px;"></textarea>
                 
                 <label>Assertion (A):</label><textarea id="feedAssert" rows="2" placeholder="Write assertion statement..." oninput="updateLivePreview()" style="margin-bottom:10px;"></textarea>
-                <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..." oninput="updateLivePreview()"></textarea>
+                <label>Reason (R):</label><textarea id="feedReason" rows="2" placeholder="Write reason statement..."></textarea>
               </div>
 
               <div id="feed-match-fields" style="display:none; background:var(--card-inner); padding:12px; border-radius:12px; margin-bottom:10px;">
@@ -1599,6 +1599,7 @@
 
     let targetId = subTab === 'wrong' ? 'selRevWrong' : (subTab === 'unattempted' ? 'selRevUnatt' : 'selRevSaved');
     document.getElementById(targetId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    renderRevisionNeededSection();
   }
 
   function toggleBookmarkCurrentQ() {
@@ -1611,7 +1612,7 @@
     }
     if(!q) return alert('No active question found to bookmark.');
 
-    let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
+    let savedList = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
     let existingIdx = savedList.findIndex(item => item.id.toString() === q.id.toString());
 
     if(existingIdx !== -1) {
@@ -1619,9 +1620,14 @@
       alert('Question removed from Saved list!');
     } else {
       savedList.push({ ...q, dateSaved: new Date().toLocaleDateString() });
-      alert('Question successfully saved to your bookmarks! (Synced to account)');
+      alert('Question successfully saved to your bookmarks! (Synced to cloud)');
     }
+    
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+    currentUser.history_data.saved = savedList;
     localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(savedList));
+    localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+    updateUserProgressToCloud(0, {}, currentUser.history_data.history);
     renderRevisionNeededSection();
   }
 
@@ -2699,10 +2705,19 @@
               ...currentUser, 
               ...updatedMe,
               subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {}),
-              history_data: typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || [])
+              history_data: typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || { history: [], wrong: [], unatt: [], saved: [] })
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-            localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data || []));
+            
+            let hData = currentUser.history_data;
+            if(Array.isArray(hData)) {
+              localStorage.setItem(getUserKey('history'), JSON.stringify(hData));
+            } else {
+              localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+              localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+              localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+              localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
+            }
 
             if(!isSilent) {
               syncOnlineLeaderboard();
@@ -2885,8 +2900,8 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {}, history_data: [] });
-      currentUser = { name, username: user, role: 'member', subject_progress: {}, history_data: [] };
+      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {}, history_data: { history: [], wrong: [], unatt: [], saved: [] } });
+      currentUser = { name, username: user, role: 'member', subject_progress: {}, history_data: { history: [], wrong: [], unatt: [], saved: [] } };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
     } catch(err) {
@@ -2900,15 +2915,19 @@
     const found = members.find(m => m.username && m.username.toLowerCase() === user && m.pass === pass);
 
     if(found) {
+      let hData = typeof found.history_data === 'string' ? JSON.parse(found.history_data) : (found.history_data || { history: [], wrong: [], unatt: [], saved: [] });
       currentUser = { 
         name: found.name, 
         username: found.username, 
         role: found.role || 'member', 
         subject_progress: typeof found.subject_progress === 'string' ? JSON.parse(found.subject_progress) : (found.subject_progress || {}),
-        history_data: typeof found.history_data === 'string' ? JSON.parse(found.history_data) : (found.history_data || [])
+        history_data: hData
       };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data || []));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+      localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+      localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+      localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
       showPortal();
     } else {
       alert('Invalid username or password!');
@@ -2922,16 +2941,20 @@
     let foundAdmin = members.find(m => m.username && m.username.toLowerCase() === user && m.pass === pass && (m.role === 'admin' || m.username === 'adminsaket'));
 
     if((user === "adminsaket" && pass === "Qwertypad@1") || foundAdmin) {
+      let hData = foundAdmin ? (typeof foundAdmin.history_data === 'string' ? JSON.parse(foundAdmin.history_data) : (foundAdmin.history_data || { history: [], wrong: [], unatt: [], saved: [] })) : { history: [], wrong: [], unatt: [], saved: [] };
       currentUser = { 
         name: foundAdmin ? foundAdmin.name : "Saket Giri Goswami", 
         username: user, 
         role: 'admin', 
         subject_progress: foundAdmin ? (typeof foundAdmin.subject_progress === 'string' ? JSON.parse(foundAdmin.subject_progress) : (foundAdmin.subject_progress || {})) : {}, 
-        history_data: foundAdmin ? (typeof foundAdmin.history_data === 'string' ? JSON.parse(foundAdmin.history_data) : (foundAdmin.history_data || [])) : []
+        history_data: hData
       };
       isPreviewMode = false;
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data || []));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+      localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+      localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+      localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
       showPortal();
       navigate('tab-admin');
     } else {
@@ -3787,6 +3810,11 @@
         if(!pWrong.find(w => w.id === q.id)) {
           pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
           localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(pWrong));
+          if(currentUser) {
+            if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+            currentUser.history_data.wrong = pWrong;
+            updateUserProgressToCloud(0, {}, currentUser.history_data.history);
+          }
         }
       }
     }
@@ -3857,6 +3885,14 @@
     
     list = list.filter(item => item.id.toString() !== qToRemove.id.toString());
     localStorage.setItem(getUserKey(listKey), JSON.stringify(list));
+
+    if(currentUser) {
+      if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+      if(activeRevisionCategory === 'wrong') currentUser.history_data.wrong = list;
+      else if(activeRevisionCategory === 'unattempted') currentUser.history_data.unatt = list;
+      else if(activeRevisionCategory === 'saved') currentUser.history_data.saved = list;
+      updateUserProgressToCloud(0, {}, currentUser.history_data.history);
+    }
 
     revQuizQuestions.splice(revQuizIdx, 1);
     alert('Question removed from this list!');
@@ -3957,7 +3993,7 @@
     let finalMarks = Math.max(0, correct - (wrong * 0.25));
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
-    let userHistory = currentUser && currentUser.history_data ? currentUser.history_data : [];
+    let userHistory = currentUser && currentUser.history_data && currentUser.history_data.history ? currentUser.history_data.history : [];
     
     let testSubjectName = '';
     if(activeEngineMode === 'full_mock') {
@@ -3995,7 +4031,11 @@
       marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
     });
 
-    currentUser.history_data = userHistory;
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+    currentUser.history_data.history = userHistory;
+    currentUser.history_data.wrong = pWrong;
+    currentUser.history_data.unatt = pUnatt;
+
     localStorage.setItem(getUserKey('history'), JSON.stringify(userHistory));
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
@@ -4011,14 +4051,14 @@
     }
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
-    updateUserProgressToCloud(correct, testSubMap, userHistory);
+    updateUserProgressToCloud(correct, testSubMap, currentUser.history_data);
 
     document.getElementById('test-player').style.display = 'none';
     navigate('tab-results');
     displayScorecard();
   }
 
-  async function updateUserProgressToCloud(newCorrectCount, testSubMap, historyArray) {
+  async function updateUserProgressToCloud(newCorrectCount, testSubMap, historyObj) {
     if(!currentUser) return;
     const totalDbTestQuestions = questions.length > 0 ? questions.length : 100;
     
@@ -4027,7 +4067,7 @@
       correctAnswers: newCorrectCount,
       totalDbQuestions: totalDbTestQuestions,
       subMap: testSubMap,
-      historyData: historyArray
+      historyData: historyObj
     };
 
     try {
@@ -4043,7 +4083,11 @@
         }
         if(result.history_data) {
           currentUser.history_data = typeof result.history_data === 'string' ? JSON.parse(result.history_data) : result.history_data;
-          localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
+          let hData = currentUser.history_data;
+          localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+          localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+          localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+          localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
         }
         if(result.percentage !== undefined) {
           currentUser.current_percentage = result.percentage;
@@ -4111,23 +4155,39 @@
   }
 
   function renderRevisionNeededSection() {
-    let pWrong = JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || [];
-    let pUnatt = JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || [];
-    let pSaved = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
+    let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+    let pUnatt = currentUser && currentUser.history_data && currentUser.history_data.unatt ? currentUser.history_data.unatt : (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
+    let pSaved = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
 
     document.getElementById('countRevWrong').innerText = pWrong.length;
     document.getElementById('countRevUnatt').innerText = pUnatt.length;
     document.getElementById('countRevSaved').innerText = pSaved.length;
   }
 
-  function clearAllWrongQuestions() { localStorage.removeItem(getUserKey('persistent_wrong')); renderRevisionNeededSection(); }
-  function clearAllUnattQuestions() { localStorage.removeItem(getUserKey('persistent_unatt')); renderRevisionNeededSection(); }
-  function clearAllSavedQuestions() { localStorage.removeItem(getUserKey('persistent_saved')); renderRevisionNeededSection(); }
+  function clearAllWrongQuestions() { 
+    localStorage.removeItem(getUserKey('persistent_wrong')); 
+    if(currentUser && currentUser.history_data) currentUser.history_data.wrong = [];
+    renderRevisionNeededSection(); 
+    updateUserProgressToCloud(0, {}, currentUser.history_data);
+  }
+  function clearAllUnattQuestions() { 
+    localStorage.removeItem(getUserKey('persistent_unatt')); 
+    if(currentUser && currentUser.history_data) currentUser.history_data.unatt = [];
+    renderRevisionNeededSection(); 
+    updateUserProgressToCloud(0, {}, currentUser.history_data);
+  }
+  function clearAllSavedQuestions() { 
+    localStorage.removeItem(getUserKey('persistent_saved')); 
+    if(currentUser && currentUser.history_data) currentUser.history_data.saved = [];
+    renderRevisionNeededSection(); 
+    updateUserProgressToCloud(0, {}, currentUser.history_data);
+  }
 
   function renderPastTestHistoryTable() {
     const tbody = document.getElementById('pastTestHistoryBody');
     if(!tbody) return;
-    let allHistories = currentUser && currentUser.history_data ? currentUser.history_data : (JSON.parse(localStorage.getItem(getUserKey('history'))) || []);
+    let hData = currentUser && currentUser.history_data ? currentUser.history_data : null;
+    let allHistories = hData ? (Array.isArray(hData) ? hData : (hData.history || [])) : (JSON.parse(localStorage.getItem(getUserKey('history'))) || []);
     tbody.innerHTML = allHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : allHistories.map(h => `
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
@@ -4220,14 +4280,18 @@
           let myIndex = usersData.findIndex(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
           if(myIndex !== -1) {
             let myData = usersData[myIndex];
+            let hData = typeof myData.history_data === 'string' ? JSON.parse(myData.history_data) : (myData.history_data || { history: [], wrong: [], unatt: [], saved: [] });
             currentUser = { 
               ...currentUser, 
               ...myData,
               subject_progress: typeof myData.subject_progress === 'string' ? JSON.parse(myData.subject_progress) : (myData.subject_progress || {}),
-              history_data: typeof myData.history_data === 'string' ? JSON.parse(myData.history_data) : (myData.history_data || [])
+              history_data: hData
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-            localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
+            localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+            localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+            localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+            localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
 
             document.getElementById('currentPercentageVal').innerText = `${myData.current_percentage || 0}%`;
             document.getElementById('revisionCountVal').innerText = myData.revision_count || 0;
