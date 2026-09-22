@@ -551,13 +551,18 @@
             </div>
             <div>
               <label>4. Test Duration (Timer)</label>
-              <select id="testDurationTopic">
+              <select id="testDurationTopic" onchange="checkCustomTimerSelect('testDurationTopic', 'customTopicTimeWrap')">
                 <option value="0">No Time Limit (Practice Mode)</option>
-                <option value="10">10 Minutes</option>
-                <option value="30" selected>30 Minutes</option>
-                <option value="60">60 Minutes</option>
-                <option value="90">90 Minutes</option>
+                <option value="10">10 Minutes (0.17 Hour)</option>
+                <option value="30" selected>30 Minutes (0.5 Hour)</option>
+                <option value="60">60 Minutes (1 Hour)</option>
+                <option value="90">90 Minutes (1.5 Hours)</option>
+                <option value="120">120 Minutes (2 Hours)</option>
+                <option value="custom">Custom Time...</option>
               </select>
+              <div id="customTopicTimeWrap" style="display:none; margin-top:6px;">
+                <input type="number" id="customTopicMinutes" placeholder="Enter minutes (e.g. 45)" min="1" max="600" style="margin-bottom:0;">
+              </div>
             </div>
           </div>
           <button class="btn" style="margin-top: 16px;" onclick="startEngine('test')">Start Timed Test</button>
@@ -586,13 +591,18 @@
             </div>
             <div>
               <label>5. Test Duration (Timer)</label>
-              <select id="testDurationNcert">
+              <select id="testDurationNcert" onchange="checkCustomTimerSelect('testDurationNcert', 'customNcertTimeWrap')">
                 <option value="0">No Time Limit (Practice Mode)</option>
-                <option value="10">10 Minutes</option>
-                <option value="30" selected>30 Minutes</option>
-                <option value="60">60 Minutes</option>
-                <option value="90">90 Minutes</option>
+                <option value="10">10 Minutes (0.17 Hour)</option>
+                <option value="30" selected>30 Minutes (0.5 Hour)</option>
+                <option value="60">60 Minutes (1 Hour)</option>
+                <option value="90">90 Minutes (1.5 Hours)</option>
+                <option value="120">120 Minutes (2 Hours)</option>
+                <option value="custom">Custom Time...</option>
               </select>
+              <div id="customNcertTimeWrap" style="display:none; margin-top:6px;">
+                <input type="number" id="customNcertMinutes" placeholder="Enter minutes (e.g. 45)" min="1" max="600" style="margin-bottom:0;">
+              </div>
             </div>
           </div>
           <button class="btn btn-success" style="margin-top: 16px;" onclick="startNcertEngine('test')">Start Timed NCERT Test</button>
@@ -623,13 +633,18 @@
             </div>
             <div>
               <label>4. Test Duration (Timer)</label>
-              <select id="testDurationExam">
+              <select id="testDurationExam" onchange="checkCustomTimerSelect('testDurationExam', 'customExamTimeWrap')">
                 <option value="0">No Time Limit (Practice Mode)</option>
-                <option value="10">10 Minutes</option>
-                <option value="30" selected>30 Minutes</option>
-                <option value="60">60 Minutes</option>
-                <option value="90">90 Minutes</option>
+                <option value="10">10 Minutes (0.17 Hour)</option>
+                <option value="30" selected>30 Minutes (0.5 Hour)</option>
+                <option value="60">60 Minutes (1 Hour)</option>
+                <option value="90">90 Minutes (1.5 Hours)</option>
+                <option value="120">120 Minutes (2 Hours)</option>
+                <option value="custom">Custom Time...</option>
               </select>
+              <div id="customExamTimeWrap" style="display:none; margin-top:6px;">
+                <input type="number" id="customExamMinutes" placeholder="Enter minutes (e.g. 45)" min="1" max="600" style="margin-bottom:0;">
+              </div>
             </div>
           </div>
           <button class="btn btn-warning" style="margin-top: 16px; background:#facc15; color:#000;" onclick="startExamEngine('test')">Start Exam Mock Test</button>
@@ -646,7 +661,7 @@
                 <span class="badge badge-sub" id="t-hier-badge"></span>
               </div>
               <div class="q-header-right">
-                <span id="testTimerBadge" style="background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold;">⏱️ 00:00</span>
+                <span id="testTimerBadge" style="background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; display:none;">⏱️ 00:00</span>
                 <span class="badge-exam-tag" id="t-exam-badge"></span>
                 <button class="btn btn-secondary btn-sm" id="t-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
                 <div id="t-admin-edit-btn" style="display:inline-block;"></div>
@@ -805,12 +820,16 @@
           <label>Custom Test Name</label>
           <input type="text" id="customFltNameInput" placeholder="e.g. My Special CGPSC Mega Test">
           <label>Test Duration (Timer)</label>
-          <select id="testDurationFlt">
+          <select id="testDurationFlt" onchange="checkCustomTimerSelect('testDurationFlt', 'customFltTimeWrap')">
             <option value="0">No Time Limit (Practice Mode)</option>
-            <option value="30">30 Minutes</option>
-            <option value="60" selected>60 Minutes</option>
-            <option value="120">120 Minutes</option>
+            <option value="30">30 Minutes (0.5 Hour)</option>
+            <option value="60" selected>60 Minutes (1 Hour)</option>
+            <option value="120">120 Minutes (2 Hours)</option>
+            <option value="custom">Custom Time...</option>
           </select>
+          <div id="customFltTimeWrap" style="display:none; margin-top:6px;">
+            <input type="number" id="customFltMinutes" placeholder="Enter minutes (e.g. 45)" min="1" max="600" style="margin-bottom:0;">
+          </div>
         </div>
 
         <div class="flt-builder-grid" id="fltSubjectBuilderGrid"></div>
@@ -1570,6 +1589,9 @@
     if(subTab === 'swot') {
       renderSwotAnalysis();
     }
+    if(subTab === 'history') {
+      renderPastTestHistoryTable();
+    }
   }
 
   function switchRevisionSubTab(subTab) {
@@ -1647,6 +1669,23 @@
         <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">Negative marking in competitive exams (-0.25). Focus on eliminating incorrect options rather than blind guessing.</p>
       </div>
     `;
+  }
+
+  function checkCustomTimerSelect(selectId, wrapId) {
+    const sel = document.getElementById(selectId);
+    const wrap = document.getElementById(wrapId);
+    if(!sel || !wrap) return;
+    wrap.style.display = sel.value === 'custom' ? 'block' : 'none';
+  }
+
+  function getSelectedTimerMinutes(selectId, customInputId) {
+    const sel = document.getElementById(selectId);
+    if(!sel) return 30;
+    if(sel.value === 'custom') {
+      const customVal = parseInt(document.getElementById(customInputId).value || 30, 10);
+      return customVal > 0 ? customVal : 30;
+    }
+    return parseInt(sel.value, 10);
   }
 
   function toggleQTypeFields(type, prefix) {
@@ -2384,8 +2423,10 @@
     userResponses = {};
     currentQIdx = 0;
 
-    let durationMins = mode === 'test' ? parseInt(document.getElementById('testDurationNcert').value || 30, 10) : 0;
+    let durationMins = mode === 'test' ? getSelectedTimerMinutes('testDurationNcert', 'customNcertMinutes') : 0;
     startTestTimer(durationMins);
+
+    window.currentCustomTestLabel = `${bookVal} Test (${classVal})`;
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     if(mode === 'test') {
@@ -2512,8 +2553,10 @@
     userResponses = {};
     currentQIdx = 0;
 
-    let durationMins = mode === 'test' ? parseInt(document.getElementById('testDurationExam').value || 30, 10) : 0;
+    let durationMins = mode === 'test' ? getSelectedTimerMinutes('testDurationExam', 'customExamMinutes') : 0;
     startTestTimer(durationMins);
+
+    window.currentCustomTestLabel = examVal !== 'ALL' ? examVal : (activeQuestions[0].exam || 'Exam Mock Test');
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     if(mode === 'test') {
@@ -3151,7 +3194,7 @@
     currentQIdx = 0;
     window.currentCustomTestLabel = testName;
 
-    let durationMins = parseInt(document.getElementById('testDurationFlt').value || 60, 10);
+    let durationMins = getSelectedTimerMinutes('testDurationFlt', 'customFltMinutes');
     startTestTimer(durationMins);
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
@@ -3173,7 +3216,7 @@
     userResponses = {};
     currentQIdx = 0;
 
-    startTestTimer(90); // Default 90 mins for full mock
+    startTestTimer(90);
 
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.getElementById('tab-test').style.display = 'block';
@@ -3489,7 +3532,7 @@
     userResponses = {};
     currentQIdx = 0;
 
-    let durationMins = mode === 'test' ? parseInt(document.getElementById('testDurationTopic').value || 30, 10) : 0;
+    let durationMins = mode === 'test' ? getSelectedTimerMinutes('testDurationTopic', 'customTopicMinutes') : 0;
     startTestTimer(durationMins);
 
     if(mode === 'practice') {
@@ -3921,17 +3964,15 @@
     let finalMarks = Math.max(0, correct - (wrong * 0.25));
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
-    let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
-    let userHistory = allHistories.filter(h => currentUser && h.username === currentUser.username);
+    let allHistories = JSON.parse(localStorage.getItem(getUserKey('history'))) || [];
     
     let testSubjectName = '';
     if(activeEngineMode === 'full_mock') {
-      let mockCount = userHistory.filter(h => h.subject.startsWith('Full Mock Test')).length + 1;
+      let mockCount = allHistories.filter(h => h.subject.startsWith('Full Mock Test')).length + 1;
       testSubjectName = `Full Mock Test ${mockCount}`;
     } else if(activeEngineMode === 'flt') {
       testSubjectName = window.currentCustomTestLabel || 'Custom FLT';
     } else if(activeEngineMode === 'test') {
-      // Check if it's NCERT or Exam or Topic
       const activeTabMode = document.getElementById('selTestNcert').classList.contains('active') ? 'ncert' : (document.getElementById('selTestExam').classList.contains('active') ? 'exam' : 'topic');
       if(activeTabMode === 'ncert') {
         let bName = document.getElementById('ncertTestBook').value || 'NCERT';
@@ -3960,7 +4001,7 @@
       subject: testSubjectName, correct, wrong, unattempted,
       marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
     });
-    localStorage.setItem('cg_history', JSON.stringify(allHistories));
+    localStorage.setItem(getUserKey('history'), JSON.stringify(allHistories));
 
     if(!currentUser.subject_progress) currentUser.subject_progress = {};
     for(let sub in testSubMap) {
@@ -4080,9 +4121,8 @@
   function renderPastTestHistoryTable() {
     const tbody = document.getElementById('pastTestHistoryBody');
     if(!tbody) return;
-    let allHistories = JSON.parse(localStorage.getItem('cg_history')) || [];
-    let userHistory = allHistories.filter(h => currentUser && h.username === currentUser.username);
-    tbody.innerHTML = userHistory.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : userHistory.map(h => `
+    let allHistories = JSON.parse(localStorage.getItem(getUserKey('history'))) || [];
+    tbody.innerHTML = allHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : allHistories.map(h => `
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
         <td style="padding:10px; border:1px solid var(--border);">${h.subject}</td>
@@ -4114,6 +4154,7 @@
         subPercent = Math.min(100, Math.round((userCorrect / totalDbSubQ) * 100));
       }
 
+      let revCycles = currentUser && currentUser.revision_count !== undefined ? currentUser.revision_count : 0;
       let emojiTag = "";
       if (subPercent >= 80 && userCorrect > 0) {
         emojiTag = "🔥";
@@ -4131,7 +4172,7 @@
           <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:5px; font-weight:600;">
             <span>${sub}</span>
             <span style="color:${subPercent >= 80 ? '#4ade80' : (subPercent < 50 && userCorrect > 0 ? '#f87171' : '#38bdf8')}">
-              ${subPercent}%
+              ${subPercent}% <span style="font-size:0.75rem; color:var(--muted); margin-left:6px;">(Revisions: ${revCycles})</span>
             </span>
           </div>
           <div style="position: relative; background:rgba(7,10,18,0.8); height:12px; border-radius:6px; overflow:visible; border:1px solid var(--border);">
