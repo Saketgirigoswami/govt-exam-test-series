@@ -871,13 +871,10 @@
       <!-- SUB-TAB 1: WRONG ATTEMPTS -->
       <div id="rev-sub-wrong" class="rev-sub-view">
         <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.4);">
-          <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #fca5a5; line-height: 1.5;">
-            ⚠️ <strong>Important Note:</strong> Revision history saved in this section is tied to your current browser session. Logging out or clearing browser data may result in data loss. For the best experience and uninterrupted revision tracking, please use a trusted browser where you remain permanently signed in.
-          </div>
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
               <h3 style="color:#f87171; margin:0;">🔄 Wrong Attempts</h3>
-              <p style="color:var(--muted); font-size:0.82rem;">Revise all wrong questions attempted in test</p>
+              <p style="color:var(--muted); font-size:0.82rem;">Revise all wrong questions attempted in test (Synced to Cloud)</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('wrong')">▶ Start Quiz</button>
@@ -890,13 +887,10 @@
       <!-- SUB-TAB 2: UNATTEMPTED QUESTIONS -->
       <div id="rev-sub-unatt" class="rev-sub-view" style="display:none;">
         <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.4);">
-          <div style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #7dd3fc; line-height: 1.5;">
-            ⚠️ <strong>Important Note:</strong> Unattempted question history is tied to your active session. Make sure you use your primary browser for regular practice.
-          </div>
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
               <h3 style="color:#38bdf8; margin:0;">⚡ Unattempted Questions</h3>
-              <p style="color:var(--muted); font-size:0.82rem;">Practice all questions left unattempted in exams</p>
+              <p style="color:var(--muted); font-size:0.82rem;">Practice all questions left unattempted in exams (Synced to Cloud)</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('unattempted')">▶ Start Quiz</button>
@@ -3669,7 +3663,7 @@
     const q = activeQuestions[currentQIdx];
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
-    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
+    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
     let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
@@ -4009,11 +4003,10 @@
     for(let sub in testSubMap) {
       if(!currentUser.subject_progress[sub]) currentUser.subject_progress[sub] = { correct: 0, revisions: 0 };
       currentUser.subject_progress[sub].correct += testSubMap[sub].correct;
-      // Agar 100% ho gaya toh subject revision +1
       let totalSubQ = questions.filter(q => q.subject === sub).length;
       if(totalSubQ > 0 && currentUser.subject_progress[sub].correct >= totalSubQ) {
         currentUser.subject_progress[sub].revisions = (currentUser.subject_progress[sub].revisions || 0) + 1;
-        currentUser.subject_progress[sub].correct = 0; // reset
+        currentUser.subject_progress[sub].correct = 0;
       }
     }
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
