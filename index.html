@@ -2702,7 +2702,7 @@
               history_data: typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || [])
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-            localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
+            localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data || []));
 
             if(!isSilent) {
               syncOnlineLeaderboard();
@@ -2908,7 +2908,7 @@
         history_data: typeof found.history_data === 'string' ? JSON.parse(found.history_data) : (found.history_data || [])
       };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data || []));
       showPortal();
     } else {
       alert('Invalid username or password!');
@@ -2931,7 +2931,7 @@
       };
       isPreviewMode = false;
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data || []));
       showPortal();
       navigate('tab-admin');
     } else {
@@ -3431,7 +3431,7 @@
       ncert_tag: ncertChecked ? "true" : "false",
       ncert_book: ncertChecked ? document.getElementById('editNcertBook').value.trim() : "",
       ncert_class: ncertChecked ? document.getElementById('editNcertClass').value.trim() : "",
-      ncert_chapter: ncertChecked ? `${document.getElementById('editNcertPart').value.trim()} - ${document.getElementById('editNcertChapter').value.trim()}` : ""
+      ncert_chapter: ncertChecked ? `${document.getElementById('feedNcertPart').value.trim()} - ${document.getElementById('feedNcertChapter').value.trim()}` : ""
     };
 
     let idx = questions.findIndex(q => q.id.toString() === qId.toString());
