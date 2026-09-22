@@ -3619,7 +3619,7 @@
         `;
       }
     } else {
-      bodyHtml = q.text || '';
+      bodyHtml = q.text || q.assertion || '';
     }
 
     let bodyContainer = document.getElementById('t-body');
@@ -3670,7 +3670,7 @@
     const q = activeQuestions[currentQIdx];
     document.getElementById('p-counter').innerText = `Practice Q ${currentQIdx + 1} / ${activeQuestions.length}`;
     document.getElementById('p-exam-badge').innerText = q.exam || 'PYQ';
-    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.subtopic}`;
+    document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
     let savedList = JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || [];
@@ -3738,7 +3738,7 @@
         `;
       }
     } else {
-      bodyHtml = q.text || '';
+      bodyHtml = q.text || q.assertion || '';
     }
 
     let bodyContainer = document.getElementById('p-body');
@@ -4095,7 +4095,7 @@
               Your Answer: ${item.userAns || 'Not Attempted'} | Correct: ${q.ans}
             </span>
           </div>
-          <p style="margin-bottom:8px; font-size:0.95rem;">${q.text || ''}</p>
+          <p style="margin-bottom:8px; font-size:0.95rem;">${q.text || q.assertion || ''}</p>
           <div style="font-size:0.85rem; color:var(--muted); background:rgba(7,10,18,0.7); padding:10px; border-radius:8px;">
             <strong>Explanation:</strong> ${q.expl || ''}
           </div>
