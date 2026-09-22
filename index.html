@@ -874,7 +874,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
               <h3 style="color:#f87171; margin:0;">🔄 Wrong Attempts</h3>
-              <p style="color:var(--muted); font-size:0.82rem;">Revise all wrong questions attempted in test (Synced to Cloud)</p>
+              <p style="color:var(--muted); font-size:0.82rem;">Revise all wrong questions attempted in test</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('wrong')">▶ Start Quiz</button>
@@ -890,7 +890,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
               <h3 style="color:#38bdf8; margin:0;">⚡ Unattempted Questions</h3>
-              <p style="color:var(--muted); font-size:0.82rem;">Practice all questions left unattempted in exams (Synced to Cloud)</p>
+              <p style="color:var(--muted); font-size:0.82rem;">Practice all questions left unattempted in exams</p>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-success btn-sm" onclick="startRevisionQuizEngine('unattempted')">▶ Start Quiz</button>
@@ -3431,7 +3431,7 @@
       ncert_tag: ncertChecked ? "true" : "false",
       ncert_book: ncertChecked ? document.getElementById('editNcertBook').value.trim() : "",
       ncert_class: ncertChecked ? document.getElementById('editNcertClass').value.trim() : "",
-      ncert_chapter: ncertChecked ? `${document.getElementById('editNcertPart').value.trim()} - ${document.getElementById('editNcertChapter').value.trim()}` : ""
+      ncert_chapter: ncertChecked ? `${document.getElementById('feedNcertPart').value.trim()} - ${document.getElementById('feedNcertChapter').value.trim()}` : ""
     };
 
     let idx = questions.findIndex(q => q.id.toString() === qId.toString());
