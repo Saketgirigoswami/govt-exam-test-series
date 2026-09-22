@@ -1759,7 +1759,7 @@
   let questions = [];
 
   let members = [];
-  let testHistory = JSON.parse(localStorage.getItem('cg_history')) || [];
+  let testHistory = [];
   let attemptedQIds = JSON.parse(localStorage.getItem('cg_attempted_qids')) || [];
   let currentUser = JSON.parse(localStorage.getItem('cg_auth_user')) || null;
 
@@ -1795,7 +1795,7 @@
     
     setProgress(40);
     await fetchQuestionsFromCloud();
-    fetchUsersFromCloud();
+    await fetchUsersFromCloud();
     
     syncDynamicSubjects();
     setProgress(70);
@@ -2705,9 +2705,11 @@
             currentUser = { 
               ...currentUser, 
               ...updatedMe,
-              subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {})
+              subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {}),
+              history_data: typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || [])
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+            localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
 
             if(!isSilent) {
               syncOnlineLeaderboard();
@@ -2717,12 +2719,6 @@
             } else {
               if(document.getElementById('tab-results').style.display === 'block') {
                 renderRadarAnalytics();
-              }
-              let rankEl = document.getElementById('myPercentVal');
-              if(rankEl && currentUser.current_percentage !== undefined) {
-                document.getElementById('currentPercentageVal').innerText = `${currentUser.current_percentage}%`;
-                document.getElementById('revisionCountVal').innerText = currentUser.revision_count || 0;
-                document.getElementById('dynamicProgressBar').style.width = `${currentUser.current_percentage}%`;
               }
             }
           }
@@ -2896,8 +2892,8 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {} });
-      currentUser = { name, username: user, role: 'member', subject_progress: {} };
+      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {}, history_data: [] });
+      currentUser = { name, username: user, role: 'member', subject_progress: {}, history_data: [] };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
     } catch(err) {
@@ -2915,9 +2911,11 @@
         name: found.name, 
         username: found.username, 
         role: found.role || 'member', 
-        subject_progress: typeof found.subject_progress === 'string' ? JSON.parse(found.subject_progress) : (found.subject_progress || {}) 
+        subject_progress: typeof found.subject_progress === 'string' ? JSON.parse(found.subject_progress) : (found.subject_progress || {}),
+        history_data: typeof found.history_data === 'string' ? JSON.parse(found.history_data) : (found.history_data || [])
       };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
       showPortal();
     } else {
       alert('Invalid username or password!');
@@ -2935,10 +2933,12 @@
         name: foundAdmin ? foundAdmin.name : "Saket Giri Goswami", 
         username: user, 
         role: 'admin', 
-        subject_progress: foundAdmin ? (typeof foundAdmin.subject_progress === 'string' ? JSON.parse(foundAdmin.subject_progress) : (foundAdmin.subject_progress || {})) : {} 
+        subject_progress: foundAdmin ? (typeof foundAdmin.subject_progress === 'string' ? JSON.parse(foundAdmin.subject_progress) : (foundAdmin.subject_progress || {})) : {}, 
+        history_data: foundAdmin ? (typeof foundAdmin.history_data === 'string' ? JSON.parse(foundAdmin.history_data) : (foundAdmin.history_data || [])) : []
       };
       isPreviewMode = false;
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
       showPortal();
       navigate('tab-admin');
     } else {
@@ -3882,7 +3882,7 @@
     document.getElementById('rq-counter').innerText = `Revision Q ${revQuizIdx + 1} of ${revQuizQuestions.length}`;
     document.getElementById('rq-hier-badge').innerText = `${q.subject} > ${q.topic}`;
 
-    document.getElementById('rq-body').innerText = q.text || '';
+    document.getElementById('rq-body').innerText = q.text || q.assertion || '';
     const optContainer = document.getElementById('rq-opts');
     const explBox = document.getElementById('rq-expl');
     optContainer.innerHTML = '';
@@ -3964,11 +3964,11 @@
     let finalMarks = Math.max(0, correct - (wrong * 0.25));
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
-    let allHistories = JSON.parse(localStorage.getItem(getUserKey('history'))) || [];
+    let userHistory = currentUser && currentUser.history_data ? currentUser.history_data : [];
     
     let testSubjectName = '';
     if(activeEngineMode === 'full_mock') {
-      let mockCount = allHistories.filter(h => h.subject.startsWith('Full Mock Test')).length + 1;
+      let mockCount = userHistory.filter(h => h.subject.startsWith('Full Mock Test')).length + 1;
       testSubjectName = `Full Mock Test ${mockCount}`;
     } else if(activeEngineMode === 'flt') {
       testSubjectName = window.currentCustomTestLabel || 'Custom FLT';
@@ -3996,12 +3996,15 @@
       subject: testSubjectName
     };
 
-    allHistories.push({
+    userHistory.push({
       username: currentUser.username, studentName: currentUser.name,
       subject: testSubjectName, correct, wrong, unattempted,
       marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
     });
-    localStorage.setItem(getUserKey('history'), JSON.stringify(allHistories));
+
+    currentUser.history_data = userHistory;
+    localStorage.setItem(getUserKey('history'), JSON.stringify(userHistory));
+    localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
     if(!currentUser.subject_progress) currentUser.subject_progress = {};
     for(let sub in testSubMap) {
@@ -4010,14 +4013,14 @@
     }
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
-    updateUserProgressToCloud(correct, testSubMap);
+    updateUserProgressToCloud(correct, testSubMap, userHistory);
 
     document.getElementById('test-player').style.display = 'none';
     navigate('tab-results');
     displayScorecard();
   }
 
-  async function updateUserProgressToCloud(newCorrectCount, testSubMap) {
+  async function updateUserProgressToCloud(newCorrectCount, testSubMap, historyArray) {
     if(!currentUser) return;
     const totalDbTestQuestions = questions.length > 0 ? questions.length : 100;
     
@@ -4025,7 +4028,8 @@
       username: currentUser.username,
       correctAnswers: newCorrectCount,
       totalDbQuestions: totalDbTestQuestions,
-      subMap: testSubMap 
+      subMap: testSubMap,
+      historyData: historyArray
     };
 
     try {
@@ -4038,6 +4042,10 @@
       if(result.status === "success") {
         if(result.subject_progress) {
           currentUser.subject_progress = typeof result.subject_progress === 'string' ? JSON.parse(result.subject_progress) : result.subject_progress;
+        }
+        if(result.history_data) {
+          currentUser.history_data = typeof result.history_data === 'string' ? JSON.parse(result.history_data) : result.history_data;
+          localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
         }
         if(result.percentage !== undefined) {
           currentUser.current_percentage = result.percentage;
@@ -4121,7 +4129,7 @@
   function renderPastTestHistoryTable() {
     const tbody = document.getElementById('pastTestHistoryBody');
     if(!tbody) return;
-    let allHistories = JSON.parse(localStorage.getItem(getUserKey('history'))) || [];
+    let allHistories = currentUser && currentUser.history_data ? currentUser.history_data : (JSON.parse(localStorage.getItem(getUserKey('history'))) || []);
     tbody.innerHTML = allHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : allHistories.map(h => `
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
@@ -4154,7 +4162,7 @@
         subPercent = Math.min(100, Math.round((userCorrect / totalDbSubQ) * 100));
       }
 
-      let revCycles = currentUser && currentUser.revision_count !== undefined ? currentUser.revision_count : 0;
+      let subRevCount = subData.revisions !== undefined ? subData.revisions : (currentUser && currentUser.revision_count ? currentUser.revision_count : 0);
       let emojiTag = "";
       if (subPercent >= 80 && userCorrect > 0) {
         emojiTag = "🔥";
@@ -4172,7 +4180,7 @@
           <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:5px; font-weight:600;">
             <span>${sub}</span>
             <span style="color:${subPercent >= 80 ? '#4ade80' : (subPercent < 50 && userCorrect > 0 ? '#f87171' : '#38bdf8')}">
-              ${subPercent}% <span style="font-size:0.75rem; color:var(--muted); margin-left:6px;">(Revisions: ${revCycles})</span>
+              ${subPercent}% <span style="font-size:0.75rem; color:var(--muted); margin-left:6px;">(Revisions: ${subRevCount})</span>
             </span>
           </div>
           <div style="position: relative; background:rgba(7,10,18,0.8); height:12px; border-radius:6px; overflow:visible; border:1px solid var(--border);">
@@ -4217,9 +4225,11 @@
             currentUser = { 
               ...currentUser, 
               ...myData,
-              subject_progress: typeof myData.subject_progress === 'string' ? JSON.parse(myData.subject_progress) : (myData.subject_progress || {})
+              subject_progress: typeof myData.subject_progress === 'string' ? JSON.parse(myData.subject_progress) : (myData.subject_progress || {}),
+              history_data: typeof myData.history_data === 'string' ? JSON.parse(myData.history_data) : (myData.history_data || [])
             };
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+            localStorage.setItem(getUserKey('history'), JSON.stringify(currentUser.history_data));
 
             document.getElementById('currentPercentageVal').innerText = `${myData.current_percentage || 0}%`;
             document.getElementById('revisionCountVal').innerText = myData.revision_count || 0;
