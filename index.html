@@ -2286,12 +2286,13 @@
       const q = activeQuestions[currentQIdx];
       let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
       if(k !== q.ans) {
-        if(!pWrong.find(w => w.id === q.id)) {
+        if(!pWrong.find(w => w.id.toString() === q.id.toString())) {
           pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
           localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(pWrong));
           if(currentUser) {
             if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
             currentUser.history_data.wrong = pWrong;
+            localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
             updateUserProgressToCloud(0, {}, currentUser.history_data);
           }
         }
@@ -2371,6 +2372,7 @@
       if(activeRevisionCategory === 'wrong') currentUser.history_data.wrong = list;
       else if(activeRevisionCategory === 'unattempted') currentUser.history_data.unatt = list;
       else if(activeRevisionCategory === 'saved') currentUser.history_data.saved = list;
+      localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       updateUserProgressToCloud(0, {}, currentUser.history_data);
     }
 
