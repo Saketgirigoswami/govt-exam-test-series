@@ -1068,11 +1068,8 @@
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
     updateUserProgressToCloud(0, {}, currentUser.history_data);
     
-    // Immediate UI refresh for bookmark button state
-    if(activeEngineMode === 'practice' || activeEngineMode === 'test' || activeEngineMode === 'full_mock' || activeEngineMode === 'flt') {
-      if(document.getElementById('tab-test').style.display === 'block') renderTestView();
-      if(document.getElementById('tab-practice').style.display === 'block') renderPracticeView();
-    }
+    if(document.getElementById('tab-test').style.display === 'block') renderTestView();
+    if(document.getElementById('tab-practice').style.display === 'block') renderPracticeView();
     renderRevisionNeededSection();
   }
 
@@ -2677,9 +2674,9 @@
     if(!currentUser) currentUser = { history_data: { history: [], wrong: [], unatt: [], saved: [] } };
     if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
 
-    let pWrong = currentUser.history_data.wrong || (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
-    let pUnatt = currentUser.history_data.unatt || (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
-    let pSaved = currentUser.history_data.saved || (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
+    let pWrong = currentUser.history_data.wrong && currentUser.history_data.wrong.length > 0 ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+    let pUnatt = currentUser.history_data.unatt && currentUser.history_data.unatt.length > 0 ? currentUser.history_data.unatt : (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
+    let pSaved = currentUser.history_data.saved && currentUser.history_data.saved.length > 0 ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
 
     document.getElementById('countRevWrong').innerText = pWrong.length;
     document.getElementById('countRevUnatt').innerText = pUnatt.length;
