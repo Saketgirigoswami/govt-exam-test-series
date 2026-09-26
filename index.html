@@ -1678,21 +1678,15 @@
       return;
     }
 
-    let formattedInputDob = dobInput;
-    if(dobInput.includes('/')) {
-      let parts = dobInput.split('/');
-      if(parts.length === 3) {
-        if(parts[0].length === 4) formattedInputDob = `${parts[0]}-${parts[1]}-${parts[2]}`;
-        else formattedInputDob = `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
-    }
-
     const found = members.find(m => {
-      let dbName = m.name ? m.name.trim().toLowerCase() : "";
+      let dbName = m.name ? m.name.toString().trim().toLowerCase() : "";
       let dbDob = m.dob ? m.dob.toString().trim().split('T')[0] : "";
       
-      let nameMatch = dbName === nameInput || dbName.includes(nameInput) || nameInput.includes(dbName);
-      let dobMatch = dbDob === dobInput || dbDob === formattedInputDob;
+      let cleanInputName = nameInput.replace(/\s+/g, '');
+      let cleanDbName = dbName.replace(/\s+/g, '');
+
+      let nameMatch = cleanDbName.includes(cleanInputName) || cleanInputName.includes(cleanDbName);
+      let dobMatch = dbDob === dobInput || dbDob.replace(/-/g, '') === dobInput.replace(/-/g, '');
       return nameMatch && dobMatch;
     });
 
