@@ -1681,7 +1681,7 @@
     const found = members.find(m => {
       let dbName = m.name ? m.name.trim().toLowerCase() : "";
       let dbDob = m.dob ? m.dob.toString().trim().split('T')[0] : "";
-      return dbName === nameInput && dbDob === dobInput;
+      return dbName.includes(nameInput) || nameInput.includes(dbName) ? (dbDob === dobInput) : false;
     });
 
     if(found) {
@@ -2831,7 +2831,7 @@
             localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
             localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
 
-            document.getElementById('currentPercentageVal').innerText = `${myData.current_percentage || 0}%`;
+            document.getElementById('currentPercentageVal').innerText = `${myData.myData || myData.current_percentage || 0}%`;
             document.getElementById('revisionCountVal').innerText = myData.revision_count || 0;
             document.getElementById('dynamicProgressBar').style.width = `${myData.current_percentage || 0}%`;
 
