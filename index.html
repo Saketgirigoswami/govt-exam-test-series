@@ -1051,7 +1051,8 @@
     }
     if(!q) return alert('No active question found to bookmark.');
 
-    let savedList = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+    let savedList = currentUser.history_data.saved || (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
     let existingIdx = savedList.findIndex(item => item.id.toString() === q.id.toString());
 
     if(existingIdx !== -1) {
@@ -1059,10 +1060,9 @@
       alert('Question removed from Saved list!');
     } else {
       savedList.push({ ...q, dateSaved: new Date().toLocaleDateString() });
-      alert('Question successfully saved to your bookmarks! (Synced to cloud)');
+      alert('Question successfully saved to your bookmarks!');
     }
     
-    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
     currentUser.history_data.saved = savedList;
     localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(savedList));
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
@@ -1203,7 +1203,6 @@
     return (idx + 1) + '.';
   }
 
-  // Toggle modes for Test section with smooth scroll animation
   function switchTestMode(mode) {
     document.getElementById('selTestTopic').classList.toggle('active', mode === 'topic');
     document.getElementById('selTestNcert').classList.toggle('active', mode === 'ncert');
@@ -1217,7 +1216,6 @@
     document.getElementById(panelId).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  // Toggle modes for Quiz section with smooth scroll animation
   function switchPracMode(mode) {
     document.getElementById('selPracTopic').classList.toggle('active', mode === 'topic');
     document.getElementById('selPracNcert').classList.toggle('active', mode === 'ncert');
@@ -1409,7 +1407,6 @@
     }
   }
 
-  // Exam Based Cascades & Engine
   function initExamCascades(nameId, yearId, subId) {
     let examsSet = new Set();
     questions.forEach(q => {
@@ -1617,13 +1614,24 @@
         if(currentUser) {
           let updatedMe = members.find(m => m.username.toLowerCase() === currentUser.username.toLowerCase());
           if(updatedMe) {
-            let hData = typeof updatedMe.history_data === 'string' ? JSON.parse(updatedMe.history_data) : (updatedMe.history_data || { history: [], wrong: [], unatt: [], saved: [] });
+            let hData = updatedMe.history_data;
+            if (typeof hData === 'string') {
+              try { hData = JSON.parse(hData); } catch(e) { hData = { history: [], wrong: [], unatt: [], saved: [] }; }
+            }
+            if(!hData || typeof hData !== 'object') hData = { history: [], wrong: [], unatt: [], saved: [] };
+
+            let subP = updatedMe.subject_progress;
+            if (typeof subP === 'string') {
+              try { subP = JSON.parse(subP); } catch(e) { subP = {}; }
+            }
+
             currentUser = { 
               ...currentUser, 
               ...updatedMe,
-              subject_progress: typeof updatedMe.subject_progress === 'string' ? JSON.parse(updatedMe.subject_progress) : (updatedMe.subject_progress || {}),
+              subject_progress: subP || {},
               history_data: hData
             };
+            
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
             localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
             localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
@@ -1735,14 +1743,25 @@
     const found = members.find(m => m.username && m.username.toLowerCase() === user && m.pass === pass);
 
     if(found) {
-      let hData = typeof found.history_data === 'string' ? JSON.parse(found.history_data) : (found.history_data || { history: [], wrong: [], unatt: [], saved: [] });
+      let hData = found.history_data;
+      if (typeof hData === 'string') {
+        try { hData = JSON.parse(hData); } catch(e) { hData = { history: [], wrong: [], unatt: [], saved: [] }; }
+      }
+      if(!hData || typeof hData !== 'object') hData = { history: [], wrong: [], unatt: [], saved: [] };
+
+      let subP = found.subject_progress;
+      if (typeof subP === 'string') {
+        try { subP = JSON.parse(subP); } catch(e) { subP = {}; }
+      }
+
       currentUser = { 
         name: found.name, 
         username: found.username, 
         role: found.role || 'member', 
-        subject_progress: typeof found.subject_progress === 'string' ? JSON.parse(found.subject_progress) : (found.subject_progress || {}),
+        subject_progress: subP || {},
         history_data: hData
       };
+      
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
       localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
@@ -2284,17 +2303,17 @@
 
     if(activeEngineMode === 'practice') {
       const q = activeQuestions[currentQIdx];
-      let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+      if(!currentUser) return;
+      if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+      let pWrong = currentUser.history_data.wrong || (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+      
       if(k !== q.ans) {
         if(!pWrong.find(w => w.id.toString() === q.id.toString())) {
           pWrong.push({ ...q, lastAttemptDate: new Date().toLocaleDateString() });
+          currentUser.history_data.wrong = pWrong;
           localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(pWrong));
-          if(currentUser) {
-            if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
-            currentUser.history_data.wrong = pWrong;
-            localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
-            updateUserProgressToCloud(0, {}, currentUser.history_data);
-          }
+          localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+          updateUserProgressToCloud(0, {}, currentUser.history_data);
         }
       }
     }
@@ -2444,8 +2463,11 @@
 
     let testSubMap = {};
 
-    let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
-    let pUnatt = currentUser && currentUser.history_data && currentUser.history_data.unatt ? currentUser.history_data.unatt : (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
+    if(!currentUser) currentUser = { history_data: { history: [], wrong: [], unatt: [], saved: [] } };
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+
+    let pWrong = currentUser.history_data.wrong || (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+    let pUnatt = currentUser.history_data.unatt || (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
 
     activeQuestions.forEach((q, i) => {
       if(!attemptedQIds.includes(q.id)) attemptedQIds.push(q.id);
@@ -2475,7 +2497,7 @@
     let finalMarks = Math.max(0, correct - (wrong * 0.25));
     const accuracy = (correct + wrong) > 0 ? ((correct / (correct + wrong)) * 100).toFixed(1) : 0;
 
-    let userHistory = currentUser && currentUser.history_data && currentUser.history_data.history ? currentUser.history_data.history : [];
+    let userHistory = currentUser.history_data.history || [];
     
     let testSubjectName = '';
     if(activeEngineMode === 'full_mock') {
@@ -2513,7 +2535,6 @@
       marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
     });
 
-    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
     currentUser.history_data.history = userHistory;
     currentUser.history_data.wrong = pWrong;
     currentUser.history_data.unatt = pUnatt;
@@ -2561,15 +2582,21 @@
       let result = await res.json();
       if(result.status === "success") {
         if(result.subject_progress) {
-          currentUser.subject_progress = typeof result.subject_progress === 'string' ? JSON.parse(result.subject_progress) : result.subject_progress;
+          try {
+            currentUser.subject_progress = typeof result.subject_progress === 'string' ? JSON.parse(result.subject_progress) : result.subject_progress;
+          } catch(e) {}
         }
         if(result.history_data) {
-          currentUser.history_data = typeof result.history_data === 'string' ? JSON.parse(result.history_data) : result.history_data;
-          let hData = currentUser.history_data;
-          localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
-          localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
-          localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
-          localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
+          try {
+            let hData = typeof result.history_data === 'string' ? JSON.parse(result.history_data) : result.history_data;
+            if(hData && typeof hData === 'object') {
+              currentUser.history_data = hData;
+              localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
+              localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
+              localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(hData.unatt || []));
+              localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(hData.saved || []));
+            }
+          } catch(e) {}
         }
         if(result.percentage !== undefined) {
           currentUser.current_percentage = result.percentage;
@@ -2762,13 +2789,24 @@
           let myIndex = usersData.findIndex(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
           if(myIndex !== -1) {
             let myData = usersData[myIndex];
-            let hData = typeof myData.history_data === 'string' ? JSON.parse(myData.history_data) : (myData.history_data || { history: [], wrong: [], unatt: [], saved: [] });
+            let hData = myData.history_data;
+            if (typeof hData === 'string') {
+              try { hData = JSON.parse(hData); } catch(e) { hData = { history: [], wrong: [], unatt: [], saved: [] }; }
+            }
+            if(!hData || typeof hData !== 'object') hData = { history: [], wrong: [], unatt: [], saved: [] };
+
+            let subP = myData.subject_progress;
+            if (typeof subP === 'string') {
+              try { subP = JSON.parse(subP); } catch(e) { subP = {}; }
+            }
+
             currentUser = { 
               ...currentUser, 
               ...myData,
-              subject_progress: typeof myData.subject_progress === 'string' ? JSON.parse(myData.subject_progress) : (myData.subject_progress || {}),
+              subject_progress: subP || {},
               history_data: hData
             };
+            
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
             localStorage.setItem(getUserKey('history'), JSON.stringify(hData.history || []));
             localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(hData.wrong || []));
