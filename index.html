@@ -2549,8 +2549,7 @@
       subject: testSubjectName
     };
 
-    // Add new test result to the beginning (New to Old sorting)
-    userHistory.unshift({
+    userHistory.push({
       username: currentUser.username, studentName: currentUser.name,
       subject: testSubjectName, correct, wrong, unattempted,
       marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
@@ -2573,7 +2572,6 @@
       let totalSubQ = questions.filter(q => q.subject === sub).length;
       if(totalSubQ === 0) totalSubQ = 10;
       
-      // Reset progress and increment subject revision count when reaching 100%
       if(currentUser.subject_progress[sub].correct >= totalSubQ) {
         currentUser.subject_progress[sub].revisions = (currentUser.subject_progress[sub].revisions || 0) + 1;
         currentUser.subject_progress[sub].correct = 0;
@@ -2738,7 +2736,7 @@
     let hData = currentUser && currentUser.history ? currentUser.history : null;
     let allHistories = hData ? (Array.isArray(hData) ? hData : []) : (JSON.parse(localStorage.getItem(getUserKey('history'))) || []);
     
-    // Sort New to Old (Newest on top)
+    // Sort New to Old (Newest on top) using explicit index or reverse
     let sortedHistories = [...allHistories].reverse();
 
     tbody.innerHTML = sortedHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : sortedHistories.map(h => `
