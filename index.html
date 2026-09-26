@@ -1667,10 +1667,22 @@
   }
 
   async function verifyAndRecoverAccount() {
-    await fetchUsersFromCloud();
+    const resultEl = document.getElementById('fpResult');
+    resultEl.style.color = 'var(--muted)';
+    resultEl.innerText = 'Connecting to online database...';
+
+    try {
+      let res = await fetch(USERS_API_URL + "?action=getUsers");
+      let cloudUsers = await res.json();
+      if(Array.isArray(cloudUsers)) {
+        members = cloudUsers;
+      }
+    } catch(e) {
+      console.error("Cloud fetch failed, using local members:", e);
+    }
+
     const nameInput = document.getElementById('fpName').value.trim().toLowerCase();
     const dobInput = document.getElementById('fpDob').value.trim();
-    const resultEl = document.getElementById('fpResult');
 
     if(!nameInput || !dobInput) {
       resultEl.style.color = 'var(--danger)';
@@ -1712,11 +1724,10 @@
 
   async function openForgotPasswordModal() {
     document.getElementById('forgotPasswordModal').style.display = 'block';
-    document.getElementById('fpResult').innerHTML = 'Fetching latest user records...';
+    document.getElementById('fpResult').innerHTML = '';
     document.getElementById('fpName').value = '';
     document.getElementById('fpDob').value = '';
     await fetchUsersFromCloud();
-    document.getElementById('fpResult').innerHTML = '';
   }
 
   function closeForgotPasswordModal() {
