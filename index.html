@@ -1628,14 +1628,21 @@
               try { subP = JSON.parse(subP); } catch(e) { subP = {}; }
             }
 
+            let uHist = updatedMe.history;
+            if (typeof uHist === 'string') {
+              try { uHist = JSON.parse(uHist); } catch(e) { uHist = []; }
+            }
+
             currentUser = { 
               ...currentUser, 
               ...updatedMe,
               subject_progress: subP || {},
-              revision_store: rStore
+              revision_store: rStore,
+              history: uHist || []
             };
             
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+            localStorage.setItem(getUserKey('history'), JSON.stringify(uHist || []));
             localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(rStore.wrong || []));
             localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(rStore.unatt || []));
             localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(rStore.saved || []));
@@ -1730,8 +1737,8 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {}, revision_store: { wrong: [], unatt: [], saved: [] } });
-      currentUser = { name, username: user, role: 'member', subject_progress: {}, revision_store: { wrong: [], unatt: [], saved: [] } };
+      members.push({ username: user, name: name, dob: dob, pass: pass, subject_progress: {}, revision_store: { wrong: [], unatt: [], saved: [] }, history: [] });
+      currentUser = { name, username: user, role: 'member', subject_progress: {}, revision_store: { wrong: [], unatt: [], saved: [] }, history: [] };
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
       showPortal();
     } catch(err) {
@@ -1756,15 +1763,22 @@
         try { subP = JSON.parse(subP); } catch(e) { subP = {}; }
       }
 
+      let uHist = found.history;
+      if (typeof uHist === 'string') {
+        try { uHist = JSON.parse(uHist); } catch(e) { uHist = []; }
+      }
+
       currentUser = { 
         name: found.name, 
         username: found.username, 
         role: found.role || 'member', 
         subject_progress: subP || {},
-        revision_store: rStore
+        revision_store: rStore,
+        history: uHist || []
       };
       
       localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+      localStorage.setItem(getUserKey('history'), JSON.stringify(uHist || []));
       localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(rStore.wrong || []));
       localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(rStore.unatt || []));
       localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(rStore.saved || []));
@@ -2468,8 +2482,9 @@
 
     let testSubMap = {};
 
-    if(!currentUser) currentUser = { revision_store: { wrong: [], unatt: [], saved: [] } };
+    if(!currentUser) currentUser = { revision_store: { wrong: [], unatt: [], saved: [] }, history: [] };
     if(!currentUser.revision_store) currentUser.revision_store = { wrong: [], unatt: [], saved: [] };
+    if(!currentUser.history) currentUser.history = [];
 
     let pWrong = currentUser.revision_store.wrong || (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
     let pUnatt = currentUser.revision_store.unatt || (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
@@ -2534,9 +2549,17 @@
       subject: testSubjectName
     };
 
+    userHistory.push({
+      username: currentUser.username, studentName: currentUser.name,
+      subject: testSubjectName, correct, wrong, unattempted,
+      marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
+    });
+
+    currentUser.history = userHistory;
     currentUser.revision_store.wrong = pWrong;
     currentUser.revision_store.unatt = pUnatt;
 
+    localStorage.setItem(getUserKey('history'), JSON.stringify(userHistory));
     localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(pWrong));
     localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(pUnatt));
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
@@ -2545,8 +2568,11 @@
     for(let sub in testSubMap) {
       if(!currentUser.subject_progress[sub]) currentUser.subject_progress[sub] = { correct: 0, revisions: 0 };
       currentUser.subject_progress[sub].correct += testSubMap[sub].correct;
+      
       let totalSubQ = questions.filter(q => q.subject === sub).length;
-      if(totalSubQ > 0 && currentUser.subject_progress[sub].correct >= totalSubQ) {
+      if(totalSubQ === 0) totalSubQ = 10; // fallback if questions not yet loaded fully
+      
+      if(currentUser.subject_progress[sub].correct >= totalSubQ) {
         currentUser.subject_progress[sub].revisions = (currentUser.subject_progress[sub].revisions || 0) + 1;
         currentUser.subject_progress[sub].correct = 0;
       }
@@ -2569,7 +2595,9 @@
       correctAnswers: newCorrectCount,
       totalDbQuestions: totalDbTestQuestions,
       subMap: testSubMap,
-      historyData: revisionObj
+      subTotalQs: 10,
+      historyData: revisionObj,
+      historyLog: currentUser.history || []
     };
 
     try {
@@ -2722,6 +2750,8 @@
 
     radarBox.innerHTML = subjects.map(sub => {
       let totalDbSubQ = questions.filter(q => q.subject === sub).length;
+      if(totalDbSubQ === 0) totalDbSubQ = 10; // fallback
+      
       let subData = userSubProgress[sub] || { correct: 0, revisions: 0 };
       let userCorrect = subData.correct || 0;
 
@@ -2801,14 +2831,21 @@
               try { subP = JSON.parse(subP); } catch(e) { subP = {}; }
             }
 
+            let uHist = myData.history;
+            if (typeof uHist === 'string') {
+              try { uHist = JSON.parse(uHist); } catch(e) { uHist = []; }
+            }
+
             currentUser = { 
               ...currentUser, 
               ...myData,
               subject_progress: subP || {},
-              revision_store: rStore
+              revision_store: rStore,
+              history: uHist || []
             };
             
             localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
+            localStorage.setItem(getUserKey('history'), JSON.stringify(uHist || []));
             localStorage.setItem(getUserKey('persistent_wrong'), JSON.stringify(rStore.wrong || []));
             localStorage.setItem(getUserKey('persistent_unatt'), JSON.stringify(rStore.unatt || []));
             localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(rStore.saved || []));
