@@ -1666,7 +1666,8 @@
     }
   }
 
-  function verifyAndRecoverAccount() {
+  async function verifyAndRecoverAccount() {
+    await fetchUsersFromCloud();
     const nameInput = document.getElementById('fpName').value.trim().toLowerCase();
     const dobInput = document.getElementById('fpDob').value.trim();
     const resultEl = document.getElementById('fpResult');
@@ -1703,11 +1704,13 @@
     }
   }
 
-  function openForgotPasswordModal() {
+  async function openForgotPasswordModal() {
     document.getElementById('forgotPasswordModal').style.display = 'block';
-    document.getElementById('fpResult').innerHTML = '';
+    document.getElementById('fpResult').innerHTML = 'Fetching latest user records...';
     document.getElementById('fpName').value = '';
     document.getElementById('fpDob').value = '';
+    await fetchUsersFromCloud();
+    document.getElementById('fpResult').innerHTML = '';
   }
 
   function closeForgotPasswordModal() {
