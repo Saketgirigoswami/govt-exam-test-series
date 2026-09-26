@@ -1067,6 +1067,12 @@
     localStorage.setItem(getUserKey('persistent_saved'), JSON.stringify(savedList));
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
     updateUserProgressToCloud(0, {}, currentUser.history_data);
+    
+    // Immediate UI refresh for bookmark button state
+    if(activeEngineMode === 'practice' || activeEngineMode === 'test' || activeEngineMode === 'full_mock' || activeEngineMode === 'flt') {
+      if(document.getElementById('tab-test').style.display === 'block') renderTestView();
+      if(document.getElementById('tab-practice').style.display === 'block') renderPracticeView();
+    }
     renderRevisionNeededSection();
   }
 
@@ -1612,7 +1618,7 @@
       if(Array.isArray(data)) {
         members = data;
         if(currentUser) {
-          let updatedMe = members.find(m => m.username.toLowerCase() === currentUser.username.toLowerCase());
+          let updatedMe = members.find(m => m.username && m.username.toLowerCase() === currentUser.username.toLowerCase());
           if(updatedMe) {
             let hData = updatedMe.history_data;
             if (typeof hData === 'string') {
@@ -2082,7 +2088,9 @@
     document.getElementById('t-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('t-star-btn');
-    let savedList = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
+    if(!currentUser) currentUser = { history_data: { history: [], wrong: [], unatt: [], saved: [] } };
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+    let savedList = currentUser.history_data.saved || (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
     let isSaved = savedList.some(item => item.id.toString() === q.id.toString());
     starBtn.style.background = isSaved ? '#facc15' : '#334155';
     starBtn.style.color = isSaved ? '#000' : '#fff';
@@ -2194,7 +2202,9 @@
     document.getElementById('p-hier-badge').innerText = `${q.subject} > ${q.topic} > ${q.subtopic}`;
 
     const starBtn = document.getElementById('p-star-btn');
-    let savedList = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
+    if(!currentUser) currentUser = { history_data: { history: [], wrong: [], unatt: [], saved: [] } };
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+    let savedList = currentUser.history_data.saved || (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
     let isSaved = savedList.some(item => item.id.toString() === q.id.toString());
     starBtn.style.background = isSaved ? '#facc15' : '#334155';
     starBtn.style.color = isSaved ? '#000' : '#fff';
@@ -2303,7 +2313,7 @@
 
     if(activeEngineMode === 'practice') {
       const q = activeQuestions[currentQIdx];
-      if(!currentUser) return;
+      if(!currentUser) currentUser = { history_data: { history: [], wrong: [], unatt: [], saved: [] } };
       if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
       let pWrong = currentUser.history_data.wrong || (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
       
@@ -2664,9 +2674,12 @@
   }
 
   function renderRevisionNeededSection() {
-    let pWrong = currentUser && currentUser.history_data && currentUser.history_data.wrong ? currentUser.history_data.wrong : (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
-    let pUnatt = currentUser && currentUser.history_data && currentUser.history_data.unatt ? currentUser.history_data.unatt : (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
-    let pSaved = currentUser && currentUser.history_data && currentUser.history_data.saved ? currentUser.history_data.saved : (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
+    if(!currentUser) currentUser = { history_data: { history: [], wrong: [], unatt: [], saved: [] } };
+    if(!currentUser.history_data) currentUser.history_data = { history: [], wrong: [], unatt: [], saved: [] };
+
+    let pWrong = currentUser.history_data.wrong || (JSON.parse(localStorage.getItem(getUserKey('persistent_wrong'))) || []);
+    let pUnatt = currentUser.history_data.unatt || (JSON.parse(localStorage.getItem(getUserKey('persistent_unatt'))) || []);
+    let pSaved = currentUser.history_data.saved || (JSON.parse(localStorage.getItem(getUserKey('persistent_saved'))) || []);
 
     document.getElementById('countRevWrong').innerText = pWrong.length;
     document.getElementById('countRevUnatt').innerText = pUnatt.length;
@@ -2778,7 +2791,7 @@
 
         let top10 = usersData.slice(0, 10);
         let htmlRows = top10.map((u, idx) => `
-          <tr style="${currentUser && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
+          <tr style="${currentUser && u.username && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
             <td style="padding:10px; border:1px solid var(--border);">#${idx + 1}</td>
             <td style="padding:10px; border:1px solid var(--border); font-weight:600; color:#93c5fd;">${u.name || 'User'}</td>
             <td style="padding:10px; border:1px solid var(--border); text-align:center; color:#4ade80;">${u.current_percentage || 0}%</td>
@@ -2786,7 +2799,7 @@
           </tr>`).join('');
 
         if(currentUser) {
-          let myIndex = usersData.findIndex(u => u.username.toLowerCase() === currentUser.username.toLowerCase());
+          let myIndex = usersData.findIndex(u => u.username && u.username.toLowerCase() === currentUser.username.toLowerCase());
           if(myIndex !== -1) {
             let myData = usersData[myIndex];
             let hData = myData.history_data;
