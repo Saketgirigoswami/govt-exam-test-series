@@ -282,7 +282,7 @@
   <div id="auth-screen" style="display:none;">
     <div class="card" style="max-width: 420px; margin: 50px auto;">
       <div style="text-align: center; margin-bottom: 18px;">
-        <h3>Student Login</h3>
+        <h3>Login</h3>
       </div>
 
       <div id="auth-member-view">
@@ -301,7 +301,6 @@
           <button class="btn" style="width: 100%; justify-content:center;" onclick="memberLogin()">Login</button>
           
           <div style="text-align: center; margin-top: 14px; font-size: 0.88rem;">
-            <div><a href="javascript:void(0)" onclick="openForgotPasswordModal()" style="color: #38bdf8; text-decoration:none;">Forgot Password?</a></div>
             <div style="margin-top: 8px; color: var(--muted);">Don't have an account? <a href="javascript:void(0)" onclick="toggleRegister(true)" style="color: #60a5fa; text-decoration:none;">Register Here</a></div>
           </div>
         </div>
@@ -315,7 +314,7 @@
           <input type="text" id="memRegUser" placeholder="e.g. Government_employee" oninput="checkUsernameAvailability(this.value)">
           <div id="usernameAvailabilityMsg" style="font-size:0.75rem; margin-top:-6px; margin-bottom:8px;"></div>
           
-          <label>Date Of Birth (For Password Recovery)</label>
+          <label>Date Of Birth (For Future Recovery)</label>
           <input type="date" id="memRegDob">
 
           <label>Create Password</label>
@@ -987,25 +986,6 @@
   </div>
 </div>
 
-<!-- Forgot Password Modal -->
-<div class="modal-backdrop" id="forgotPasswordModal">
-  <div class="modal-content" style="max-width:400px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="color:#60a5fa; margin:0;">🔐 Account Recovery</h3>
-      <button class="btn btn-secondary" onclick="closeForgotPasswordModal()">✕ Close</button>
-    </div>
-    <p style="font-size:0.85rem; color:#38bdf8; margin-bottom:14px; line-height:1.4;">
-      <b>Instructions:</b> Enter your Name (e.g. <i>Ram Chandra</i> → <b>Rachan</b> - first 2 letters of first name + first 4 letters of surname, case-insensitive) and Date of Birth to recover your username & password.
-    </p>
-    <label>Full Name Abbreviation (e.g. Rachan)</label>
-    <input type="text" id="fpName" placeholder="e.g. Rachan">
-    <label>Date Of Birth</label>
-    <input type="date" id="fpDob">
-    <button class="btn" style="width:100%; justify-content:center; margin-top:10px;" onclick="verifyAndRecoverAccount()">Recover Account</button>
-    <div id="fpResult" style="margin-top:15px; font-weight:600; text-align:center;"></div>
-  </div>
-</div>
-
 <script type="text/javascript">
   function googleTranslateElementInit() {
     new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'hi,en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
@@ -1668,64 +1648,6 @@
     }
   }
 
-  function getAbbreviatedName(fullName) {
-    if(!fullName) return "";
-    let clean = fullName.trim().toLowerCase().replace(/\s+/g, ' ');
-    let parts = clean.split(' ');
-    if(parts.length === 0) return "";
-    let firstPart = parts[0];
-    let lastPart = parts.length > 1 ? parts[parts.length - 1] : firstPart;
-    
-    let f2 = firstPart.substring(0, 2);
-    let l4 = lastPart.substring(0, 4);
-    return f2 + l4;
-  }
-
-  async function verifyAndRecoverAccount() {
-    const resultEl = document.getElementById('fpResult');
-    resultEl.style.color = 'var(--muted)';
-    resultEl.innerText = 'Connecting to online database...';
-
-    try {
-      let res = await fetch(USERS_API_URL + "?action=getUsers");
-      let cloudUsers = await res.json();
-      if(Array.isArray(cloudUsers)) {
-        members = cloudUsers;
-      }
-    } catch(e) {
-      console.error("Cloud fetch failed, using local members:", e);
-    }
-
-    const inputAbbr = document.getElementById('fpName').value.trim().toLowerCase().replace(/\s+/g, '');
-    const dobInput = document.getElementById('fpDob').value.trim();
-
-    if(!inputAbbr || !dobInput) {
-      resultEl.style.color = 'var(--danger)';
-      resultEl.innerText = 'Please enter both Abbreviated Name and Date of Birth.';
-      return;
-    }
-
-    let formattedInputDob = dobInput.replace(/[^0-9]/g, '');
-
-    const found = members.find(m => {
-      let dbFullName = m.name ? m.name.toString().trim() : "";
-      let dbAbbr = getAbbreviatedName(dbFullName);
-      let dbDob = m.dob ? m.dob.toString().trim().split('T')[0].replace(/[^0-9]/g, '') : "";
-      
-      let nameMatch = dbAbbr === inputAbbr || inputAbbr.includes(dbAbbr) || dbAbbr.includes(inputAbbr);
-      let dobMatch = dbDob === formattedInputDob;
-      return nameMatch && dobMatch;
-    });
-
-    if(found) {
-      resultEl.style.color = 'var(--success)';
-      resultEl.innerHTML = `Account Found!<br>Username: <b>@${found.username}</b><br>Password: <b>${found.pass}</b>`;
-    } else {
-      resultEl.style.color = 'var(--danger)';
-      resultEl.innerText = 'No matching account found with this Abbreviation and DOB.';
-    }
-  }
-
   function togglePasswordVisibility(fieldId, iconEl) {
     const field = document.getElementById(fieldId);
     if (field.type === "password") {
@@ -1735,19 +1657,6 @@
       field.type = "password";
       iconEl.style.opacity = "0.8";
     }
-  }
-
-  async function openForgotPasswordModal() {
-    document.getElementById('forgotPasswordModal').style.display = 'block';
-    document.getElementById('fpResult').innerHTML = 'Fetching latest user records...';
-    document.getElementById('fpName').value = '';
-    document.getElementById('fpDob').value = '';
-    await fetchUsersFromCloud();
-    document.getElementById('fpResult').innerHTML = '';
-  }
-
-  function closeForgotPasswordModal() {
-    document.getElementById('forgotPasswordModal').style.display = 'none';
   }
 
   function showAuth() {
