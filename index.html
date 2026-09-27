@@ -235,8 +235,8 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; line-height: 1.5; text-align: left; }
-    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 32px; flex-shrink: 0; text-align: left; }
+    .statement-preview-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; line-height: 1.45; text-align: left; }
+    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 28px; flex-shrink: 0; text-align: left; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; text-align: left; }
     
     .match-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
@@ -2082,7 +2082,7 @@
     }
   }
 
-  // Exact Admin Studio Statement Parser
+  // Exact Admin Studio Statement Parser matching Admin Studio App Final.html
   function parseAdminStudioStatements(textStr) {
     if(!textStr) return { intro: '', statements: [], conclusion: '' };
     let lines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -2163,8 +2163,8 @@
     const matchWrap = document.getElementById('t-match-wrap');
     matchWrap.innerHTML = '';
 
-    let rawTextToCheck = (q.text || q.assertion || '').toLowerCase();
-    let isStmtType = q.type === 'statement' || rawTextToCheck.includes('statement') || rawTextToCheck.includes('1)') || rawTextToCheck.includes('i)');
+    // STRICT check: Only apply Admin Studio statement parser if q.type === 'statement'
+    let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
@@ -2265,8 +2265,8 @@
     const matchWrap = document.getElementById('p-match-wrap');
     matchWrap.innerHTML = '';
 
-    let rawTextToCheck = (q.text || q.assertion || '').toLowerCase();
-    let isStmtType = q.type === 'statement' || rawTextToCheck.includes('statement') || rawTextToCheck.includes('1)') || rawTextToCheck.includes('i)');
+    // STRICT check: Only apply Admin Studio statement parser if q.type === 'statement'
+    let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
