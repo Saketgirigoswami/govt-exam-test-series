@@ -2082,66 +2082,30 @@
     }
   }
 
-  // Exact Admin Studio Statement Parser matching Admin Studio App Final.html
-  function parseAdminStudioStatements(textStr) {
-    if(!textStr) return { intro: '', statements: [], conclusion: '' };
-    let lines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    
-    let introLines = [];
-    let statementLines = [];
-    let conclusionLines = [];
-    
-    let mode = 'intro';
-    for (let line of lines) {
-      let isStmt = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(line);
-      
-      if (isStmt) {
-        mode = 'statements';
-      } else if (line.toLowerCase().includes('which of the') || line.toLowerCase().includes('choose the') || line.toLowerCase().includes('select the')) {
-        mode = 'conclusion';
-      }
-      
-      if (mode === 'intro') {
-        introLines.push(line);
-      } else if (mode === 'statements') {
-        statementLines.push(line);
-      } else {
-        conclusionLines.push(line);
-      }
-    }
-    
-    if (statementLines.length === 0 && lines.length > 1) {
-      introLines = [lines[0]];
-      statementLines = lines.slice(1, lines.length - 1);
-      conclusionLines = [lines[lines.length - 1]];
-    }
-
-    return {
-      intro: introLines.join(' ') || 'Consider the below statements:',
-      statements: statementLines,
-      conclusion: conclusionLines.join(' ') || 'Which of the statements given above are correct?'
-    };
-  }
-
+  // Exact Admin Studio statement rendering matching Admin Studio App Final_2.html renderAdminQuizCard
   function renderStatementQuestionHtml(q) {
-    let rawText = q.text || q.assertion || '';
-    let parsed = parseAdminStudioStatements(rawText);
-    
-    let html = `<div style="margin-bottom:10px;">${parsed.intro}</div>`;
-    parsed.statements.forEach(st => {
-      let match = st.match(/^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])\s*(.*)/);
-      let numPart = match ? match[1] : '';
-      let textPart = match ? match[2] : st;
-      
-      html += `
-        <div class="statement-preview-item" style="display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; line-height:1.5; text-align:left;">
-          <span class="st-num" style="font-weight:700; color:#38bdf8; min-width:32px; flex-shrink:0; text-align:left;">${numPart}</span>
-          <span class="st-text" style="flex:1; word-break:break-word; text-align:left;">${textPart}</span>
-        </div>
-      `;
-    });
-    html += `<div style="margin-top:10px;">${parsed.conclusion}</div>`;
-    return html;
+    let stArr = q.statements;
+    if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
+    if(!Array.isArray(stArr) || stArr.length === 0) {
+      if(q.text) {
+        let lines = q.text.split('\n').filter(l => l.trim() !== '');
+        stArr = lines.slice(1, lines.length - 1);
+      }
+    }
+    let bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || (q.text ? q.text.split('\n')[0] : 'Consider the following statements:')}</div>`;
+    if(Array.isArray(stArr)) {
+      stArr.forEach((st, idx) => {
+        let cleanSt = st.replace(/^\d+[\)\.]\s*/, '');
+        bodyHtml += `
+          <div class="statement-preview-item" style="display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; line-height:1.5; text-align:left;">
+            <span class="st-num" style="font-weight:700; color:#38bdf8; min-width:32px; flex-shrink:0; text-align:left;">${idx+1})</span>
+            <span class="st-text" style="flex:1; word-break:break-word; text-align:left;">${cleanSt}</span>
+          </div>
+        `;
+      });
+    }
+    bodyHtml += `<div style="margin-top:10px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+    return bodyHtml;
   }
 
   function renderTestView() {
@@ -2891,7 +2855,7 @@
               try { uHist = JSON.parse(uHist); } catch(e) { uHist = []; }
             }
 
-currentUser = { 
+            currentUser = { 
               ...currentUser, 
               ...myData,
               subject_progress: subP || {},
