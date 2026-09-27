@@ -2090,6 +2090,27 @@
     }
   }
 
+  function getStatementContent(q) {
+    let stArr = q.statements;
+    if (typeof stArr === 'string') {
+      try { stArr = JSON.parse(stArr); } catch(e) {}
+    }
+    if (Array.isArray(stArr) && stArr.length > 0) {
+      return { intro: q.stIntro || 'Consider the following statements:', list: stArr, style: q.stStyle, conclusion: q.stConclusion || 'Which of the statements given above are correct?' };
+    }
+    // Fallback parser if statements column is empty/string in DB but text has it
+    let rawText = q.text || q.assertion || '';
+    let lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    let intro = lines[0] || 'Consider the following statements:';
+    let conclusion = lines[lines.length - 1] || 'Which of the statements given above are correct?';
+    let list = lines.slice(1, lines.length - 1);
+    if(list.length === 0 && lines.length > 1) {
+      list = lines.slice(1);
+      conclusion = 'Which of the statements given above are correct?';
+    }
+    return { intro, list, style: q.stStyle, conclusion };
+  }
+
   function renderTestView() {
     const q = activeQuestions[currentQIdx];
     document.getElementById('t-counter').innerText = `Question ${currentQIdx + 1} of ${activeQuestions.length}`;
@@ -2125,14 +2146,12 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement') {
-      let stArr = q.statements;
-      if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
-      
-      bodyHtml = `<div style="margin-bottom:2px;">${q.stIntro || 'Consider the following statements:'}</div>`;
-      if(Array.isArray(stArr)) {
-        stArr.forEach((st, idx) => {
-          let lbl = getFormattedLabel(idx, q.stStyle);
+    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
+      let stObj = getStatementContent(q);
+      bodyHtml = `<div style="margin-bottom:2px;">${stObj.intro}</div>`;
+      if(Array.isArray(stObj.list)) {
+        stObj.list.forEach((st, idx) => {
+          let lbl = getFormattedLabel(idx, stObj.style);
           bodyHtml += `
             <div class="statement-preview-item">
               <span class="st-num">${lbl}</span>
@@ -2141,7 +2160,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:2px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:2px;">${stObj.conclusion}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2161,7 +2180,7 @@
     }
 
     let bodyContainer = document.getElementById('t-body');
-    if(q.type === 'statement' || q.type === 'ar') {
+    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2239,14 +2258,12 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement') {
-      let stArr = q.statements;
-      if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
-      
-      bodyHtml = `<div style="margin-bottom:2px;">${q.stIntro || 'Consider the following statements:'}</div>`;
-      if(Array.isArray(stArr)) {
-        stArr.forEach((st, idx) => {
-          let lbl = getFormattedLabel(idx, q.stStyle);
+    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
+      let stObj = getStatementContent(q);
+      bodyHtml = `<div style="margin-bottom:2px;">${stObj.intro}</div>`;
+      if(Array.isArray(stObj.list)) {
+        stObj.list.forEach((st, idx) => {
+          let lbl = getFormattedLabel(idx, stObj.style);
           bodyHtml += `
             <div class="statement-preview-item">
               <span class="st-num">${lbl}</span>
@@ -2255,7 +2272,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:2px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:2px;">${stObj.conclusion}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2275,7 +2292,7 @@
     }
 
     let bodyContainer = document.getElementById('p-body');
-    if(q.type === 'statement' || q.type === 'ar') {
+    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2549,7 +2566,6 @@
       subject: testSubjectName
     };
 
-    // Unshift to put newest test at the very top (New to Old)
     userHistory.unshift({
       username: currentUser.username, studentName: currentUser.name,
       subject: testSubjectName, correct, wrong, unattempted,
@@ -2567,7 +2583,6 @@
 
     if(!currentUser.subject_progress) currentUser.subject_progress = {};
     
-    // Gather dynamic subject totals to send to backend
     let subTotalsObj = {};
     subjects.forEach(sub => {
       let tCount = questions.filter(q => q.subject === sub).length;
@@ -2753,7 +2768,6 @@
     let hData = currentUser && currentUser.history ? currentUser.history : null;
     let allHistories = hData ? (Array.isArray(hData) ? hData : []) : (JSON.parse(localStorage.getItem(getUserKey('history'))) || []);
     
-    // Ensure New to Old (Newest on top) by rendering directly in the array order (since unshift adds new items to the front)
     tbody.innerHTML = allHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : allHistories.map(h => `
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
