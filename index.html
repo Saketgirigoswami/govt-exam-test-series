@@ -235,9 +235,9 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px !important; margin-top: 10px !important; line-height: 1.5; }
-    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 30px; flex-shrink: 0; font-size: 1.05rem; }
-    .statement-preview-item .st-text { flex: 1; word-break: break-word; font-size: 1.02rem; }
+    .statement-line { display: flex; align-items: flex-start; gap: 10px; margin: 8px 0; line-height: 1.5; }
+    .statement-line .st-num { font-weight: 700; color: #60a5fa; min-width: 28px; flex-shrink: 0; }
+    .statement-line .st-text { flex: 1; word-break: break-word; }
     
     .match-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
     .match-table th, .match-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
@@ -1198,14 +1198,6 @@
     }
   });
 
-  function getFormattedLabel(idx, styleType) {
-    const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
-    const alphas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-    if (styleType === 'roman') return (romans[idx] || (idx + 1)) + ')';
-    if (styleType === 'alpha') return (alphas[idx] || (idx + 1)) + ')';
-    return (idx + 1) + ')';
-  }
-
   function switchTestMode(mode) {
     document.getElementById('selTestTopic').classList.toggle('active', mode === 'topic');
     document.getElementById('selTestNcert').classList.toggle('active', mode === 'ncert');
@@ -2090,6 +2082,71 @@
     }
   }
 
+  // Robust Admin Studio style Statement Parser directly from q.text
+  function parseAdminStudioStatements(textStr) {
+    if(!textStr) return { intro: '', statements: [], conclusion: '' };
+    let lines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    
+    let introLines = [];
+    let statementLines = [];
+    let conclusionLines = [];
+    
+    let mode = 'intro';
+    for (let line of lines) {
+      // Check if line starts with statement number like 1), 2), I), II), a), b) etc.
+      let isStmt = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(line);
+      
+      if (isStmt) {
+        mode = 'statements';
+      } else if (line.toLowerCase().includes('which of the') || line.toLowerCase().includes('choose the') || line.toLowerCase().includes('select the')) {
+        mode = 'conclusion';
+      }
+      
+      if (mode === 'intro') {
+        introLines.push(line);
+      } else if (mode === 'statements') {
+        statementLines.push(line);
+      } else {
+        conclusionLines.push(line);
+      }
+    }
+    
+    if (statementLines.length === 0 && lines.length > 1) {
+      // Fallback if strict regex missed
+      introLines = [lines[0]];
+      statementLines = lines.slice(1, lines.length - 1);
+      conclusionLines = [lines[lines.length - 1]];
+    }
+
+    return {
+      intro: introLines.join(' ') || 'Consider the below statements:',
+      statements: statementLines,
+      conclusion: conclusionLines.join(' ') || 'Which of the statements given above are correct?'
+    };
+  }
+
+  function renderStatementQuestionHtml(q) {
+    let rawText = q.text || q.assertion || '';
+    let parsed = parseAdminStudioStatements(rawText);
+    
+    let html = `<div style="margin-bottom:10px;">${parsed.intro}</div>`;
+    parsed.statements.forEach(st => {
+      // Separate number prefix if present
+      let match = st.match(/^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])\s*(.*)/);
+      let numPart = match ? match[1] : '';
+      let textPart = match ? match[2] : st;
+      
+      html += `
+        <div class="statement-line">
+          <span class="st-num">${numPart}</span>
+          <span class="st-text">${textPart}</span>
+        </div>
+      `;
+    });
+    html += `<div style="margin-top:10px;">${parsed.conclusion}</div>`;
+    return html;
+  }
+
   function renderTestView() {
     const q = activeQuestions[currentQIdx];
     document.getElementById('t-counter').innerText = `Question ${currentQIdx + 1} of ${activeQuestions.length}`;
@@ -2125,24 +2182,8 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement') {
-      let stArr = q.statements;
-      if (typeof stArr === 'string') {
-        try { stArr = JSON.parse(stArr); } catch(e) {}
-      }
-      bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || 'Consider the below statements:'}</div>`;
-      if (Array.isArray(stArr) && stArr.length > 0) {
-        stArr.forEach((st, idx) => {
-          let lbl = getFormattedLabel(idx, q.stStyle);
-          bodyHtml += `
-            <div class="statement-preview-item">
-              <span class="st-num">${lbl}</span>
-              <span class="st-text">${st}</span>
-            </div>
-          `;
-        });
-      }
-      bodyHtml += `<div style="margin-top:10px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
+      bodyHtml = renderStatementQuestionHtml(q);
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2162,7 +2203,7 @@
     }
 
     let bodyContainer = document.getElementById('t-body');
-    if(q.type === 'statement' || q.type === 'ar') {
+    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2240,24 +2281,8 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement') {
-      let stArr = q.statements;
-      if (typeof stArr === 'string') {
-        try { stArr = JSON.parse(stArr); } catch(e) {}
-      }
-      bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || 'Consider the below statements:'}</div>`;
-      if (Array.isArray(stArr) && stArr.length > 0) {
-        stArr.forEach((st, idx) => {
-          let lbl = getFormattedLabel(idx, q.stStyle);
-          bodyHtml += `
-            <div class="statement-preview-item">
-              <span class="st-num">${lbl}</span>
-              <span class="st-text">${st}</span>
-            </div>
-          `;
-        });
-      }
-      bodyHtml += `<div style="margin-top:10px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
+      bodyHtml = renderStatementQuestionHtml(q);
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2277,7 +2302,7 @@
     }
 
     let bodyContainer = document.getElementById('p-body');
-    if(q.type === 'statement' || q.type === 'ar') {
+    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
