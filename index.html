@@ -235,9 +235,9 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-line { display: flex; align-items: flex-start; gap: 10px; margin: 8px 0; line-height: 1.5; }
-    .statement-line .st-num { font-weight: 700; color: #60a5fa; min-width: 28px; flex-shrink: 0; }
-    .statement-line .st-text { flex: 1; word-break: break-word; }
+    .statement-preview-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; line-height: 1.5; text-align: left; }
+    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 32px; flex-shrink: 0; text-align: left; }
+    .statement-preview-item .st-text { flex: 1; word-break: break-word; text-align: left; }
     
     .match-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
     .match-table th, .match-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
@@ -2082,7 +2082,7 @@
     }
   }
 
-  // Robust Admin Studio style Statement Parser directly from q.text
+  // Exact Admin Studio Statement Parser
   function parseAdminStudioStatements(textStr) {
     if(!textStr) return { intro: '', statements: [], conclusion: '' };
     let lines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -2093,7 +2093,6 @@
     
     let mode = 'intro';
     for (let line of lines) {
-      // Check if line starts with statement number like 1), 2), I), II), a), b) etc.
       let isStmt = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(line);
       
       if (isStmt) {
@@ -2112,7 +2111,6 @@
     }
     
     if (statementLines.length === 0 && lines.length > 1) {
-      // Fallback if strict regex missed
       introLines = [lines[0]];
       statementLines = lines.slice(1, lines.length - 1);
       conclusionLines = [lines[lines.length - 1]];
@@ -2131,13 +2129,12 @@
     
     let html = `<div style="margin-bottom:10px;">${parsed.intro}</div>`;
     parsed.statements.forEach(st => {
-      // Separate number prefix if present
       let match = st.match(/^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])\s*(.*)/);
       let numPart = match ? match[1] : '';
       let textPart = match ? match[2] : st;
       
       html += `
-        <div class="statement-line">
+        <div class="statement-preview-item">
           <span class="st-num">${numPart}</span>
           <span class="st-text">${textPart}</span>
         </div>
@@ -2166,6 +2163,9 @@
     const matchWrap = document.getElementById('t-match-wrap');
     matchWrap.innerHTML = '';
 
+    let rawTextToCheck = (q.text || q.assertion || '').toLowerCase();
+    let isStmtType = q.type === 'statement' || rawTextToCheck.includes('statement') || rawTextToCheck.includes('1)') || rawTextToCheck.includes('i)');
+
     if(q.type === 'ar') {
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
       let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
@@ -2182,7 +2182,7 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
+    } else if(isStmtType) {
       bodyHtml = renderStatementQuestionHtml(q);
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
@@ -2203,7 +2203,7 @@
     }
 
     let bodyContainer = document.getElementById('t-body');
-    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
+    if(isStmtType || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2265,6 +2265,9 @@
     const matchWrap = document.getElementById('p-match-wrap');
     matchWrap.innerHTML = '';
 
+    let rawTextToCheck = (q.text || q.assertion || '').toLowerCase();
+    let isStmtType = q.type === 'statement' || rawTextToCheck.includes('statement') || rawTextToCheck.includes('1)') || rawTextToCheck.includes('i)');
+
     if(q.type === 'ar') {
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
       let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
@@ -2281,7 +2284,7 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
+    } else if(isStmtType) {
       bodyHtml = renderStatementQuestionHtml(q);
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
@@ -2302,7 +2305,7 @@
     }
 
     let bodyContainer = document.getElementById('p-body');
-    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
+    if(isStmtType || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
