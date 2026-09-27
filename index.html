@@ -2549,7 +2549,8 @@
       subject: testSubjectName
     };
 
-    userHistory.push({
+    // Unshift to put newest test at the very top (New to Old)
+    userHistory.unshift({
       username: currentUser.username, studentName: currentUser.name,
       subject: testSubjectName, correct, wrong, unattempted,
       marks: parseFloat(finalMarks.toFixed(2)), totalMarks: totalQCount, accuracy: accuracy + '%', date: new Date().toLocaleDateString()
@@ -2565,6 +2566,14 @@
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
     if(!currentUser.subject_progress) currentUser.subject_progress = {};
+    
+    // Gather dynamic subject totals to send to backend
+    let subTotalsObj = {};
+    subjects.forEach(sub => {
+      let tCount = questions.filter(q => q.subject === sub).length;
+      subTotalsObj[sub] = tCount > 0 ? tCount : 10;
+    });
+
     for(let sub in testSubMap) {
       if(!currentUser.subject_progress[sub]) currentUser.subject_progress[sub] = { correct: 0, revisions: 0 };
       currentUser.subject_progress[sub].correct += testSubMap[sub].correct;
@@ -2579,23 +2588,31 @@
     }
     localStorage.setItem('cg_auth_user', JSON.stringify(currentUser));
 
-    updateUserProgressToCloud(correct, testSubMap, currentUser.revision_store);
+    updateUserProgressToCloud(correct, testSubMap, currentUser.revision_store, subTotalsObj);
 
     document.getElementById('test-player').style.display = 'none';
     navigate('tab-results');
     displayScorecard();
   }
 
-  async function updateUserProgressToCloud(newCorrectCount, testSubMap, revisionObj) {
+  async function updateUserProgressToCloud(newCorrectCount, testSubMap, revisionObj, subTotalsObj) {
     if(!currentUser) return;
     const totalDbTestQuestions = questions.length > 0 ? questions.length : 100;
     
+    if(!subTotalsObj) {
+      subTotalsObj = {};
+      subjects.forEach(sub => {
+        let tCount = questions.filter(q => q.subject === sub).length;
+        subTotalsObj[sub] = tCount > 0 ? tCount : 10;
+      });
+    }
+
     let payload = {
       username: currentUser.username,
       correctAnswers: newCorrectCount,
       totalDbQuestions: totalDbTestQuestions,
       subMap: testSubMap,
-      subTotalQs: 10,
+      subTotals: subTotalsObj,
       historyData: revisionObj,
       historyLog: currentUser.history || []
     };
@@ -2736,10 +2753,8 @@
     let hData = currentUser && currentUser.history ? currentUser.history : null;
     let allHistories = hData ? (Array.isArray(hData) ? hData : []) : (JSON.parse(localStorage.getItem(getUserKey('history'))) || []);
     
-    // Sort New to Old (Newest on top) using explicit index or reverse
-    let sortedHistories = [...allHistories].reverse();
-
-    tbody.innerHTML = sortedHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : sortedHistories.map(h => `
+    // Ensure New to Old (Newest on top) by rendering directly in the array order (since unshift adds new items to the front)
+    tbody.innerHTML = allHistories.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--muted);">No attempts found.</td></tr>` : allHistories.map(h => `
       <tr>
         <td style="padding:10px; border:1px solid var(--border);">${h.date}</td>
         <td style="padding:10px; border:1px solid var(--border);">${h.subject}</td>
