@@ -235,9 +235,9 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; gap: 6px; margin-bottom: 4px !important; margin-top: 4px !important; line-height: 1.45; }
-    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 26px; flex-shrink: 0; }
-    .statement-preview-item .st-text { flex: 1; word-break: break-word; }
+    .statement-preview-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px !important; margin-top: 10px !important; line-height: 1.5; }
+    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 30px; flex-shrink: 0; font-size: 1.05rem; }
+    .statement-preview-item .st-text { flex: 1; word-break: break-word; font-size: 1.02rem; }
     
     .match-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
     .match-table th, .match-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
@@ -1201,9 +1201,9 @@
   function getFormattedLabel(idx, styleType) {
     const romans = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
     const alphas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-    if (styleType === 'roman') return (romans[idx] || (idx + 1)) + '.';
-    if (styleType === 'alpha') return (alphas[idx] || (idx + 1)) + '.';
-    return (idx + 1) + '.';
+    if (styleType === 'roman') return (romans[idx] || (idx + 1)) + ')';
+    if (styleType === 'alpha') return (alphas[idx] || (idx + 1)) + ')';
+    return (idx + 1) + ')';
   }
 
   function switchTestMode(mode) {
@@ -2113,7 +2113,7 @@
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
       let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       bodyHtml = `
-        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2130,7 +2130,7 @@
       if (typeof stArr === 'string') {
         try { stArr = JSON.parse(stArr); } catch(e) {}
       }
-      bodyHtml = `<div style="margin-bottom:6px;">${q.stIntro || q.text || 'Consider the following statements:'}</div>`;
+      bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || 'Consider the below statements:'}</div>`;
       if (Array.isArray(stArr) && stArr.length > 0) {
         stArr.forEach((st, idx) => {
           let lbl = getFormattedLabel(idx, q.stStyle);
@@ -2142,7 +2142,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:6px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:10px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2228,7 +2228,7 @@
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
       let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       bodyHtml = `
-        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2245,7 +2245,7 @@
       if (typeof stArr === 'string') {
         try { stArr = JSON.parse(stArr); } catch(e) {}
       }
-      bodyHtml = `<div style="margin-bottom:6px;">${q.stIntro || q.text || 'Consider the following statements:'}</div>`;
+      bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || 'Consider the below statements:'}</div>`;
       if (Array.isArray(stArr) && stArr.length > 0) {
         stArr.forEach((st, idx) => {
           let lbl = getFormattedLabel(idx, q.stStyle);
@@ -2257,7 +2257,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:6px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
+      bodyHtml += `<div style="margin-top:10px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
