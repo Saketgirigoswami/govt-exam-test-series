@@ -235,8 +235,8 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; gap: 8px; margin-bottom: 1px !important; margin-top: 1px !important; line-height: 1.35; }
-    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 24px; flex-shrink: 0; }
+    .statement-preview-item { display: flex; gap: 6px; margin-bottom: 4px !important; margin-top: 4px !important; line-height: 1.45; }
+    .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 26px; flex-shrink: 0; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; }
     
     .match-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
@@ -2090,27 +2090,6 @@
     }
   }
 
-  function getStatementContent(q) {
-    let stArr = q.statements;
-    if (typeof stArr === 'string') {
-      try { stArr = JSON.parse(stArr); } catch(e) {}
-    }
-    if (Array.isArray(stArr) && stArr.length > 0) {
-      return { intro: q.stIntro || 'Consider the following statements:', list: stArr, style: q.stStyle, conclusion: q.stConclusion || 'Which of the statements given above are correct?' };
-    }
-    // Fallback parser if statements column is empty/string in DB but text has it
-    let rawText = q.text || q.assertion || '';
-    let lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    let intro = lines[0] || 'Consider the following statements:';
-    let conclusion = lines[lines.length - 1] || 'Which of the statements given above are correct?';
-    let list = lines.slice(1, lines.length - 1);
-    if(list.length === 0 && lines.length > 1) {
-      list = lines.slice(1);
-      conclusion = 'Which of the statements given above are correct?';
-    }
-    return { intro, list, style: q.stStyle, conclusion };
-  }
-
   function renderTestView() {
     const q = activeQuestions[currentQIdx];
     document.getElementById('t-counter').innerText = `Question ${currentQIdx + 1} of ${activeQuestions.length}`;
@@ -2134,7 +2113,7 @@
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
       let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       bodyHtml = `
-        <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2146,12 +2125,15 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
-      let stObj = getStatementContent(q);
-      bodyHtml = `<div style="margin-bottom:2px;">${stObj.intro}</div>`;
-      if(Array.isArray(stObj.list)) {
-        stObj.list.forEach((st, idx) => {
-          let lbl = getFormattedLabel(idx, stObj.style);
+    } else if(q.type === 'statement') {
+      let stArr = q.statements;
+      if (typeof stArr === 'string') {
+        try { stArr = JSON.parse(stArr); } catch(e) {}
+      }
+      bodyHtml = `<div style="margin-bottom:6px;">${q.stIntro || q.text || 'Consider the following statements:'}</div>`;
+      if (Array.isArray(stArr) && stArr.length > 0) {
+        stArr.forEach((st, idx) => {
+          let lbl = getFormattedLabel(idx, q.stStyle);
           bodyHtml += `
             <div class="statement-preview-item">
               <span class="st-num">${lbl}</span>
@@ -2160,7 +2142,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:2px;">${stObj.conclusion}</div>`;
+      bodyHtml += `<div style="margin-top:6px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2180,7 +2162,7 @@
     }
 
     let bodyContainer = document.getElementById('t-body');
-    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
+    if(q.type === 'statement' || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
@@ -2246,7 +2228,7 @@
       let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
       let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
       bodyHtml = `
-        <div style="margin-bottom:4px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
         <div class="ar-block">
           <div class="ar-item">
             <span class="ar-label">Assertion (A):</span>
@@ -2258,12 +2240,15 @@
           </div>
         </div>
       `;
-    } else if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement'))) {
-      let stObj = getStatementContent(q);
-      bodyHtml = `<div style="margin-bottom:2px;">${stObj.intro}</div>`;
-      if(Array.isArray(stObj.list)) {
-        stObj.list.forEach((st, idx) => {
-          let lbl = getFormattedLabel(idx, stObj.style);
+    } else if(q.type === 'statement') {
+      let stArr = q.statements;
+      if (typeof stArr === 'string') {
+        try { stArr = JSON.parse(stArr); } catch(e) {}
+      }
+      bodyHtml = `<div style="margin-bottom:6px;">${q.stIntro || q.text || 'Consider the following statements:'}</div>`;
+      if (Array.isArray(stArr) && stArr.length > 0) {
+        stArr.forEach((st, idx) => {
+          let lbl = getFormattedLabel(idx, q.stStyle);
           bodyHtml += `
             <div class="statement-preview-item">
               <span class="st-num">${lbl}</span>
@@ -2272,7 +2257,7 @@
           `;
         });
       }
-      bodyHtml += `<div style="margin-top:2px;">${stObj.conclusion}</div>`;
+      bodyHtml += `<div style="margin-top:6px;">${q.stConclusion || 'Which of the statements given above are correct?'}</div>`;
     } else if(q.type === 'match') {
       bodyHtml = q.text || 'Match List-I with List-II:';
       let rows = q.matchRows;
@@ -2292,7 +2277,7 @@
     }
 
     let bodyContainer = document.getElementById('p-body');
-    if(q.type === 'statement' || (q.text && q.text.toLowerCase().includes('statement')) || q.type === 'ar') {
+    if(q.type === 'statement' || q.type === 'ar') {
       bodyContainer.innerHTML = bodyHtml;
     } else {
       bodyContainer.innerText = bodyHtml;
