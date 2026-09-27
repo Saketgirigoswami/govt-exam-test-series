@@ -235,7 +235,7 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; line-height: 1.45; text-align: left; }
+    .statement-preview-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px !important; margin-top: 6px !important; line-height: 1.45; text-align: left; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 28px; flex-shrink: 0; text-align: left; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; text-align: left; }
     
@@ -2082,10 +2082,24 @@
     }
   }
 
-  // Exact Admin Studio Statement Parser matching Admin Studio App Final.html
+  // Exact Admin Studio Statement Parser matching Admin Studio App Final.html with tight spacing & line joining
   function parseAdminStudioStatements(textStr) {
     if(!textStr) return { intro: '', statements: [], conclusion: '' };
-    let lines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    // Normalize raw string: join broken lines if they don't start with statement number
+    let rawLines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    let lines = [];
+    for (let line of rawLines) {
+      let isStmt = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(line);
+      if (!isStmt && lines.length > 0 && !/^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(lines[lines.length - 1]) && !lines[lines.length - 1].toLowerCase().includes('which of the')) {
+        // Append to previous intro line to avoid unnecessary line breaks
+        lines[lines.length - 1] += ' ' + line;
+      } else if (!isStmt && lines.length > 0 && /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(lines[lines.length - 1])) {
+        // If a statement text broke into the next line, join it back to the statement
+        lines[lines.length - 1] += ' ' + line;
+      } else {
+        lines.push(line);
+      }
+    }
     
     let introLines = [];
     let statementLines = [];
@@ -2127,7 +2141,7 @@
     let rawText = q.text || q.assertion || '';
     let parsed = parseAdminStudioStatements(rawText);
     
-    let html = `<div style="margin-bottom:10px;">${parsed.intro}</div>`;
+    let html = `<div style="margin-bottom:8px;">${parsed.intro}</div>`;
     parsed.statements.forEach(st => {
       let match = st.match(/^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])\s*(.*)/);
       let numPart = match ? match[1] : '';
@@ -2140,7 +2154,7 @@
         </div>
       `;
     });
-    html += `<div style="margin-top:10px;">${parsed.conclusion}</div>`;
+    html += `<div style="margin-top:8px;">${parsed.conclusion}</div>`;
     return html;
   }
 
@@ -2163,7 +2177,6 @@
     const matchWrap = document.getElementById('t-match-wrap');
     matchWrap.innerHTML = '';
 
-    // STRICT check: Only apply Admin Studio statement parser if q.type === 'statement'
     let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
@@ -2265,7 +2278,6 @@
     const matchWrap = document.getElementById('p-match-wrap');
     matchWrap.innerHTML = '';
 
-    // STRICT check: Only apply Admin Studio statement parser if q.type === 'statement'
     let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
