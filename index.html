@@ -235,7 +235,7 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; line-height: 1.45; text-align: left; }
+    .statement-preview-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; line-height: 1.5; text-align: left; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 32px; flex-shrink: 0; text-align: left; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; text-align: left; }
     
@@ -941,7 +941,7 @@
           </div>
           <div id="review-questions-list"></div>
         </div>
-        <div id="no-recent-scorecard" class="card" style="text-align:center; padding:30px;">
+        <div id="no-recent-scorecard" class="card" style="text-align:center; padding:35px;">
           <p style="color:var(--muted);">No recent test attempt found in this session. Take a test to view detailed scorecard!</p>
         </div>
       </div>
@@ -2082,44 +2082,22 @@
     }
   }
 
-  // Exact Admin Studio Statement Parser matching Admin Studio App Final.html with robust line cleaning
+  // Exact Admin Studio Statement Parser matching Admin Studio App Final.html
   function parseAdminStudioStatements(textStr) {
     if(!textStr) return { intro: '', statements: [], conclusion: '' };
-    
-    // Split by newlines and clean up
     let lines = textStr.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     
-    // Re-stitch lines that belong together (preventing broken sentences)
-    let cleanLines = [];
-    for (let i = 0; i < lines.length; i++) {
-      let l = lines[i];
-      let isStmtStart = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(l);
-      let isConclusionStart = l.toLowerCase().includes('which of the') || l.toLowerCase().includes('choose the') || l.toLowerCase().includes('select the') || l.toLowerCase().includes('what is not');
-      
-      if (!isStmtStart && !isConclusionStart && cleanLines.length > 0) {
-        let last = cleanLines[cleanLines.length - 1];
-        let lastIsStmt = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(last);
-        let lastIsConclusion = last.toLowerCase().includes('which of the') || last.toLowerCase().includes('choose the') || last.toLowerCase().includes('select the');
-        
-        if (lastIsStmt || (!lastIsConclusion && cleanLines.length === 1)) {
-          cleanLines[cleanLines.length - 1] += ' ' + l;
-          continue;
-        }
-      }
-      cleanLines.push(l);
-    }
-
     let introLines = [];
     let statementLines = [];
     let conclusionLines = [];
     
     let mode = 'intro';
-    for (let line of cleanLines) {
+    for (let line of lines) {
       let isStmt = /^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])/.test(line);
       
       if (isStmt) {
         mode = 'statements';
-      } else if (line.toLowerCase().includes('which of the') || line.toLowerCase().includes('choose the') || line.toLowerCase().includes('select the') || line.toLowerCase().includes('what is not')) {
+      } else if (line.toLowerCase().includes('which of the') || line.toLowerCase().includes('choose the') || line.toLowerCase().includes('select the')) {
         mode = 'conclusion';
       }
       
@@ -2132,10 +2110,10 @@
       }
     }
     
-    if (statementLines.length === 0 && cleanLines.length > 1) {
-      introLines = [cleanLines[0]];
-      statementLines = cleanLines.slice(1, cleanLines.length - 1);
-      conclusionLines = [cleanLines[cleanLines.length - 1]];
+    if (statementLines.length === 0 && lines.length > 1) {
+      introLines = [lines[0]];
+      statementLines = lines.slice(1, lines.length - 1);
+      conclusionLines = [lines[lines.length - 1]];
     }
 
     return {
@@ -2149,6 +2127,7 @@
     let rawText = q.text || q.assertion || '';
     let parsed = parseAdminStudioStatements(rawText);
     
+    // Direct Admin Studio style rendering matching Admin Studio App Final.html
     let html = `<div style="margin-bottom:10px;">${parsed.intro}</div>`;
     parsed.statements.forEach(st => {
       let match = st.match(/^([0-9]+[\)\.]|[iIvVxX]+[\)\.]|[a-zA-Z][\)])\s*(.*)/);
@@ -2185,6 +2164,7 @@
     const matchWrap = document.getElementById('t-match-wrap');
     matchWrap.innerHTML = '';
 
+    // EXACT Admin Studio check matching Admin Studio App Final.html renderQuizCard
     let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
@@ -2882,7 +2862,7 @@
           return scoreB - scoreA;
         });
 
-        let top10 = usersData.slice(0, 10);
+        let top10 = usersData.usersData ? usersData.slice(0, 10) : usersData.slice(0, 10);
         let htmlRows = top10.map((u, idx) => `
           <tr style="${currentUser && u.username && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
             <td style="padding:10px; border:1px solid var(--border);">#${idx + 1}</td>
