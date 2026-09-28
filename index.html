@@ -607,6 +607,7 @@
           <div class="card" style="margin-bottom:0;">
             <div class="q-header-bar">
               <div class="q-header-left">
+                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Back">⬅️ Back</button>
                 <span id="t-counter" style="color: #60a5fa; font-weight: bold; font-size: 1.02rem;">Question 1</span>
                 <span class="badge badge-sub" id="t-hier-badge"></span>
               </div>
@@ -615,7 +616,6 @@
                 <span class="badge-exam-tag" id="t-exam-badge"></span>
                 <button class="btn btn-warning btn-sm" onclick="openPaletteModal()" title="Question Palette">📋 Palette</button>
                 <button class="btn btn-secondary btn-sm" id="t-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
-                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Back">⬅️ Back</button>
               </div>
             </div>
             
@@ -729,6 +729,7 @@
             </div>
             <div class="q-header-right">
               <span class="badge-exam-tag" id="p-exam-badge"></span>
+              <button class="btn btn-warning btn-sm" onclick="openPaletteModal()" title="Question Palette">📋 Palette</button>
               <button class="btn btn-secondary btn-sm" id="p-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
               <button class="btn btn-secondary btn-sm" onclick="exitPracMode()" title="Back">⬅️ Back</button>
             </div>
@@ -1796,6 +1797,15 @@
   }
 
   function navigate(tabId) {
+    if(document.getElementById('test-player').style.display === 'block' || document.getElementById('prac-player').style.display === 'block') {
+      if(!confirm('A test/quiz is currently in progress! Navigating away will discard your progress. Do you want to leave?')) {
+        return;
+      }
+      if(testTimerInterval) clearInterval(testTimerInterval);
+      document.getElementById('test-player').style.display = 'none';
+      document.getElementById('prac-player').style.display = 'none';
+    }
+
     localStorage.setItem('cg_active_tab', tabId);
     document.querySelectorAll('.tab-view').forEach(t => t.style.display = 'none');
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -2232,6 +2242,7 @@
     currentQIdx = idx; 
     renderTestView(); 
     closePaletteModal();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function moveTestQ(step, event) { 
@@ -2239,6 +2250,7 @@
     if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { 
       currentQIdx += step; 
       renderTestView(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } 
   }
 
@@ -2383,6 +2395,7 @@
     if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { 
       currentQIdx += step; 
       renderPracticeView(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } 
   }
 
@@ -2440,6 +2453,7 @@
   function jumpToRevQuestion(idx) {
     revQuizIdx = idx;
     renderRevisionQuizView();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function removeCurrentRevQuestion() {
@@ -2518,7 +2532,13 @@
     renderRevisionQuizView();
   }
 
-  function moveRevisionQuizQ(step) { if(revQuizIdx + step >= 0 && revQuizIdx + step < revQuizQuestions.length) { revQuizIdx += step; renderRevisionQuizView(); } }
+  function moveRevisionQuizQ(step) { 
+    if(revQuizIdx + step >= 0 && revQuizIdx + step < revQuizQuestions.length) { 
+      revQuizIdx += step; 
+      renderRevisionQuizView(); 
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } 
+  }
 
   function submitTestEngine() {
     if(testTimerInterval) clearInterval(testTimerInterval);
