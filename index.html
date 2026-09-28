@@ -2522,11 +2522,35 @@
           </div>
         `;
       }
+    } else if(q.type === 'ar') {
+      let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
+      let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
+      bodyHtml = `
+        <div style="margin-bottom:10px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+        <div class="ar-block">
+          <div class="ar-item">
+            <span class="ar-label">Assertion (A):</span>
+            <span class="ar-text">${assertText}</span>
+          </div>
+          <div class="ar-item">
+            <span class="ar-label">Reason (R):</span>
+            <span class="ar-text">${reasonText}</span>
+          </div>
+        </div>
+      `;
+    } else if(q.type === 'statement') {
+      bodyHtml = renderStatementQuestionHtml(q);
     } else {
       bodyHtml = q.text || q.assertion || '';
     }
 
-    document.getElementById('rq-body').innerText = bodyHtml;
+    const bodyContainer = document.getElementById('rq-body');
+    if(q.type === 'statement' || q.type === 'ar') {
+      bodyContainer.innerHTML = bodyHtml;
+    } else {
+      bodyContainer.innerText = bodyHtml;
+    }
+
     const optContainer = document.getElementById('rq-opts');
     const explBox = document.getElementById('rq-expl');
     optContainer.innerHTML = '';
@@ -2815,6 +2839,16 @@
             </div>
           `;
         }
+      } else if(q.type === 'ar') {
+        let assertText = q.assertion !== undefined && q.assertion !== "undefined" ? q.assertion : (q.Assertion || '');
+        let reasonText = q.reason !== undefined && q.reason !== "undefined" ? q.reason : (q.Reason || '');
+        qBodyHtml = `
+          <div style="margin-bottom:6px;">${q.arText || 'Direction - For the below Assertion and Reason, choose correct alternative-'}</div>
+          <div class="ar-block">
+            <div class="ar-item"><span class="ar-label">Assertion (A):</span> <span class="ar-text">${assertText}</span></div>
+            <div class="ar-item"><span class="ar-label">Reason (R):</span> <span class="ar-text">${reasonText}</span></div>
+          </div>
+        `;
       }
 
       return `
