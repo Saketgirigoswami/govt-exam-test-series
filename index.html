@@ -210,9 +210,8 @@
     .q-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .badge-exam-tag { background: rgba(131, 24, 67, 0.6); border: 1px solid rgba(244, 114, 182, 0.3); color: #fbcfe8; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; }
 
-    .test-layout-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
-    @media(min-width: 1024px) { .test-layout-grid { grid-template-columns: 1fr 340px; gap: 25px; } }
-    @media(max-width: 850px) { .test-layout-grid { grid-template-columns: 1fr; } }
+    .test-layout-grid { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
+    @media(min-width: 1024px) { .test-layout-grid { grid-template-columns: 1fr; } }
 
     .exam-palette-card { background: var(--card-inner); border: 1px solid var(--border); border-radius: 16px; padding: 16px; backdrop-filter: blur(12px); }
     .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-height: 320px; overflow-y: auto; margin-top: 10px; padding-right: 4px; }
@@ -608,14 +607,15 @@
           <div class="card" style="margin-bottom:0;">
             <div class="q-header-bar">
               <div class="q-header-left">
-                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Back">⬅️ Back</button>
                 <span id="t-counter" style="color: #60a5fa; font-weight: bold; font-size: 1.02rem;">Question 1</span>
                 <span class="badge badge-sub" id="t-hier-badge"></span>
               </div>
               <div class="q-header-right">
                 <span id="testTimerBadge" style="background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; padding: 4px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; display:none;">⏱️ 00:00</span>
                 <span class="badge-exam-tag" id="t-exam-badge"></span>
+                <button class="btn btn-warning btn-sm" onclick="openPaletteModal()" title="Question Palette">📋 Palette</button>
                 <button class="btn btn-secondary btn-sm" id="t-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Back">⬅️ Back</button>
               </div>
             </div>
             
@@ -623,16 +623,10 @@
             <div id="t-match-wrap"></div>
             <div id="t-opts"></div>
             <div style="display: flex; justify-content: space-between; margin-top: 22px; flex-wrap:wrap; gap:10px;">
-              <button class="btn btn-secondary" onclick="moveTestQ(-1)">Previous</button>
-              <button class="btn" onclick="moveTestQ(1)">Next</button>
+              <button class="btn btn-secondary" onclick="moveTestQ(-1, event)">Previous</button>
+              <button class="btn" onclick="moveTestQ(1, event)">Next</button>
               <button class="btn btn-danger" onclick="submitTestEngine()">Submit Test</button>
             </div>
-          </div>
-
-          <div class="exam-palette-card">
-            <h4 style="font-size:0.88rem; color:#93c5fd; margin-bottom:4px;">Exam Question Palette</h4>
-            <small style="color:var(--muted); font-size:0.75rem;">Click box to jump instantly</small>
-            <div class="palette-grid" id="examPaletteGrid"></div>
           </div>
         </div>
       </div>
@@ -730,13 +724,13 @@
         <div class="card">
           <div class="q-header-bar">
             <div class="q-header-left">
-              <button class="btn btn-secondary btn-sm" onclick="exitPracMode()" title="Back">⬅️ Back</button>
               <span id="p-counter" style="color: var(--success); font-weight: bold; font-size: 1.02rem;">Practice Q 1</span>
               <span class="badge badge-sub" id="p-hier-badge"></span>
             </div>
             <div class="q-header-right">
               <span class="badge-exam-tag" id="p-exam-badge"></span>
               <button class="btn btn-secondary btn-sm" id="p-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
+              <button class="btn btn-secondary btn-sm" onclick="exitPracMode()" title="Back">⬅️ Back</button>
             </div>
           </div>
           
@@ -745,8 +739,8 @@
           <div id="p-opts"></div>
           <div id="p-expl" style="display:none;" class="expl-box"></div>
           <div style="display: flex; justify-content: space-between; margin-top: 22px;">
-            <button class="btn btn-secondary" onclick="movePracQ(-1)">Previous</button>
-            <button class="btn" onclick="movePracQ(1)">Next</button>
+            <button class="btn btn-secondary" onclick="movePracQ(-1, event)">Previous</button>
+            <button class="btn" onclick="movePracQ(1, event)">Next</button>
           </div>
         </div>
       </div>
@@ -985,6 +979,18 @@
   <div class="static-bottom-box" id="footerUserBox" style="display:none;">
     <span class="static-user-info" id="footerUserBadge">User</span>
     <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- PALETTE POPUP MODAL -->
+<div class="modal-backdrop" id="palettePopupModal">
+  <div class="modal-content" style="max-width: 450px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0; color:#60a5fa;">📋 Question Palette</h3>
+      <button class="btn btn-secondary btn-sm" onclick="closePaletteModal()">✕ Close</button>
+    </div>
+    <small style="color:var(--muted);">Click box to jump instantly</small>
+    <div class="palette-grid" id="modalExamPaletteGrid" style="max-height: 280px; margin-top:10px;"></div>
   </div>
 </div>
 
@@ -2084,7 +2090,6 @@
     }
   }
 
-  // Ultra-Clean Statement Rendering with strict array cleaning to completely remove unwanted gaps
   function renderStatementQuestionHtml(q) {
     let stArr = q.statements;
     if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
@@ -2094,7 +2099,6 @@
         stArr = lines.slice(1, lines.length - 1);
       }
     }
-    // Filter out any empty/blank lines to eliminate spacing bugs
     if(Array.isArray(stArr)) {
       stArr = stArr.filter(st => st && st.trim() !== '');
     }
@@ -2136,7 +2140,6 @@
     const matchWrap = document.getElementById('t-match-wrap');
     matchWrap.innerHTML = '';
 
-    // STRICTLY check only statement type questions for the special layout, others remain completely untouched
     let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
@@ -2206,7 +2209,7 @@
   }
 
   function renderExamPalette() {
-    const grid = document.getElementById('examPaletteGrid');
+    const grid = document.getElementById('modalExamPaletteGrid');
     if(!grid) return;
     grid.innerHTML = activeQuestions.map((_, i) => {
       let cls = 'palette-box';
@@ -2216,7 +2219,21 @@
     }).join('');
   }
 
-  function jumpToQuestion(idx) { currentQIdx = idx; renderTestView(); }
+  function openPaletteModal() {
+    renderExamPalette();
+    document.getElementById('palettePopupModal').style.display = 'block';
+  }
+
+  function closePaletteModal() {
+    document.getElementById('palettePopupModal').style.display = 'none';
+  }
+
+  function jumpToQuestion(idx) { 
+    currentQIdx = idx; 
+    renderTestView(); 
+    closePaletteModal();
+  }
+
   function moveTestQ(step, event) { 
     if(event) event.preventDefault();
     if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { 
@@ -2259,7 +2276,6 @@
     const matchWrap = document.getElementById('p-match-wrap');
     matchWrap.innerHTML = '';
 
-    // STRICTLY check only statement type questions for practice mode as well
     let isStmtType = (q.type === 'statement');
 
     if(q.type === 'ar') {
