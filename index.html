@@ -238,9 +238,10 @@
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 32px; flex-shrink: 0; text-align: left; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; text-align: left; }
     
-    .match-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
+    .match-table-wrapper { width: 100%; overflow-x: auto; margin: 8px 0; }
+    .match-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; background: var(--card-inner); border-radius: 12px; overflow: hidden; }
     .match-table th, .match-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
-    .match-table th { background: rgba(17, 26, 46, 0.9); color: #93c5fd; font-weight: 600; }
+    .match-table th { background: rgba(17, 26, 46, 0.9); color: #93c5fd; font-weight: 600; text-align: center; }
     
     .expl-box { background: rgba(37, 99, 235, 0.15); border-left: 4px solid var(--primary); padding: 14px; margin-top: 10px; border-radius: 10px; font-size: 0.95rem; line-height: 1.55; backdrop-filter: blur(10px); white-space: pre-wrap; }
     
@@ -2177,17 +2178,19 @@
     } else if(isStmtType) {
       bodyHtml = renderStatementQuestionHtml(q);
     } else if(q.type === 'match') {
-      bodyHtml = q.text || 'Match List-I with List-II:';
+      bodyHtml = 'Match the following:';
       let rows = q.matchRows;
       if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
       if(rows) {
         matchWrap.innerHTML = `
-          <table class="match-table">
-            <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
-            <tbody>
-              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
-            </tbody>
-          </table>
+          <div class="match-table-wrapper">
+            <table class="match-table">
+              <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
         `;
       }
     } else {
@@ -2315,17 +2318,19 @@
     } else if(isStmtType) {
       bodyHtml = renderStatementQuestionHtml(q);
     } else if(q.type === 'match') {
-      bodyHtml = q.text || 'Match List-I with List-II:';
+      bodyHtml = 'Match the following:';
       let rows = q.matchRows;
       if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
       if(rows) {
         matchWrap.innerHTML = `
-          <table class="match-table">
-            <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
-            <tbody>
-              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
-            </tbody>
-          </table>
+          <div class="match-table-wrapper">
+            <table class="match-table">
+              <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
         `;
       }
     } else {
@@ -2497,7 +2502,31 @@
     document.getElementById('rq-counter').innerText = `Revision Q ${revQuizIdx + 1} of ${revQuizQuestions.length}`;
     document.getElementById('rq-hier-badge').innerText = `${q.subject} > ${q.topic}`;
 
-    document.getElementById('rq-body').innerText = q.text || q.assertion || '';
+    let bodyHtml = '';
+    const matchWrap = document.getElementById('rq-match-wrap');
+    if(matchWrap) matchWrap.innerHTML = '';
+
+    if(q.type === 'match') {
+      bodyHtml = 'Match the following:';
+      let rows = q.matchRows;
+      if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
+      if(rows && matchWrap) {
+        matchWrap.innerHTML = `
+          <div class="match-table-wrapper">
+            <table class="match-table">
+              <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
+              <tbody>
+                ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+    } else {
+      bodyHtml = q.text || q.assertion || '';
+    }
+
+    document.getElementById('rq-body').innerText = bodyHtml;
     const optContainer = document.getElementById('rq-opts');
     const explBox = document.getElementById('rq-expl');
     optContainer.innerHTML = '';
@@ -2768,6 +2797,26 @@
       const q = item.q;
       let opts = q.options;
       if(typeof opts === 'string') { try { opts = JSON.parse(opts); } catch(e){} }
+      
+      let qBodyHtml = q.text || q.assertion || '';
+      if(q.type === 'match') {
+        let rows = q.matchRows;
+        if(typeof rows === 'string') { try { rows = JSON.parse(rows); } catch(e){} }
+        if(rows) {
+          qBodyHtml = `
+            Match the following:
+            <div class="match-table-wrapper">
+              <table class="match-table">
+                <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
+                <tbody>
+                  ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+      }
+
       return `
         <div style="background:var(--card-inner); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
@@ -2776,7 +2825,7 @@
               Your Answer: ${item.userAns || 'Not Attempted'} | Correct: ${q.ans}
             </span>
           </div>
-          <p style="margin-bottom:8px; font-size:0.95rem;">${q.text || q.assertion || ''}</p>
+          <div style="margin-bottom:8px; font-size:0.95rem;">${qBodyHtml}</div>
           <div style="font-size:0.85rem; color:var(--muted); background:rgba(7,10,18,0.7); padding:10px; border-radius:8px;">
             <strong>Explanation:</strong> ${q.expl || ''}
           </div>
