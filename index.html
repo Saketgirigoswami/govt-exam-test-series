@@ -607,7 +607,6 @@
           <div class="card" style="margin-bottom:0;">
             <div class="q-header-bar">
               <div class="q-header-left">
-                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Back">⬅️ Back</button>
                 <span id="t-counter" style="color: #60a5fa; font-weight: bold; font-size: 1.02rem;">Question 1</span>
                 <span class="badge badge-sub" id="t-hier-badge"></span>
               </div>
@@ -616,6 +615,7 @@
                 <span class="badge-exam-tag" id="t-exam-badge"></span>
                 <button class="btn btn-warning btn-sm" onclick="openPaletteModal()" title="Question Palette">📋 Palette</button>
                 <button class="btn btn-secondary btn-sm" id="t-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Exit">Exit</button>
               </div>
             </div>
             
@@ -731,7 +731,7 @@
               <span class="badge-exam-tag" id="p-exam-badge"></span>
               <button class="btn btn-warning btn-sm" onclick="openPaletteModal()" title="Question Palette">📋 Palette</button>
               <button class="btn btn-secondary btn-sm" id="p-star-btn" onclick="toggleBookmarkCurrentQ()" title="Save / Bookmark">⭐ Save</button>
-              <button class="btn btn-secondary btn-sm" onclick="exitPracMode()" title="Back">⬅️ Back</button>
+              <button class="btn btn-secondary btn-sm" onclick="exitPracMode()" title="Exit">Exit</button>
             </div>
           </div>
           
@@ -872,7 +872,7 @@
           <div class="q-header-right">
             <button class="btn btn-danger btn-sm" onclick="removeCurrentRevQuestion()" title="Remove from this list">🗑️ Remove</button>
             <button class="btn btn-warning btn-sm" onclick="toggleRevPaletteDrawer()" title="Question Palette">📋 Palette</button>
-            <button class="btn btn-secondary btn-sm" onclick="exitRevisionQuizPlayer()">✕ Exit</button>
+            <button class="btn btn-secondary btn-sm" onclick="exitRevisionQuizPlayer()" title="Exit">Exit</button>
           </div>
         </div>
 
@@ -2131,6 +2131,12 @@
     return bodyHtml;
   }
 
+  function cleanMatchSeq(val) {
+    if(!val) return '';
+    let s = val.toString().trim();
+    return s.replace(/^[{(]+|[})]+$/g, '').trim();
+  }
+
   function renderTestView() {
     const q = activeQuestions[currentQIdx];
     document.getElementById('t-counter').innerText = `Question ${currentQIdx + 1} of ${activeQuestions.length}`;
@@ -2179,7 +2185,7 @@
           <table class="match-table">
             <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
             <tbody>
-              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
+              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
             </tbody>
           </table>
         `;
@@ -2317,7 +2323,7 @@
           <table class="match-table">
             <thead><tr><th>#</th><th>${q.matchHead1 || 'List I'}</th><th>Seq</th><th>${q.matchHead2 || 'List II'}</th></tr></thead>
             <tbody>
-              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${r.c3})</strong></td><td>${r.c4}</td></tr>`).join('')}
+              ${rows.map(r => `<tr><td><strong>${r.c1}</strong></td><td>${r.c2}</td><td><strong>(${cleanMatchSeq(r.c3)})</strong></td><td>${r.c4}</td></tr>`).join('')}
             </tbody>
           </table>
         `;
