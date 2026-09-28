@@ -530,7 +530,7 @@
             </div>
             <div>
               <label>2. Class</label>
-              <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub')"></select>
+              <select id="ncertTestClass" onchange="cascadeNcertSubjects('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap')"></select>
             </div>
             <div>
               <label>3. Subject</label>
@@ -566,30 +566,36 @@
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
             <div>
               <label>1. Exam Name</label>
-              <select id="examTestName" onchange="cascadeExamYears('examTestName', 'examTestYear', 'examTestSub', 'examTestSubtop')">
+              <select id="examTestName" onchange="cascadeExamYears('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop')">
                 <option value="ALL">All Exams</option>
               </select>
             </div>
             <div>
               <label>2. Year</label>
-              <select id="examTestYear" onchange="cascadeExamSubjects('examTestName', 'examTestYear', 'examTestSub', 'examTestSubtop')">
+              <select id="examTestYear" onchange="cascadeExamSubjects('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop')">
                 <option value="ALL">All Years</option>
               </select>
             </div>
             <div>
               <label>3. Subjects</label>
-              <select id="examTestSub" onchange="cascadeExamSubtopics('examTestName', 'examTestYear', 'examTestSub', 'examTestSubtop')">
+              <select id="examTestSub" onchange="cascadeExamTopicsForPortal('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop')">
                 <option value="ALL">All Subjects</option>
               </select>
             </div>
             <div>
-              <label>4. Sub-Topic</label>
+              <label>4. Topic / Chapter</label>
+              <select id="examTestTop" onchange="cascadeExamSubtopicsForPortal('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop')">
+                <option value="ALL">All Topics</option>
+              </select>
+            </div>
+            <div>
+              <label>5. Sub-Topic</label>
               <select id="examTestSubtop">
                 <option value="ALL">All Sub-Topics</option>
               </select>
             </div>
             <div>
-              <label>5. Test Duration (Timer)</label>
+              <label>6. Test Duration (Timer)</label>
               <select id="testDurationExam" onchange="checkCustomTimerSelect('testDurationExam', 'customExamTimeWrap')">
                 <option value="0">No Time Limit (Practice Mode)</option>
                 <option value="10">10 Minutes (0.17 Hour)</option>
@@ -684,7 +690,7 @@
             </div>
             <div>
               <label>2. Class</label>
-              <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub')"></select>
+              <select id="ncertPracClass" onchange="cascadeNcertSubjects('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap')"></select>
             </div>
             <div>
               <label>3. Subject</label>
@@ -705,24 +711,30 @@
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
             <div>
               <label>1. Exam Name</label>
-              <select id="examPracName" onchange="cascadeExamYears('examPracName', 'examPracYear', 'examPracSub', 'examPracSubtop')">
+              <select id="examPracName" onchange="cascadeExamYears('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop')">
                 <option value="ALL">All Exams</option>
               </select>
             </div>
             <div>
               <label>2. Year</label>
-              <select id="examPracYear" onchange="cascadeExamSubjects('examPracName', 'examPracYear', 'examPracSub', 'examPracSubtop')">
+              <select id="examPracYear" onchange="cascadeExamSubjects('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop')">
                 <option value="ALL">All Years</option>
               </select>
             </div>
             <div>
               <label>3. Subjects</label>
-              <select id="examPracSub" onchange="cascadeExamSubtopics('examPracName', 'examPracYear', 'examPracSub', 'examPracSubtop')">
+              <select id="examPracSub" onchange="cascadeExamTopicsForPortal('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop')">
                 <option value="ALL">All Subjects</option>
               </select>
             </div>
             <div>
-              <label>4. Sub-Topic</label>
+              <label>4. Topic / Chapter</label>
+              <select id="examPracTop" onchange="cascadeExamSubtopicsForPortal('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop')">
+                <option value="ALL">All Topics</option>
+              </select>
+            </div>
+            <div>
+              <label>5. Sub-Topic</label>
               <select id="examPracSubtop">
                 <option value="ALL">All Sub-Topics</option>
               </select>
@@ -1189,8 +1201,8 @@
     initNcertClassesDropdowns();
     initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
     initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
-    initExamCascades('examTestName', 'examTestYear', 'examTestSub', 'examTestSubtop');
-    initExamCascades('examPracName', 'examPracYear', 'examPracSub', 'examPracSubtop');
+    initExamCascades('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop');
+    initExamCascades('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop');
     setProgress(100);
 
     setInterval(async () => {
@@ -1289,10 +1301,10 @@
         return `<option value="${c}">${c} (${count} Qs)</option>`;
       }).join('');
     }
-    cascadeNcertSubjects(bookId, classId, subId);
+    cascadeNcertSubjects(bookId, classId, subId, chapId);
   }
 
-  function cascadeNcertSubjects(bookId, classId, subId) {
+  function cascadeNcertSubjects(bookId, classId, subId, chapId) {
     const bookVal = document.getElementById(bookId).value;
     const classVal = document.getElementById(classId).value;
     const subEl = document.getElementById(subId);
@@ -1326,8 +1338,7 @@
       }).join('');
     }
     
-    let correspondingChapId = bookId === 'ncertTestBook' ? 'ncertTestChap' : 'ncertPracChap';
-    cascadeNcertChapters(bookId, classId, subId, correspondingChapId);
+    cascadeNcertChapters(bookId, classId, subId, chapId);
   }
 
   function cascadeNcertChapters(bookId, classId, subId, chapId) {
@@ -1335,17 +1346,22 @@
     const classVal = document.getElementById(classId).value;
     const subVal = document.getElementById(subId).value;
     const chapEl = document.getElementById(chapId);
+    if(!chapEl) return;
+
+    if(!subVal || subVal === 'ALL') {
+      chapEl.innerHTML = '<option value="ALL">All Chapters</option>';
+      return;
+    }
 
     let matchedPool = questions.filter(q => {
       let isNcertTag = q.ncert_tag === "true" || q.ncert_tag === true;
       if(!isNcertTag) return false;
       if(q.ncert_book !== bookVal) return false;
       if(q.ncert_class !== classVal) return false;
-      if(subVal && subVal !== 'ALL') {
-        let chParts = (q.ncert_chapter || '').split('-');
-        let subPart = chParts[0] ? chParts[0].trim() : '';
-        if(subPart !== subVal) return false;
-      }
+      
+      let chParts = (q.ncert_chapter || '').split('-');
+      let subPart = chParts[0] ? chParts[0].trim() : '';
+      if(subPart !== subVal) return false;
       return true;
     });
 
@@ -1357,16 +1373,14 @@
     });
 
     let chaps = Array.from(chaptersSet);
-    if(chapEl) {
-      chapEl.innerHTML = '<option value="ALL">All Chapters</option>' + chaps.map(c => {
-        let count = matchedPool.filter(q => {
-          let chParts = (q.ncert_chapter || '').split('-');
-          let chapName = chParts[1] ? chParts[1].trim() : (q.ncert_chapter || '');
-          return chapName === c;
-        }).length;
-        return `<option value="${c}">${c} (${count} Qs)</option>`;
-      }).join('');
-    }
+    chapEl.innerHTML = '<option value="ALL">All Chapters</option>' + chaps.map(c => {
+      let count = matchedPool.filter(q => {
+        let chParts = (q.ncert_chapter || '').split('-');
+        let chapName = chParts[1] ? chParts[1].trim() : (q.ncert_chapter || '');
+        return chapName === c;
+      }).length;
+      return `<option value="${c}">${c} (${count} Qs)</option>`;
+    }).join('');
   }
 
   function startNcertEngine(mode) {
@@ -1424,7 +1438,7 @@
     }
   }
 
-  function initExamCascades(nameId, yearId, subId, subtopId) {
+  function initExamCascades(nameId, yearId, subId, topId, subtopId) {
     let examsSet = new Set();
     questions.forEach(q => {
       if(q.exam && q.exam.trim()) {
@@ -1440,10 +1454,10 @@
         return `<option value="${e}">${e} (${count} Qs)</option>`;
       }).join('');
     }
-    cascadeExamYears(nameId, yearId, subId, subtopId);
+    cascadeExamYears(nameId, yearId, subId, topId, subtopId);
   }
 
-  function cascadeExamYears(nameId, yearId, subId, subtopId) {
+  function cascadeExamYears(nameId, yearId, subId, topId, subtopId) {
     const examVal = document.getElementById(nameId).value;
     let yearsSet = new Set();
     questions.forEach(q => {
@@ -1469,10 +1483,10 @@
         return `<option value="${y}">${y} (${count} Qs)</option>`;
       }).join('');
     }
-    cascadeExamSubjects(nameId, yearId, subId, subtopId);
+    cascadeExamSubjects(nameId, yearId, subId, topId, subtopId);
   }
 
-  function cascadeExamSubjects(nameId, yearId, subId, subtopId) {
+  function cascadeExamSubjects(nameId, yearId, subId, topId, subtopId) {
     const examVal = document.getElementById(nameId).value;
     const yearVal = document.getElementById(yearId).value;
     let subsSet = new Set();
@@ -1503,24 +1517,66 @@
         return `<option value="${s}">${s} (${count} Qs)</option>`;
       }).join('');
     }
-    cascadeExamSubtopics(nameId, yearId, subId, subtopId);
+    cascadeExamTopicsForPortal(nameId, yearId, subId, topId, subtopId);
   }
 
-  function cascadeExamSubtopics(nameId, yearId, subId, subtopId) {
+  function cascadeExamTopicsForPortal(nameId, yearId, subId, topId, subtopId) {
     const examVal = document.getElementById(nameId).value;
     const yearVal = document.getElementById(yearId).value;
     const subVal = document.getElementById(subId).value;
+    const topEl = document.getElementById(topId);
+    if(!topEl) return;
+
+    if(!subVal || subVal === 'ALL') {
+      topEl.innerHTML = '<option value="ALL">All Topics</option>';
+      cascadeExamSubtopicsForPortal(nameId, yearId, subId, topId, subtopId);
+      return;
+    }
+
+    let topicsSet = new Set();
+    questions.forEach(q => {
+      if(!q.exam || !q.exam.trim() || q.subject !== subVal) return;
+      let cleanEx = extractCleanExamName(q.exam);
+      let yr = extractExamYear(q.exam);
+
+      if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return;
+      if(yearVal !== 'ALL' && yr !== yearVal && !q.exam.includes(yearVal)) return;
+
+      if(q.topic) topicsSet.add(q.topic);
+    });
+
+    let topics = Array.from(topicsSet).sort();
+    topEl.innerHTML = '<option value="ALL">All Topics</option>' + topics.map(t => {
+      let count = questions.filter(q => {
+        if(!q.exam || q.subject !== subVal || q.topic !== t) return false;
+        let cleanEx = extractCleanExamName(q.exam);
+        let yr = extractExamYear(q.exam);
+        if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return false;
+        if(yearVal !== 'ALL' && yr !== yearVal && !q.exam.includes(yearVal)) return false;
+        return true;
+      }).length;
+      return `<option value="${t}">${t} (${count} Qs)</option>`;
+    }).join('');
+
+    cascadeExamSubtopicsForPortal(nameId, yearId, subId, topId, subtopId);
+  }
+
+  function cascadeExamSubtopicsForPortal(nameId, yearId, subId, topId, subtopId) {
+    const examVal = document.getElementById(nameId).value;
+    const yearVal = document.getElementById(yearId).value;
+    const subVal = document.getElementById(subId).value;
+    const topVal = document.getElementById(topId).value;
     const subtopEl = document.getElementById(subtopId);
     if(!subtopEl) return;
 
-    if(!subVal || subVal === 'ALL') {
+    if(!topVal || topVal === 'ALL') {
       subtopEl.innerHTML = '<option value="ALL">All Sub-Topics</option>';
       return;
     }
 
     let subtopicsSet = new Set();
     questions.forEach(q => {
-      if(!q.exam || !q.exam.trim() || q.subject !== subVal) return;
+      if(!q.exam || !q.exam.trim() || q.subject !== subVal || q.topic !== topVal) return;
       let cleanEx = extractCleanExamName(q.exam);
       let yr = extractExamYear(q.exam);
 
@@ -1533,7 +1589,7 @@
     let subtopics = Array.from(subtopicsSet).sort();
     subtopEl.innerHTML = '<option value="ALL">All Sub-Topics</option>' + subtopics.map(st => {
       let count = questions.filter(q => {
-        if(!q.exam || q.subject !== subVal || q.subtopic !== st) return false;
+        if(!q.exam || q.subject !== subVal || q.topic !== topVal || q.subtopic !== st) return false;
         let cleanEx = extractCleanExamName(q.exam);
         let yr = extractExamYear(q.exam);
         if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return false;
@@ -1549,6 +1605,7 @@
     const examVal = document.getElementById(`${prefix}Name`).value;
     const yearVal = document.getElementById(`${prefix}Year`).value;
     const subVal = document.getElementById(`${prefix}Sub`).value;
+    const topVal = document.getElementById(`${prefix}Top`).value;
     const subtopVal = document.getElementById(`${prefix}Subtop`).value;
 
     let pool = questions.filter(q => {
@@ -1559,6 +1616,7 @@
       if(examVal !== 'ALL' && !cleanEx.toLowerCase().includes(examVal.toLowerCase())) return false;
       if(yearVal !== 'ALL' && yr !== yearVal && !q.exam.includes(yearVal)) return false;
       if(subVal !== 'ALL' && q.subject !== subVal) return false;
+      if(topVal && topVal !== 'ALL' && q.topic !== topVal) return false;
       if(subtopVal && subtopVal !== 'ALL' && q.subtopic !== subtopVal) return false;
 
       return true;
@@ -1654,8 +1712,8 @@
       buildFltSubjectInputs();
       initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
-      initExamCascades('examTestName', 'examTestYear', 'examTestSub', 'examTestSubtop');
-      initExamCascades('examPracName', 'examPracYear', 'examPracSub', 'examPracSubtop');
+      initExamCascades('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop');
+      initExamCascades('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop');
       populateAllSubjectDropdowns();
     } catch(err) {
       console.error("Error fetching questions:", err);
@@ -1889,13 +1947,13 @@
       document.getElementById('testConfigWrapper').style.display = 'block';
       document.getElementById('test-player').style.display = 'none';
       initNcertCascades('ncertTestBook', 'ncertTestClass', 'ncertTestSub', 'ncertTestChap');
-      initExamCascades('examTestName', 'examTestYear', 'examTestSub', 'examTestSubtop');
+      initExamCascades('examTestName', 'examTestYear', 'examTestSub', 'examTestTop', 'examTestSubtop');
     }
     if(tabId === 'tab-practice') {
       document.getElementById('pracConfigWrapper').style.display = 'block';
       document.getElementById('prac-player').style.display = 'none';
       initNcertCascades('ncertPracBook', 'ncertPracClass', 'ncertPracSub', 'ncertPracChap');
-      initExamCascades('examPracName', 'examPracYear', 'examPracSub', 'examPracSubtop');
+      initExamCascades('examPracName', 'examPracYear', 'examPracSub', 'examPracTop', 'examPracSubtop');
     }
     if(tabId === 'tab-flt') buildFltSubjectInputs();
     if(tabId === 'tab-revision') {
