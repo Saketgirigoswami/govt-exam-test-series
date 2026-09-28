@@ -243,7 +243,7 @@
     .match-table th, .match-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
     .match-table th { background: rgba(17, 26, 46, 0.9); color: #93c5fd; font-weight: 600; }
     
-    .expl-box { background: rgba(37, 99, 235, 0.15); border-left: 4px solid var(--primary); padding: 14px; margin-top: 10px; border-radius: 10px; font-size: 0.95rem; line-height: 1.55; backdrop-filter: blur(10px); }
+    .expl-box { background: rgba(37, 99, 235, 0.15); border-left: 4px solid var(--primary); padding: 14px; margin-top: 10px; border-radius: 10px; font-size: 0.95rem; line-height: 1.55; backdrop-filter: blur(10px); white-space: pre-wrap; }
     
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 15px 0; }
     .stat-card { background: rgba(15, 23, 42, 0.75); padding: 16px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.2); text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
@@ -608,6 +608,7 @@
           <div class="card" style="margin-bottom:0;">
             <div class="q-header-bar">
               <div class="q-header-left">
+                <button class="btn btn-secondary btn-sm" onclick="exitTestModeConfirm()" title="Back">⬅️ Back</button>
                 <span id="t-counter" style="color: #60a5fa; font-weight: bold; font-size: 1.02rem;">Question 1</span>
                 <span class="badge badge-sub" id="t-hier-badge"></span>
               </div>
@@ -729,6 +730,7 @@
         <div class="card">
           <div class="q-header-bar">
             <div class="q-header-left">
+              <button class="btn btn-secondary btn-sm" onclick="exitPracMode()" title="Back">⬅️ Back</button>
               <span id="p-counter" style="color: var(--success); font-weight: bold; font-size: 1.02rem;">Practice Q 1</span>
               <span class="badge badge-sub" id="p-hier-badge"></span>
             </div>
@@ -2215,7 +2217,28 @@
   }
 
   function jumpToQuestion(idx) { currentQIdx = idx; renderTestView(); }
-  function moveTestQ(step) { if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { currentQIdx += step; renderTestView(); } }
+  function moveTestQ(step, event) { 
+    if(event) event.preventDefault();
+    if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { 
+      currentQIdx += step; 
+      renderTestView(); 
+    } 
+  }
+
+  function exitTestModeConfirm() {
+    if(confirm('Do you want to submit the test?')) {
+      submitTestEngine();
+    } else {
+      document.getElementById('test-player').style.display = 'none';
+      document.getElementById('testConfigWrapper').style.display = 'block';
+      if(testTimerInterval) clearInterval(testTimerInterval);
+    }
+  }
+
+  function exitPracMode() {
+    document.getElementById('prac-player').style.display = 'none';
+    document.getElementById('pracConfigWrapper').style.display = 'block';
+  }
 
   function renderPracticeView() {
     const q = activeQuestions[currentQIdx];
@@ -2312,7 +2335,7 @@
 
     if(chosen) {
       explBox.style.display = 'block';
-      explBox.innerHTML = `<strong>Explanation:</strong> ${q.expl || 'Verified correct.'}`;
+      explBox.innerHTML = `<strong>Explanation:</strong>\n${q.expl || 'Verified correct.'}`;
     }
   }
 
@@ -2339,7 +2362,13 @@
     }
   }
 
-  function movePracQ(step) { if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { currentQIdx += step; renderPracticeView(); } }
+  function movePracQ(step, event) { 
+    if(event) event.preventDefault();
+    if(currentQIdx + step >= 0 && currentQIdx + step < activeQuestions.length) { 
+      currentQIdx += step; 
+      renderPracticeView(); 
+    } 
+  }
 
   let activeRevisionCategory = 'wrong';
 
@@ -2462,7 +2491,7 @@
     });
     if(chosen) {
       explBox.style.display = 'block';
-      explBox.innerHTML = `<strong>Explanation:</strong> ${q.expl || ''}`;
+      explBox.innerHTML = `<strong>Explanation:</strong>\n${q.expl || ''}`;
     }
     renderRevPaletteGrid();
   }
