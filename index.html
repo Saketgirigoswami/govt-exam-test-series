@@ -203,7 +203,7 @@
     .btn-purple { background: var(--purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.25); }
     .btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; }
     
-    .formatted-text { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; font-size: 1.02rem; color: #f1f5f9; margin-bottom: 6px !important; }
+    .formatted-text { white-space: normal; word-wrap: break-word; line-height: 1.6; font-size: 1.02rem; color: #f1f5f9; margin-bottom: 6px !important; }
     
     .q-header-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
     .q-header-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -235,7 +235,7 @@
     .ar-label { font-weight: 700; color: #38bdf8; min-width: 105px; flex-shrink: 0; }
     .ar-text { flex: 1; word-break: break-word; }
 
-    .statement-preview-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; line-height: 1.5; text-align: left; }
+    .statement-preview-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; line-height: 1.5; text-align: left; }
     .statement-preview-item .st-num { font-weight: 700; color: #38bdf8; min-width: 32px; flex-shrink: 0; text-align: left; }
     .statement-preview-item .st-text { flex: 1; word-break: break-word; text-align: left; }
     
@@ -2082,7 +2082,7 @@
     }
   }
 
-  // Updated Statement Rendering function matching Admin Studio logic to support custom labels like (J), (K)
+  // Ultra-Clean Statement Rendering with strict array cleaning to completely remove unwanted gaps
   function renderStatementQuestionHtml(q) {
     let stArr = q.statements;
     if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
@@ -2092,6 +2092,11 @@
         stArr = lines.slice(1, lines.length - 1);
       }
     }
+    // Filter out any empty/blank lines to eliminate spacing bugs
+    if(Array.isArray(stArr)) {
+      stArr = stArr.filter(st => st && st.trim() !== '');
+    }
+
     let bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || (q.text ? q.text.split('\n')[0] : 'Consider the following statements:')}</div>`;
     if(Array.isArray(stArr)) {
       stArr.forEach((st, idx) => {
@@ -2099,7 +2104,7 @@
         let label = matchLabel ? matchLabel[1] : `${idx+1})`;
         let cleanSt = matchLabel ? matchLabel[2] : st;
         bodyHtml += `
-          <div class="statement-preview-item" style="display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; line-height:1.5; text-align:left;">
+          <div class="statement-preview-item" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:8px; line-height:1.5; text-align:left;">
             <span class="st-num" style="font-weight:700; color:#38bdf8; min-width:32px; flex-shrink:0; text-align:left;">${label}</span>
             <span class="st-text" style="flex:1; word-break:break-word; text-align:left;">${cleanSt}</span>
           </div>
@@ -2828,8 +2833,6 @@
           return scoreB - scoreA;
         });
 
-        let top10 = usersData.usersData.slice(0, 10); // Wait, fix property if any, but usersData is array
-        // Let's ensure safe array assignment from usersData directly:
         let topTen = usersData.slice(0, 10);
         let htmlRows = topTen.map((u, idx) => `
           <tr style="${currentUser && u.username && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
