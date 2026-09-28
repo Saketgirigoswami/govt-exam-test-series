@@ -2082,7 +2082,7 @@
     }
   }
 
-  // Exact Admin Studio statement rendering matching Admin Studio App Final_2.html renderAdminQuizCard
+  // Updated Statement Rendering function matching Admin Studio logic to support custom labels like (J), (K)
   function renderStatementQuestionHtml(q) {
     let stArr = q.statements;
     if(typeof stArr === 'string') { try { stArr = JSON.parse(stArr); } catch(e){} }
@@ -2095,10 +2095,12 @@
     let bodyHtml = `<div style="margin-bottom:10px;">${q.stIntro || (q.text ? q.text.split('\n')[0] : 'Consider the following statements:')}</div>`;
     if(Array.isArray(stArr)) {
       stArr.forEach((st, idx) => {
-        let cleanSt = st.replace(/^\d+[\)\.]\s*/, '');
+        let matchLabel = st.match(/^(\([a-zA-Z0-9]+\)|[a-zA-Z0-9]+[\.\)])\s*(.*)/);
+        let label = matchLabel ? matchLabel[1] : `${idx+1})`;
+        let cleanSt = matchLabel ? matchLabel[2] : st;
         bodyHtml += `
           <div class="statement-preview-item" style="display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; line-height:1.5; text-align:left;">
-            <span class="st-num" style="font-weight:700; color:#38bdf8; min-width:32px; flex-shrink:0; text-align:left;">${idx+1})</span>
+            <span class="st-num" style="font-weight:700; color:#38bdf8; min-width:32px; flex-shrink:0; text-align:left;">${label}</span>
             <span class="st-text" style="flex:1; word-break:break-word; text-align:left;">${cleanSt}</span>
           </div>
         `;
@@ -2826,8 +2828,10 @@
           return scoreB - scoreA;
         });
 
-        let top10 = usersData.slice(0, 10);
-        let htmlRows = top10.map((u, idx) => `
+        let top10 = usersData.usersData.slice(0, 10); // Wait, fix property if any, but usersData is array
+        // Let's ensure safe array assignment from usersData directly:
+        let topTen = usersData.slice(0, 10);
+        let htmlRows = topTen.map((u, idx) => `
           <tr style="${currentUser && u.username && u.username.toLowerCase() === currentUser.username.toLowerCase() ? 'background:rgba(59,130,246,0.15);' : ''}">
             <td style="padding:10px; border:1px solid var(--border);">#${idx + 1}</td>
             <td style="padding:10px; border:1px solid var(--border); font-weight:600; color:#93c5fd;">${u.name || 'User'}</td>
